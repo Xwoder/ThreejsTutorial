@@ -2,19 +2,8 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
-
-interface ParamSlider {
-  key: string;
-  label: string;
-  min: number;
-  max: number;
-  step: number;
-  value: number;
-  /** 参数说明，显示在滑块下方 */
-  desc?: string;
-  /** 数值显示小数位数（默认 2） */
-  precision?: number;
-}
+import { createParamPanel } from '../paramPanel';
+import type { ParamSlider } from '../paramPanel';
 
 interface GeometryLessonOptions {
   id: string;
@@ -26,76 +15,6 @@ interface GeometryLessonOptions {
   cameraPos?: [number, number, number];
   /** 旋转速度倍率 */
   spin?: number;
-}
-
-/** 在画布右上角构建参数调节面板，样式与相机控制面板一致，onChange 返回最新参数 */
-function buildParamPanel(
-  container: HTMLElement,
-  controls: ParamSlider[],
-  defaults: Record<string, number>,
-  onChange: (key: string, value: number) => void,
-): HTMLElement {
-  const panel = document.createElement('div');
-  panel.className = 'camera-controls';
-  panel.innerHTML = `<div class="camera-controls-title">参数 <span>CONTROLS</span></div>`;
-
-  const rows = new Map<string, { input: HTMLInputElement; value: HTMLElement }>();
-
-  controls.forEach((c) => {
-    const row = document.createElement('div');
-    row.className = 'camera-control-row';
-    row.dataset.key = c.key;
-
-    const header = document.createElement('div');
-    header.className = 'camera-control-header';
-    const label = document.createElement('span');
-    label.textContent = c.label;
-    const valueEl = document.createElement('span');
-    valueEl.className = 'camera-control-value';
-    valueEl.textContent = Number(c.value).toFixed(c.precision ?? 2);
-    header.append(label, valueEl);
-
-    const input = document.createElement('input');
-    input.type = 'range';
-    input.min = String(c.min);
-    input.max = String(c.max);
-    input.step = String(c.step);
-    input.value = String(c.value);
-    input.addEventListener('input', () => {
-      const v = Number(input.value);
-      valueEl.textContent = v.toFixed(c.precision ?? 2);
-      onChange(c.key, v);
-    });
-
-    row.append(header, input);
-
-    if (c.desc) {
-      const desc = document.createElement('div');
-      desc.className = 'camera-control-desc';
-      desc.textContent = c.desc;
-      row.appendChild(desc);
-    }
-
-    panel.appendChild(row);
-    rows.set(c.key, { input, value: valueEl });
-  });
-
-  const resetBtn = document.createElement('button');
-  resetBtn.className = 'camera-control-reset';
-  resetBtn.textContent = '重置参数';
-  resetBtn.addEventListener('click', () => {
-    controls.forEach((c) => {
-      const def = defaults[c.key];
-      const row = rows.get(c.key)!;
-      row.input.value = String(def);
-      row.value.textContent = Number(def).toFixed(c.precision ?? 2);
-      onChange(c.key, def);
-    });
-  });
-  panel.appendChild(resetBtn);
-
-  container.appendChild(panel);
-  return panel;
 }
 
 /** 用 MeshNormalMaterial 单独展示一种几何体，可环绕查看 */
@@ -135,14 +54,19 @@ function makeGeometryLesson(opts: GeometryLessonOptions): Lesson {
       const orbit = new OrbitControls(camera, ctx.renderer.domElement);
       orbit.enableDamping = true;
 
-      let panel: HTMLElement | null = null;
+      let panel: ReturnType<typeof createParamPanel> | null = null;
       if (controls.length) {
-        panel = buildParamPanel(container, controls, initialParams, (key, value) => {
-          params = { ...params, [key]: value };
-          const next = createGeometry(params);
-          mesh.geometry = next;
-          geometry.dispose();
-          geometry = next;
+        panel = createParamPanel({
+          container,
+          controls,
+          defaults: initialParams,
+          onChange: (key, value) => {
+            params = { ...params, [key]: value };
+            const next = createGeometry(params);
+            mesh.geometry = next;
+            geometry.dispose();
+            geometry = next;
+          },
         });
       }
 

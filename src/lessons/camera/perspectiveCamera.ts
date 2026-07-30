@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
+import { createParamPanel, type ParamSlider } from '../paramPanel';
 
 const DEFAULT_FOV = 75;
 const DEFAULT_NEAR = 0.1;
@@ -37,7 +38,7 @@ export const perspectiveCamera: Lesson = {
       if (lockAspect) {
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
-        updateControlDisplay('aspect', camera.aspect);
+        panel.setDisplay('aspect', camera.aspect);
       }
     });
 
@@ -52,105 +53,57 @@ export const perspectiveCamera: Lesson = {
     const controls = new OrbitControls(camera, ctx.renderer.domElement);
     controls.enableDamping = true;
 
-    // 右上角参数面板
-    const panel = document.createElement('div');
-    panel.className = 'camera-controls';
-    panel.innerHTML = `
-      <div class="camera-controls-title">参数 <span>CONTROLS</span></div>
-      <div class="camera-control-row" data-key="fov">
-        <div class="camera-control-header"><span>fov</span><span class="camera-control-value">${DEFAULT_FOV.toFixed(2)}</span></div>
-        <input type="range" min="20" max="120" value="${DEFAULT_FOV}" step="1">
-        <div class="camera-control-desc">垂直视场角，越大视野越广</div>
-      </div>
-      <div class="camera-control-row" data-key="aspect">
-        <div class="camera-control-header"><span>aspect</span><span class="camera-control-value">1.00</span></div>
-        <input type="range" min="0.2" max="4" value="1" step="0.01" disabled>
-        <div class="camera-control-desc">画布宽高比</div>
-      </div>
-      <div class="camera-control-row" data-key="near">
-        <div class="camera-control-header"><span>near</span><span class="camera-control-value">${DEFAULT_NEAR.toFixed(2)}</span></div>
-        <input type="range" min="0.1" max="10" value="${DEFAULT_NEAR}" step="0.1">
-        <div class="camera-control-desc">近裁剪面，小于此距离的物体不渲染</div>
-      </div>
-      <div class="camera-control-row" data-key="far">
-        <div class="camera-control-header"><span>far</span><span class="camera-control-value">${DEFAULT_FAR.toFixed(2)}</span></div>
-        <input type="range" min="1" max="2000" value="${DEFAULT_FAR}" step="1">
-        <div class="camera-control-desc">远裁剪面，大于此距离的物体不渲染</div>
-      </div>
-      <label class="camera-control-checkbox">
-        <input type="checkbox" checked>
-        <span>锁定 aspect 随画布变化</span>
-      </label>
-      <button class="camera-control-reset">重置参数</button>
-    `;
-    container.appendChild(panel);
+    // 本页面自行定义并控制相机参数
+    const paramControls: ParamSlider[] = [
+      { key: 'fov', label: 'fov', min: 20, max: 120, step: 1, value: DEFAULT_FOV, desc: '垂直视场角，越大视野越广', precision: 2 },
+      { key: 'aspect', label: 'aspect', min: 0.2, max: 4, step: 0.01, value: 1, desc: '画布宽高比', precision: 2, disabled: true },
+      { key: 'near', label: 'near', min: 0.1, max: 10, step: 0.1, value: DEFAULT_NEAR, desc: '近裁剪面，小于此距离的物体不渲染', precision: 2 },
+      { key: 'far', label: 'far', min: 1, max: 2000, step: 1, value: DEFAULT_FAR, desc: '远裁剪面，大于此距离的物体不渲染', precision: 2 },
+    ];
 
-    const rows = new Map<string, { input: HTMLInputElement; value: HTMLElement }>();
-    panel.querySelectorAll<HTMLElement>('.camera-control-row').forEach((row) => {
-      const key = row.dataset.key!;
-      rows.set(key, {
-        input: row.querySelector('input')!,
-        value: row.querySelector('.camera-control-value')!,
-      });
+    const aspectCheckboxLabel = document.createElement('label');
+    aspectCheckboxLabel.className = 'camera-control-checkbox';
+    aspectCheckboxLabel.innerHTML = `<input type="checkbox" checked><span>锁定 aspect 随画布变化</span>`;
+
+    const panel = createParamPanel({
+      container,
+      controls: paramControls,
+      defaults: { fov: DEFAULT_FOV, aspect: 1, near: DEFAULT_NEAR, far: DEFAULT_FAR },
+      footer: aspectCheckboxLabel,
+      onChange: (key, value) => {
+        if (key === 'fov') camera.fov = value;
+        else if (key === 'aspect') camera.aspect = value;
+        else if (key === 'near') camera.near = value;
+        else if (key === 'far') camera.far = value;
+        camera.updateProjectionMatrix();
+      },
+      onReset: () => {
+        camera.fov = DEFAULT_FOV;
+        camera.near = DEFAULT_NEAR;
+        camera.far = DEFAULT_FAR;
+        lockAspect = true;
+        aspectCheckbox.checked = true;
+        panel.getInput('aspect')!.disabled = true;
+        const { width, height } = ctx.getSize();
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        panel.setDisplay('fov', camera.fov);
+        panel.setDisplay('aspect', camera.aspect);
+        panel.setDisplay('near', camera.near);
+        panel.setDisplay('far', camera.far);
+      },
     });
 
-    function updateControlDisplay(key: string, val: number) {
-      const row = rows.get(key);
-      if (!row) return;
-      row.input.value = String(val);
-      row.value.textContent = Number(val).toFixed(2);
-    }
-
-    rows.get('fov')!.input.addEventListener('input', (e) => {
-      camera.fov = Number((e.target as HTMLInputElement).value);
-      camera.updateProjectionMatrix();
-      updateControlDisplay('fov', camera.fov);
-    });
-
-    rows.get('aspect')!.input.addEventListener('input', (e) => {
-      camera.aspect = Number((e.target as HTMLInputElement).value);
-      camera.updateProjectionMatrix();
-      updateControlDisplay('aspect', camera.aspect);
-    });
-
-    rows.get('near')!.input.addEventListener('input', (e) => {
-      camera.near = Number((e.target as HTMLInputElement).value);
-      camera.updateProjectionMatrix();
-      updateControlDisplay('near', camera.near);
-    });
-
-    rows.get('far')!.input.addEventListener('input', (e) => {
-      camera.far = Number((e.target as HTMLInputElement).value);
-      camera.updateProjectionMatrix();
-      updateControlDisplay('far', camera.far);
-    });
-
-    const aspectCheckbox = panel.querySelector<HTMLInputElement>('.camera-control-checkbox input')!;
+    const aspectCheckbox = aspectCheckboxLabel.querySelector<HTMLInputElement>('input')!;
     aspectCheckbox.addEventListener('change', () => {
       lockAspect = aspectCheckbox.checked;
-      rows.get('aspect')!.input.disabled = lockAspect;
+      panel.getInput('aspect')!.disabled = lockAspect;
       if (lockAspect) {
         const { width, height } = ctx.getSize();
         camera.aspect = width / height;
         camera.updateProjectionMatrix();
-        updateControlDisplay('aspect', camera.aspect);
+        panel.setDisplay('aspect', camera.aspect);
       }
-    });
-
-    panel.querySelector('.camera-control-reset')!.addEventListener('click', () => {
-      camera.fov = DEFAULT_FOV;
-      camera.near = DEFAULT_NEAR;
-      camera.far = DEFAULT_FAR;
-      lockAspect = true;
-      aspectCheckbox.checked = true;
-      rows.get('aspect')!.input.disabled = true;
-      const { width, height } = ctx.getSize();
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-      updateControlDisplay('fov', camera.fov);
-      updateControlDisplay('aspect', camera.aspect);
-      updateControlDisplay('near', camera.near);
-      updateControlDisplay('far', camera.far);
     });
 
     let raf = 0;
