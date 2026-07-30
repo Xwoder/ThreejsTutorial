@@ -1,0 +1,198 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #0f172a;
+  --panel: #1e293b;
+  --panel-light: #273549;
+  --border: #334155;
+  --text: #e2e8f0;
+  --text-dim: #94a3b8;
+  --accent: #38bdf8;
+}
+
+body {
+  font-family: 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 240px 1fr 380px;
+  height: 100vh;
+}
+
+/* 左侧目录 */
+.sidebar {
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  border-bottom: 1px solid var(--border);
+  color: var(--accent);
+}
+
+.chapter-header {
+  width: 100%;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.chapter-header:hover {
+  background: var(--panel-light);
+}
+
+.chapter-header .arrow {
+  display: inline-block;
+  transition: transform 0.2s;
+  transform: rotate(90deg);
+  color: var(--text-dim);
+}
+
+.chapter.collapsed .chapter-header .arrow {
+  transform: rotate(0deg);
+}
+
+.chapter.collapsed .lesson-list {
+  display: none;
+}
+
+.lesson-link {
+  display: block;
+  width: 100%;
+  padding: 8px 16px 8px 34px;
+  background: none;
+  border: none;
+  border-left: 3px solid transparent;
+  color: var(--text-dim);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lesson-link:hover {
+  color: var(--text);
+  background: var(--panel-light);
+}
+
+.lesson-link.active {
+  color: var(--accent);
+  border-left-color: var(--accent);
+  background: var(--panel-light);
+}
+
+/* 中间画布 */
+.viewport {
+  position: relative;
+  overflow: hidden;
+  background: #000;
+}
+
+.empty-tip {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+}
+
+.demo-toolbar {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.demo-toolbar input[type='range'] {
+  accent-color: var(--accent);
+}
+
+/* 右侧说明栏 */
+.doc-panel {
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  overflow-y: auto;
+}
+
+.doc-placeholder {
+  padding: 24px;
+  color: var(--text-dim);
+}
+
+.doc-content {
+  padding: 24px;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.doc-content h2 {
+  font-size: 18px;
+  margin-bottom: 12px;
+  color: var(--accent);
+}
+
+.doc-content h3 {
+  font-size: 15px;
+  margin: 20px 0 8px;
+  color: #7dd3fc;
+}
+
+.doc-content p {
+  margin-bottom: 12px;
+}
+
+.doc-content ul {
+  margin: 0 0 12px 20px;
+}
+
+.doc-content li {
+  margin-bottom: 6px;
+}
+
+.doc-content code {
+  background: #0b1120;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12.5px;
+  color: #fbbf24;
+}
+
+.doc-content pre {
+  background: #0b1120;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  margin: 12px 0;
+  overflow-x: auto;
+}
+
+.doc-content pre code {
+  background: none;
+  padding: 0;
+  color: #a5f3fc;
+  line-height: 1.6;
+}
