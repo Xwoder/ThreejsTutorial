@@ -73,6 +73,39 @@ body {
   display: none;
 }
 
+/* 嵌套课时分组（父标题） */
+.lesson-group-header {
+  width: 100%;
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  border-left: 3px solid transparent;
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lesson-group-header:hover {
+  background: var(--panel-light);
+}
+
+.lesson-group-header .arrow {
+  display: inline-block;
+  transition: transform 0.2s;
+  transform: rotate(90deg);
+  color: var(--text-dim);
+}
+
+.lesson-group.collapsed .lesson-group-header .arrow {
+  transform: rotate(0deg);
+}
+
+.lesson-group.collapsed .lesson-sublist {
+  display: none;
+}
+
 .lesson-link {
   display: block;
   width: 100%;

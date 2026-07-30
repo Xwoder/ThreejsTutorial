@@ -34,7 +34,7 @@ function selectLesson(lesson: Lesson, link: HTMLButtonElement) {
   activeLink = link;
 
   docPanel.innerHTML = `<div class="doc-content">${lesson.description}</div>`;
-  cleanup = lesson.create(viewport);
+  cleanup = lesson.create ? lesson.create(viewport) : () => {};
   history.replaceState(null, '', `/${lesson.id}`);
 }
 
@@ -51,11 +51,7 @@ function buildToc() {
     const list = document.createElement('div');
     list.className = 'lesson-list';
     chapter.lessons.forEach((lesson) => {
-      const link = document.createElement('button');
-      link.className = 'lesson-link';
-      link.textContent = lesson.title;
-      link.addEventListener('click', () => selectLesson(lesson, link));
-      list.appendChild(link);
+      renderLesson(lesson, list, 1);
     });
     section.appendChild(list);
 
@@ -67,15 +63,60 @@ function buildToc() {
   });
 }
 
+/** 递归渲染课时：含子章节时渲染为可折叠的标题分组，否则渲染为可点击的课时链接 */
+function renderLesson(lesson: Lesson, parent: HTMLElement, depth: number) {
+  if (lesson.children && lesson.children.length > 0) {
+    const group = document.createElement('div');
+    group.className = 'lesson-group';
+
+    const header = document.createElement('button');
+    header.className = 'lesson-group-header';
+    header.style.paddingLeft = `${16 + depth * 18}px`;
+    header.innerHTML = `<span class="arrow">▸</span> ${lesson.title}`;
+    group.appendChild(header);
+
+    const childList = document.createElement('div');
+    childList.className = 'lesson-sublist';
+    lesson.children.forEach((child) => renderLesson(child, childList, depth + 1));
+    group.appendChild(childList);
+
+    header.addEventListener('click', () => {
+      group.classList.toggle('collapsed');
+    });
+
+    parent.appendChild(group);
+  } else {
+    const link = document.createElement('button');
+    link.className = 'lesson-link';
+    link.style.paddingLeft = `${16 + depth * 18}px`;
+    link.textContent = lesson.title;
+    link.addEventListener('click', () => selectLesson(lesson, link));
+    parent.appendChild(link);
+  }
+}
+
 buildToc();
+
+/** 收集所有可打开的叶子课时（忽略仅作为标题分组的父课时） */
+function collectLeaves(): Lesson[] {
+  const out: Lesson[] = [];
+  const walk = (lessons: Lesson[]) => {
+    lessons.forEach((l) => {
+      if (l.children && l.children.length) walk(l.children);
+      else out.push(l);
+    });
+  };
+  chapters.forEach((c) => walk(c.lessons));
+  return out;
+}
 
 // 从路径恢复或默认打开第一课
 const initialId = location.pathname.slice(1);
 let initial: { lesson: Lesson; index: number } | undefined;
 const allLinks = toc.querySelectorAll<HTMLButtonElement>('.lesson-link');
-const allLessons = chapters.flatMap((c) => c.lessons);
+const allLessons = collectLeaves();
 allLessons.forEach((lesson, i) => {
   if (lesson.id === initialId) initial = { lesson, index: i };
 });
-if (!initial) initial = { lesson: chapters[0].lessons[0], index: 0 };
+if (!initial) initial = { lesson: allLessons[0], index: 0 };
 selectLesson(initial.lesson, allLinks[initial.index] as HTMLButtonElement);
