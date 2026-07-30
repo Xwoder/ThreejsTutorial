@@ -10,6 +10,7 @@ import { dodecahedronGeometry } from './dodecahedronGeometry';
 import { capsuleGeometry } from './capsuleGeometry';
 import { latheGeometry } from './latheGeometry';
 import { extrudeGeometry } from './extrudeGeometry';
+import { icosahedronGeometry } from './icosahedronGeometry';
 
 export const builtinGeometries: Lesson[] = [
   boxGeometry,
@@ -23,4 +24,5 @@ export const builtinGeometries: Lesson[] = [
   capsuleGeometry,
   latheGeometry,
   extrudeGeometry,
+  icosahedronGeometry,
 ];
