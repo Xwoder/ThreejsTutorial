@@ -5,7 +5,7 @@ import { createContext, makeCleanup } from '../helper';
 
 export const perspectiveCamera: Lesson = {
   id: 'perspective-camera',
-  title: '透视相机',
+  title: 'PerspectiveCamera 透视相机',
   description: `
     <h2>PerspectiveCamera</h2>
     <p>透视相机模拟人眼的成像方式：<b>近大远小</b>。这是最常用的相机。</p>
