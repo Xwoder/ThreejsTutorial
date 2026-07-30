@@ -37,8 +37,9 @@ const shapeMeta: Record<ShapeType, {
   },
 };
 
-function buildSource(type: ShapeType, size: number): THREE.BufferGeometry {
+function buildSource(type: ShapeType): THREE.BufferGeometry {
   const seg = 24;
+  const size = 1.4;
   switch (type) {
     case 'box':
       return new THREE.BoxGeometry(size * 1.4, size * 1.4, size * 1.4);
@@ -67,7 +68,6 @@ function createEdgesDemo(container: HTMLElement, type: ShapeType): () => void {
   orbit.enableDamping = true;
 
   const params = {
-    size: 1.4,
     thresholdAngle: 1,
     showSurface: 1,
   };
@@ -79,7 +79,7 @@ function createEdgesDemo(container: HTMLElement, type: ShapeType): () => void {
   ctx.scene.add(group);
 
   const rebuild = () => {
-    const nextSource = buildSource(type, params.size);
+    const nextSource = buildSource(type);
     const nextEdges = new THREE.EdgesGeometry(nextSource, params.thresholdAngle);
     group.traverse((o) => {
       const mesh = o as THREE.Mesh;
@@ -120,7 +120,6 @@ function createEdgesDemo(container: HTMLElement, type: ShapeType): () => void {
   const panel = createParamPanel({
     container,
     controls: [
-      { key: 'size', label: 'size', min: 0.5, max: 2, step: 0.1, value: 1.4, desc: '几何体整体尺寸', precision: 1 },
       { key: 'thresholdAngle', label: 'thresholdAngle', min: 1, max: 90, step: 1, value: 1, desc: '夹角阈值（°），越大只留硬边', precision: 0 },
     ] as ParamSlider[],
     defaults: params,
