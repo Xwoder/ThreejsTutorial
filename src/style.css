@@ -212,6 +212,12 @@ body {
   accent-color: #38bdf8;
 }
 
+.shape-toggle-label {
+  font-size: 10px;
+  color: #94a3b8;
+  margin: 4px 0 0;
+}
+
 .camera-control-reset {
   width: 100%;
   padding: 10px;
