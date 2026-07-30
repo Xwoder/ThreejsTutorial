@@ -25,7 +25,8 @@ interface ShapeItem {
   lines: THREE.LineSegments;
 }
 
-function buildSource(type: ShapeType, size: number, seg: number): THREE.BufferGeometry {
+function buildSource(type: ShapeType, size: number): THREE.BufferGeometry {
+  const seg = 24;
   switch (type) {
     case 'box':
       return new THREE.BoxGeometry(size * 1.4, size * 1.4, size * 1.4);
@@ -58,7 +59,6 @@ export const edgesGeometry: Lesson = {
 
     const params = {
       size: 1.2,
-      seg: 24,
       thresholdAngle: 1,
       showBox: 1,
       showSphere: 1,
@@ -66,12 +66,38 @@ export const edgesGeometry: Lesson = {
       showTorusKnot: 1,
     };
 
+    /** 构建几何体显示开关复选框组（footer） */
+    const buildShapeToggle = (): HTMLElement => {
+      const wrap = document.createElement('div');
+      const label = document.createElement('div');
+      label.className = 'shape-toggle-label';
+      label.textContent = '显示哪些几何体';
+      wrap.appendChild(label);
+      types.forEach((type) => {
+        const row = document.createElement('label');
+        row.className = 'camera-control-checkbox';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = (params as Record<string, number>)[`show${cap(type)}`] >= 0.5;
+        cb.addEventListener('change', () => {
+          const key = `show${cap(type)}`;
+          (params as Record<string, number>)[key] = cb.checked ? 1 : 0;
+          rebuild();
+        });
+        const text = document.createElement('span');
+        text.textContent = cap(type);
+        row.append(cb, text);
+        wrap.appendChild(row);
+      });
+      return wrap;
+    };
+
     const sourceMat = new THREE.MeshNormalMaterial({ transparent: true, opacity: 0.2 });
     const edgeMat = new THREE.LineBasicMaterial({ color: 0xffffff });
 
     const types: ShapeType[] = ['box', 'sphere', 'cylinder', 'torusKnot'];
     const items: ShapeItem[] = types.map((type) => {
-      const source = buildSource(type, params.size, params.seg);
+      const source = buildSource(type, params.size);
       const edges = new THREE.EdgesGeometry(source, params.thresholdAngle);
       const surface = new THREE.Mesh(source, sourceMat);
       const lines = new THREE.LineSegments(edges, edgeMat);
@@ -91,7 +117,7 @@ export const edgesGeometry: Lesson = {
         const visible = (params as Record<string, number>)[`show${cap(item.type)}`] >= 0.5;
         item.group.visible = visible;
         if (!visible) return;
-        const nextSource = buildSource(item.type, params.size, params.seg);
+        const nextSource = buildSource(item.type, params.size);
         const nextEdges = new THREE.EdgesGeometry(nextSource, params.thresholdAngle);
         item.surface.geometry.dispose();
         item.lines.geometry.dispose();
@@ -107,18 +133,14 @@ export const edgesGeometry: Lesson = {
       container,
       controls: [
         { key: 'size', label: 'size', min: 0.5, max: 2, step: 0.1, value: 1.2, desc: '几何体整体尺寸', precision: 1 },
-        { key: 'seg', label: 'seg', min: 4, max: 64, step: 1, value: 24, desc: '曲面分段（影响棱边数量）', precision: 0 },
         { key: 'thresholdAngle', label: 'thresholdAngle', min: 1, max: 90, step: 1, value: 1, desc: '夹角阈值（°），越大只留硬边', precision: 0 },
-        { key: 'showBox', label: 'showBox', min: 0, max: 1, step: 1, value: 1, desc: '显示 Box', precision: 0 },
-        { key: 'showSphere', label: 'showSphere', min: 0, max: 1, step: 1, value: 1, desc: '显示 Sphere', precision: 0 },
-        { key: 'showCylinder', label: 'showCylinder', min: 0, max: 1, step: 1, value: 1, desc: '显示 Cylinder', precision: 0 },
-        { key: 'showTorusKnot', label: 'showTorusKnot', min: 0, max: 1, step: 1, value: 1, desc: '显示 TorusKnot', precision: 0 },
       ] as ParamSlider[],
       defaults: params,
       onChange: (key, value) => {
         (params as Record<string, number>)[key] = value;
         rebuild();
       },
+      footer: buildShapeToggle(),
     });
 
     let raf = 0;
