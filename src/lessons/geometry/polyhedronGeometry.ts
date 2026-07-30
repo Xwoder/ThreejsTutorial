@@ -14,18 +14,46 @@ const polyhedronDescription = `
   <p>本例用 4 个顶点定义一颗正四面体演示。<code>PolyhedronGeometry</code> 是其余柏拉图立体的底层实现，掌握它就能拼出任意凸多面体。</p>
 `;
 
-// 正四面体的 4 个顶点与 4 个三角面
-const tetrahedronVertices = [
-  1, 1, 1,
-  1, -1, -1,
-  -1, 1, -1,
-  -1, -1, 1,
+// 不规则六面体的 8 个顶点
+const vertices = [
+  // 前面 4 个点
+  -1, -1,  1,   // 0
+   1, -1,  1,   // 1
+   1,  1,  1,   // 2
+  -1,  1,  1,   // 3
+
+  // 后面 4 个点（故意改变形状）
+  -0.8, -1.2, -1,  // 4
+   1.3, -0.8, -1,  // 5
+   0.9,  1.4, -1,  // 6
+  -1.2,  0.8, -1   // 7
 ];
-const tetrahedronIndices = [
+
+// 三角面索引
+const indices = [
+  // 前面
   0, 1, 2,
-  0, 3, 1,
   0, 2, 3,
-  1, 3, 2,
+
+  // 后面
+  4, 6, 5,
+  4, 7, 6,
+
+  // 左面
+  0, 3, 7,
+  0, 7, 4,
+
+  // 右面
+  1, 5, 6,
+  1, 6, 2,
+
+  // 上面
+  3, 2, 6,
+  3, 6, 7,
+
+  // 下面
+  0, 4, 5,
+  0, 5, 1
 ];
 
 export const polyhedronGeometry: Lesson = makeGeometryLesson({
@@ -34,8 +62,8 @@ export const polyhedronGeometry: Lesson = makeGeometryLesson({
   description: polyhedronDescription,
   createGeometry: (p) =>
     new THREE.PolyhedronGeometry(
-      tetrahedronVertices,
-      tetrahedronIndices,
+      vertices,
+      indices,
       p.radius,
       p.detail,
     ),
