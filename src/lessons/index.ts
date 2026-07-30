@@ -4,6 +4,7 @@ import { coordinates } from './basics/coordinates';
 import { perspectiveCamera } from './camera/perspectiveCamera';
 import { orthographicCamera } from './camera/orthographicCamera';
 import { stereoCamera } from './camera/stereoCamera';
+import { cubeCamera } from './camera/cubeCamera';
 import { builtinGeometries } from './geometry/builtinGeometries';
 import { customGeometry } from './geometry/customGeometry';
 import { materialTypes } from './material/materialTypes';
@@ -22,7 +23,7 @@ export const chapters: Chapter[] = [
   {
     id: 'camera',
     title: '相机',
-    lessons: [perspectiveCamera, orthographicCamera, stereoCamera],
+    lessons: [perspectiveCamera, orthographicCamera, stereoCamera, cubeCamera],
   },
   {
     id: 'geometry',
