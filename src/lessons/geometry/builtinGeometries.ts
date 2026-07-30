@@ -18,6 +18,7 @@ import { ringGeometry } from './ringGeometry';
 import { shapeGeometry } from './shapeGeometry';
 import { tetrahedronGeometry } from './tetrahedronGeometry';
 import { tubeGeometry } from './tubeGeometry';
+import { edgesGeometry } from './edgesGeometry';
 
 export const builtinGeometries: Lesson[] = [
   boxGeometry,
@@ -39,4 +40,5 @@ export const builtinGeometries: Lesson[] = [
   shapeGeometry,
   tetrahedronGeometry,
   tubeGeometry,
+  edgesGeometry,
 ];
