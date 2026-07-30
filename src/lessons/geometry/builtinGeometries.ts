@@ -10,6 +10,10 @@ interface ParamSlider {
   max: number;
   step: number;
   value: number;
+  /** 参数说明，显示在滑块下方 */
+  desc?: string;
+  /** 数值显示小数位数（默认 2） */
+  precision?: number;
 }
 
 interface GeometryLessonOptions {
@@ -24,28 +28,31 @@ interface GeometryLessonOptions {
   spin?: number;
 }
 
-/** 在画布左上角构建参数调节面板，onChange 返回最新参数 */
+/** 在画布右上角构建参数调节面板，样式与相机控制面板一致，onChange 返回最新参数 */
 function buildParamPanel(
   container: HTMLElement,
   controls: ParamSlider[],
-  params: Record<string, number>,
+  defaults: Record<string, number>,
   onChange: (key: string, value: number) => void,
 ): HTMLElement {
   const panel = document.createElement('div');
-  panel.className = 'param-panel';
-  panel.innerHTML = `<div class="param-panel-title">参数</div>`;
+  panel.className = 'camera-controls';
+  panel.innerHTML = `<div class="camera-controls-title">参数 <span>CONTROLS</span></div>`;
+
+  const rows = new Map<string, { input: HTMLInputElement; value: HTMLElement }>();
 
   controls.forEach((c) => {
     const row = document.createElement('div');
-    row.className = 'param-row';
+    row.className = 'camera-control-row';
+    row.dataset.key = c.key;
 
     const header = document.createElement('div');
-    header.className = 'param-header';
+    header.className = 'camera-control-header';
     const label = document.createElement('span');
     label.textContent = c.label;
     const valueEl = document.createElement('span');
-    valueEl.className = 'param-value';
-    valueEl.textContent = String(params[c.key]);
+    valueEl.className = 'camera-control-value';
+    valueEl.textContent = Number(c.value).toFixed(c.precision ?? 2);
     header.append(label, valueEl);
 
     const input = document.createElement('input');
@@ -53,16 +60,39 @@ function buildParamPanel(
     input.min = String(c.min);
     input.max = String(c.max);
     input.step = String(c.step);
-    input.value = String(params[c.key]);
+    input.value = String(c.value);
     input.addEventListener('input', () => {
       const v = Number(input.value);
-      valueEl.textContent = String(v);
+      valueEl.textContent = v.toFixed(c.precision ?? 2);
       onChange(c.key, v);
     });
 
     row.append(header, input);
+
+    if (c.desc) {
+      const desc = document.createElement('div');
+      desc.className = 'camera-control-desc';
+      desc.textContent = c.desc;
+      row.appendChild(desc);
+    }
+
     panel.appendChild(row);
+    rows.set(c.key, { input, value: valueEl });
   });
+
+  const resetBtn = document.createElement('button');
+  resetBtn.className = 'camera-control-reset';
+  resetBtn.textContent = '重置参数';
+  resetBtn.addEventListener('click', () => {
+    controls.forEach((c) => {
+      const def = defaults[c.key];
+      const row = rows.get(c.key)!;
+      row.input.value = String(def);
+      row.value.textContent = Number(def).toFixed(c.precision ?? 2);
+      onChange(c.key, def);
+    });
+  });
+  panel.appendChild(resetBtn);
 
   container.appendChild(panel);
   return panel;
@@ -107,7 +137,7 @@ function makeGeometryLesson(opts: GeometryLessonOptions): Lesson {
 
       let panel: HTMLElement | null = null;
       if (controls.length) {
-        panel = buildParamPanel(container, controls, params, (key, value) => {
+        panel = buildParamPanel(container, controls, initialParams, (key, value) => {
           params = { ...params, [key]: value };
           const next = createGeometry(params);
           mesh.geometry = next;
@@ -245,12 +275,12 @@ export const builtinGeometries: Lesson[] = [
       depthSegments: 1,
     },
     controls: [
-      { key: 'width', label: '宽度 width', min: 0.2, max: 3, step: 0.1, value: 1.6 },
-      { key: 'height', label: '高度 height', min: 0.2, max: 3, step: 0.1, value: 1.6 },
-      { key: 'depth', label: '深度 depth', min: 0.2, max: 3, step: 0.1, value: 1.6 },
-      { key: 'widthSegments', label: '宽度分段', min: 1, max: 10, step: 1, value: 1 },
-      { key: 'heightSegments', label: '高度分段', min: 1, max: 10, step: 1, value: 1 },
-      { key: 'depthSegments', label: '深度分段', min: 1, max: 10, step: 1, value: 1 },
+      { key: 'width', label: 'width', min: 0.2, max: 3, step: 0.1, value: 1.6, desc: '立方体在 X 方向的尺寸', precision: 1 },
+      { key: 'height', label: 'height', min: 0.2, max: 3, step: 0.1, value: 1.6, desc: '立方体在 Y 方向的尺寸', precision: 1 },
+      { key: 'depth', label: 'depth', min: 0.2, max: 3, step: 0.1, value: 1.6, desc: '立方体在 Z 方向的尺寸', precision: 1 },
+      { key: 'widthSegments', label: 'widthSegments', min: 1, max: 10, step: 1, value: 1, desc: 'X 方向细分数，越大顶点越密', precision: 0 },
+      { key: 'heightSegments', label: 'heightSegments', min: 1, max: 10, step: 1, value: 1, desc: 'Y 方向细分数', precision: 0 },
+      { key: 'depthSegments', label: 'depthSegments', min: 1, max: 10, step: 1, value: 1, desc: 'Z 方向细分数', precision: 0 },
     ],
     cameraPos: [0, 1.6, 5],
   }),
