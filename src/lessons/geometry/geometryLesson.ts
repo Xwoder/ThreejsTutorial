@@ -15,6 +15,8 @@ export interface GeometryLessonOptions {
   cameraPos?: [number, number, number];
   /** 旋转速度倍率 */
   spin?: number;
+  /** 渲染面：默认 THREE.FrontSide，平面类几何体可设为 THREE.DoubleSide 让两面都可见 */
+  side?: THREE.Side;
 }
 
 /** 用 MeshNormalMaterial 单独展示一种几何体，可环绕查看 */
@@ -28,6 +30,7 @@ export function makeGeometryLesson(opts: GeometryLessonOptions): Lesson {
     controls = [],
     cameraPos = [0, 1.5, 5],
     spin = 1,
+    side = THREE.FrontSide,
   } = opts;
 
   return {
@@ -45,7 +48,7 @@ export function makeGeometryLesson(opts: GeometryLessonOptions): Lesson {
         camera.updateProjectionMatrix();
       });
 
-      const material = new THREE.MeshNormalMaterial();
+      const material = new THREE.MeshNormalMaterial({ side });
       let params = { ...initialParams };
       let geometry = createGeometry(params);
       const mesh = new THREE.Mesh(geometry, material);

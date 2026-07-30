@@ -31,4 +31,5 @@ export const circleGeometry: Lesson = makeGeometryLesson({
     { key: 'thetaLength', label: 'thetaLength', min: 0.1, max: Math.PI * 2, step: 0.01, value: Math.PI * 2, desc: '扫过角度（2π 为整圆，调小成扇形）', precision: 2 },
   ],
   cameraPos: [0, 0, 5],
+  side: THREE.DoubleSide,
 });
