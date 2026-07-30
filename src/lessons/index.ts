@@ -27,7 +27,7 @@ export const chapters: Chapter[] = [
   },
   {
     id: 'geometry',
-    title: '几何体',
+    title: '几何',
     lessons: [...builtinGeometries, customGeometry],
   },
   {
