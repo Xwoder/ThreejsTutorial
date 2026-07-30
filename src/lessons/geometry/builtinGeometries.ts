@@ -5,6 +5,9 @@ import { coneGeometry } from './coneGeometry';
 import { torusGeometry } from './torusGeometry';
 import { torusKnotGeometry } from './torusKnotGeometry';
 import { cylinderGeometry } from './cylinderGeometry';
+import { circleGeometry } from './circleGeometry';
+import { dodecahedronGeometry } from './dodecahedronGeometry';
+import { capsuleGeometry } from './capsuleGeometry';
 
 export const builtinGeometries: Lesson[] = [
   boxGeometry,
@@ -13,4 +16,7 @@ export const builtinGeometries: Lesson[] = [
   torusGeometry,
   torusKnotGeometry,
   cylinderGeometry,
+  circleGeometry,
+  dodecahedronGeometry,
+  capsuleGeometry,
 ];
