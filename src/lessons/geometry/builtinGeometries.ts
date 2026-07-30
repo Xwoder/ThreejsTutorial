@@ -103,7 +103,6 @@ const boxDescription = `
   depthSegments     // 深方向分段（默认 1）
 )</code></pre>
   <p>本例默认创建一个正方体。分段数大于 1 时，可在顶点级别做变形（如波浪起伏）。</p>
-  <p>画面左上角的<b>参数面板</b>可实时调整宽、高、深及三个方向的分段数，拖动滑块即可看到几何体即时变化。</p>
   <p>颜色由 <b>MeshNormalMaterial</b> 根据法线方向着色，便于观察每个面的朝向。拖动鼠标可环绕查看。</p>
 `;
 
@@ -131,7 +130,7 @@ const coneDescription = `
   openEnded,     // 是否开口（无底面）
   thetaStart, thetaLength
 )</code></pre>
-  <p>本例使用 <code>ConeGeometry(1, 2, 32)</code>。把 <code>openEnded</code> 设为 <code>true</code> 可得到一个无底的圆锥面（如漏斗）。</p>
+  <p>本例使用 <code>ConeGeometry(1, 2, 32)</code>。把 <code>openEnded</code> 调为 <code>1</code> 可得到一个无底的圆锥面（如漏斗）。</p>
 `;
 
 const torusDescription = `
@@ -212,28 +211,121 @@ export const builtinGeometries: Lesson[] = [
     id: 'sphere-geometry',
     title: 'SphereGeometry 球体',
     description: sphereDescription,
-    createGeometry: () => new THREE.SphereGeometry(1, 32, 16),
+    createGeometry: (p) =>
+      new THREE.SphereGeometry(
+        p.radius,
+        p.widthSegments,
+        p.heightSegments,
+        0,
+        p.phiLength,
+        0,
+        p.thetaLength,
+      ),
+    params: {
+      radius: 1,
+      widthSegments: 32,
+      heightSegments: 16,
+      phiLength: Math.PI * 2,
+      thetaLength: Math.PI,
+    },
+    controls: [
+      { key: 'radius', label: 'radius', min: 0.2, max: 3, step: 0.1, value: 1, desc: '球的半径', precision: 1 },
+      { key: 'widthSegments', label: 'widthSegments', min: 3, max: 64, step: 1, value: 32, desc: '经度方向分段，越大越平滑', precision: 0 },
+      { key: 'heightSegments', label: 'heightSegments', min: 2, max: 32, step: 1, value: 16, desc: '纬度方向分段，越大越平滑', precision: 0 },
+      { key: 'phiLength', label: 'phiLength', min: 0, max: Math.PI * 2, step: 0.01, value: Math.PI * 2, desc: '水平方向扫过角度（2π 为整球）', precision: 2 },
+      { key: 'thetaLength', label: 'thetaLength', min: 0, max: Math.PI, step: 0.01, value: Math.PI, desc: '垂直方向扫过角度（π 为整球）', precision: 2 },
+    ],
     cameraPos: [0, 0, 5],
   }),
   makeGeometryLesson({
     id: 'cone-geometry',
     title: 'ConeGeometry 圆锥',
     description: coneDescription,
-    createGeometry: () => new THREE.ConeGeometry(1, 2, 32),
+    createGeometry: (p) =>
+      new THREE.ConeGeometry(
+        p.radius,
+        p.height,
+        p.radialSegments,
+        p.heightSegments,
+        p.openEnded >= 0.5,
+        0,
+        p.thetaLength,
+      ),
+    params: {
+      radius: 1,
+      height: 2,
+      radialSegments: 32,
+      heightSegments: 1,
+      thetaLength: Math.PI * 2,
+      openEnded: 0,
+    },
+    controls: [
+      { key: 'radius', label: 'radius', min: 0.2, max: 3, step: 0.1, value: 1, desc: '底面半径', precision: 1 },
+      { key: 'height', label: 'height', min: 0.2, max: 4, step: 0.1, value: 2, desc: '圆锥高度', precision: 1 },
+      { key: 'radialSegments', label: 'radialSegments', min: 3, max: 64, step: 1, value: 32, desc: '圆周分段，越大底面越圆', precision: 0 },
+      { key: 'heightSegments', label: 'heightSegments', min: 1, max: 20, step: 1, value: 1, desc: '高度方向分段', precision: 0 },
+      { key: 'thetaLength', label: 'thetaLength', min: 0.1, max: Math.PI * 2, step: 0.01, value: Math.PI * 2, desc: '绕轴扫过角度（2π 为整圈）', precision: 2 },
+      { key: 'openEnded', label: 'openEnded', min: 0, max: 1, step: 1, value: 0, desc: '是否开口（1 为无底面）', precision: 0 },
+    ],
     cameraPos: [0, 0.5, 5],
   }),
   makeGeometryLesson({
     id: 'torus-geometry',
     title: 'TorusGeometry 圆环',
     description: torusDescription,
-    createGeometry: () => new THREE.TorusGeometry(1, 0.4, 16, 80),
+    createGeometry: (p) =>
+      new THREE.TorusGeometry(
+        p.radius,
+        p.tube,
+        p.radialSegments,
+        p.tubularSegments,
+        p.arc,
+      ),
+    params: {
+      radius: 1,
+      tube: 0.4,
+      radialSegments: 16,
+      tubularSegments: 80,
+      arc: Math.PI * 2,
+    },
+    controls: [
+      { key: 'radius', label: 'radius', min: 0.2, max: 3, step: 0.1, value: 1, desc: '环的中心半径', precision: 1 },
+      { key: 'tube', label: 'tube', min: 0.05, max: 1.5, step: 0.05, value: 0.4, desc: '管道半径', precision: 2 },
+      { key: 'radialSegments', label: 'radialSegments', min: 3, max: 32, step: 1, value: 16, desc: '管道横截面分段', precision: 0 },
+      { key: 'tubularSegments', label: 'tubularSegments', min: 3, max: 200, step: 1, value: 80, desc: '环向分段，越大越平滑', precision: 0 },
+      { key: 'arc', label: 'arc', min: 0.1, max: Math.PI * 2, step: 0.01, value: Math.PI * 2, desc: '环的角度范围（2π 为整圈）', precision: 2 },
+    ],
     cameraPos: [0, 0, 5],
   }),
   makeGeometryLesson({
     id: 'torus-knot-geometry',
     title: 'TorusKnotGeometry 环面纽结',
     description: torusKnotDescription,
-    createGeometry: () => new THREE.TorusKnotGeometry(1, 0.3, 128, 16, 2, 3),
+    createGeometry: (p) =>
+      new THREE.TorusKnotGeometry(
+        p.radius,
+        p.tube,
+        p.tubularSegments,
+        p.radialSegments,
+        p.p,
+        p.q,
+      ),
+    params: {
+      radius: 1,
+      tube: 0.3,
+      tubularSegments: 128,
+      radialSegments: 16,
+      p: 2,
+      q: 3,
+    },
+    controls: [
+      { key: 'radius', label: 'radius', min: 0.2, max: 3, step: 0.1, value: 1, desc: '整体半径', precision: 1 },
+      { key: 'tube', label: 'tube', min: 0.05, max: 1, step: 0.05, value: 0.3, desc: '管道半径', precision: 2 },
+      { key: 'tubularSegments', label: 'tubularSegments', min: 3, max: 300, step: 1, value: 128, desc: '曲线分段，越大越平滑', precision: 0 },
+      { key: 'radialSegments', label: 'radialSegments', min: 3, max: 32, step: 1, value: 16, desc: '管道横截面分段', precision: 0 },
+      { key: 'p', label: 'p', min: 1, max: 10, step: 1, value: 2, desc: '绕主环圈数（与 q 互质更佳）', precision: 0 },
+      { key: 'q', label: 'q', min: 1, max: 10, step: 1, value: 3, desc: '绕管自身圈数', precision: 0 },
+    ],
     cameraPos: [0, 0, 5],
     spin: 0.8,
   }),
@@ -241,7 +333,35 @@ export const builtinGeometries: Lesson[] = [
     id: 'cylinder-geometry',
     title: 'CylinderGeometry 圆柱',
     description: cylinderDescription,
-    createGeometry: () => new THREE.CylinderGeometry(1, 1, 2, 32),
+    createGeometry: (p) =>
+      new THREE.CylinderGeometry(
+        p.radiusTop,
+        p.radiusBottom,
+        p.height,
+        p.radialSegments,
+        p.heightSegments,
+        p.openEnded >= 0.5,
+        0,
+        p.thetaLength,
+      ),
+    params: {
+      radiusTop: 1,
+      radiusBottom: 1,
+      height: 2,
+      radialSegments: 32,
+      heightSegments: 1,
+      thetaLength: Math.PI * 2,
+      openEnded: 0,
+    },
+    controls: [
+      { key: 'radiusTop', label: 'radiusTop', min: 0, max: 3, step: 0.1, value: 1, desc: '顶面半径（与底面不同即成圆台）', precision: 1 },
+      { key: 'radiusBottom', label: 'radiusBottom', min: 0, max: 3, step: 0.1, value: 1, desc: '底面半径', precision: 1 },
+      { key: 'height', label: 'height', min: 0.2, max: 4, step: 0.1, value: 2, desc: '圆柱高度', precision: 1 },
+      { key: 'radialSegments', label: 'radialSegments', min: 3, max: 64, step: 1, value: 32, desc: '圆周分段', precision: 0 },
+      { key: 'heightSegments', label: 'heightSegments', min: 1, max: 20, step: 1, value: 1, desc: '高度方向分段', precision: 0 },
+      { key: 'thetaLength', label: 'thetaLength', min: 0.1, max: Math.PI * 2, step: 0.01, value: Math.PI * 2, desc: '绕轴扫过角度（2π 为整圈）', precision: 2 },
+      { key: 'openEnded', label: 'openEnded', min: 0, max: 1, step: 1, value: 0, desc: '是否开口（1 为无顶底）', precision: 0 },
+    ],
     cameraPos: [0, 0.5, 5],
   }),
 ];
