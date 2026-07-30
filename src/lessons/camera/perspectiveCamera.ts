@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import type { Lesson } from '../types';
-import { createContext, makeCleanup } from '../helper';
+import { createContext, makeCleanup, createAxesWithLabels } from '../helper';
 import { createParamPanel, type ParamSlider } from '../paramPanel';
 
 const DEFAULT_FOV = 75;
@@ -43,6 +43,8 @@ export const perspectiveCamera: Lesson = {
     });
 
     ctx.scene.add(new THREE.GridHelper(12, 12, 0x475569, 0x1e293b));
+    // 在世界原点显示 X(红) / Y(绿) / Z(蓝) 坐标轴及文字标签
+    ctx.scene.add(createAxesWithLabels(6));
     const material = new THREE.MeshNormalMaterial();
     // 围绕原点、10×10 规格、间距 5 单位的立方体阵列（透视 vs 正交对比）
     const GRID = 10;

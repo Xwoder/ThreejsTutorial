@@ -54,3 +54,50 @@ export function makeCleanup(
     ctx.renderer.domElement.remove();
   };
 }
+
+/** 生成带文字的精灵标签（用于坐标轴 X / Y / Z 标识） */
+function makeAxisLabel(text: string, color: string): THREE.Sprite {
+  const canvas = document.createElement('canvas');
+  canvas.width = 128;
+  canvas.height = 128;
+  const c = canvas.getContext('2d')!;
+  c.fillStyle = color;
+  c.font = 'bold 84px sans-serif';
+  c.textAlign = 'center';
+  c.textBaseline = 'middle';
+  c.fillText(text, 64, 70);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.minFilter = THREE.LinearFilter;
+  const sprite = new THREE.Sprite(
+    new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false }),
+  );
+  sprite.renderOrder = 999;
+  return sprite;
+}
+
+/**
+ * 创建带 X/Y/Z 文字标签的坐标轴辅助对象。
+ * X 轴为红色、Y 轴为绿色、Z 轴为蓝色，标签放在各轴线末端并始终显示在最前。
+ *
+ * @param size 坐标轴长度
+ */
+export function createAxesWithLabels(size = 6): THREE.Group {
+  const group = new THREE.Group();
+  group.add(new THREE.AxesHelper(size));
+
+  const d = size + 0.6;
+  const labelScale = size * 0.28;
+  const labels: { text: string; color: string; pos: THREE.Vector3 }[] = [
+    { text: 'X', color: '#ff453a', pos: new THREE.Vector3(d, 0, 0) },
+    { text: 'Y', color: '#32d74b', pos: new THREE.Vector3(0, d, 0) },
+    { text: 'Z', color: '#0a84ff', pos: new THREE.Vector3(0, 0, d) },
+  ];
+  labels.forEach(({ text, color, pos }) => {
+    const sprite = makeAxisLabel(text, color);
+    sprite.position.copy(pos);
+    sprite.scale.set(labelScale, labelScale, labelScale);
+    group.add(sprite);
+  });
+  return group;
+}
