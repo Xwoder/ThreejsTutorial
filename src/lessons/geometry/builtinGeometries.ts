@@ -13,6 +13,11 @@ import { extrudeGeometry } from './extrudeGeometry';
 import { icosahedronGeometry } from './icosahedronGeometry';
 import { octahedronGeometry } from './octahedronGeometry';
 import { planeGeometry } from './planeGeometry';
+import { polyhedronGeometry } from './polyhedronGeometry';
+import { ringGeometry } from './ringGeometry';
+import { shapeGeometry } from './shapeGeometry';
+import { tetrahedronGeometry } from './tetrahedronGeometry';
+import { tubeGeometry } from './tubeGeometry';
 
 export const builtinGeometries: Lesson[] = [
   boxGeometry,
@@ -29,4 +34,9 @@ export const builtinGeometries: Lesson[] = [
   icosahedronGeometry,
   octahedronGeometry,
   planeGeometry,
+  polyhedronGeometry,
+  ringGeometry,
+  shapeGeometry,
+  tetrahedronGeometry,
+  tubeGeometry,
 ];
