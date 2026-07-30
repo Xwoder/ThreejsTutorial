@@ -44,10 +44,19 @@ export const perspectiveCamera: Lesson = {
 
     ctx.scene.add(new THREE.GridHelper(12, 12, 0x475569, 0x1e293b));
     const material = new THREE.MeshNormalMaterial();
-    for (let i = 0; i < 5; i++) {
-      const box = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), material);
-      box.position.set((i - 2) * 2.2, 0.5, (i % 2) * -3);
-      ctx.scene.add(box);
+    // 围绕原点、10×10 规格、间距 5 单位的立方体阵列（透视 vs 正交对比）
+    const GRID = 10;
+    const SPACING = 5;
+    for (let ix = 0; ix < GRID; ix++) {
+      for (let iz = 0; iz < GRID; iz++) {
+        const box = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), material);
+        box.position.set(
+          (ix - (GRID - 1) / 2) * SPACING,
+          0.5,
+          (iz - (GRID - 1) / 2) * SPACING,
+        );
+        ctx.scene.add(box);
+      }
     }
 
     const controls = new OrbitControls(camera, ctx.renderer.domElement);
