@@ -3,14 +3,69 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
 
+interface ParamSlider {
+  key: string;
+  label: string;
+  min: number;
+  max: number;
+  step: number;
+  value: number;
+}
+
 interface GeometryLessonOptions {
   id: string;
   title: string;
   description: string;
-  createGeometry: () => THREE.BufferGeometry;
+  createGeometry: (params: Record<string, number>) => THREE.BufferGeometry;
+  params?: Record<string, number>;
+  controls?: ParamSlider[];
   cameraPos?: [number, number, number];
   /** 旋转速度倍率 */
   spin?: number;
+}
+
+/** 在画布左上角构建参数调节面板，onChange 返回最新参数 */
+function buildParamPanel(
+  container: HTMLElement,
+  controls: ParamSlider[],
+  params: Record<string, number>,
+  onChange: (key: string, value: number) => void,
+): HTMLElement {
+  const panel = document.createElement('div');
+  panel.className = 'param-panel';
+  panel.innerHTML = `<div class="param-panel-title">参数</div>`;
+
+  controls.forEach((c) => {
+    const row = document.createElement('div');
+    row.className = 'param-row';
+
+    const header = document.createElement('div');
+    header.className = 'param-header';
+    const label = document.createElement('span');
+    label.textContent = c.label;
+    const valueEl = document.createElement('span');
+    valueEl.className = 'param-value';
+    valueEl.textContent = String(params[c.key]);
+    header.append(label, valueEl);
+
+    const input = document.createElement('input');
+    input.type = 'range';
+    input.min = String(c.min);
+    input.max = String(c.max);
+    input.step = String(c.step);
+    input.value = String(params[c.key]);
+    input.addEventListener('input', () => {
+      const v = Number(input.value);
+      valueEl.textContent = String(v);
+      onChange(c.key, v);
+    });
+
+    row.append(header, input);
+    panel.appendChild(row);
+  });
+
+  container.appendChild(panel);
+  return panel;
 }
 
 /** 用 MeshNormalMaterial 单独展示一种几何体，可环绕查看 */
@@ -20,6 +75,8 @@ function makeGeometryLesson(opts: GeometryLessonOptions): Lesson {
     title,
     description,
     createGeometry,
+    params: initialParams = {},
+    controls = [],
     cameraPos = [0, 1.5, 5],
     spin = 1,
   } = opts;
@@ -40,28 +97,41 @@ function makeGeometryLesson(opts: GeometryLessonOptions): Lesson {
       });
 
       const material = new THREE.MeshNormalMaterial();
-      const geometry = createGeometry();
+      let params = { ...initialParams };
+      let geometry = createGeometry(params);
       const mesh = new THREE.Mesh(geometry, material);
       ctx.scene.add(mesh);
 
-      const controls = new OrbitControls(camera, ctx.renderer.domElement);
-      controls.enableDamping = true;
+      const orbit = new OrbitControls(camera, ctx.renderer.domElement);
+      orbit.enableDamping = true;
+
+      let panel: HTMLElement | null = null;
+      if (controls.length) {
+        panel = buildParamPanel(container, controls, params, (key, value) => {
+          params = { ...params, [key]: value };
+          const next = createGeometry(params);
+          mesh.geometry = next;
+          geometry.dispose();
+          geometry = next;
+        });
+      }
 
       let raf = 0;
       const loop = () => {
         raf = requestAnimationFrame(loop);
         mesh.rotation.x += 0.004 * spin;
         mesh.rotation.y += 0.006 * spin;
-        controls.update();
+        orbit.update();
         ctx.renderer.render(ctx.scene, camera);
       };
       loop();
 
       return makeCleanup(ctx, () => {
         cancelAnimationFrame(raf);
-        controls.dispose();
+        orbit.dispose();
         geometry.dispose();
         material.dispose();
+        panel?.remove();
       });
     },
   };
@@ -78,7 +148,8 @@ const boxDescription = `
   heightSegments,   // 高方向分段（默认 1）
   depthSegments     // 深方向分段（默认 1）
 )</code></pre>
-  <p>本例使用 <code>BoxGeometry(1.6, 1.6, 1.6)</code> 创建一个正方体。分段数大于 1 时，可在顶点级别做变形（如波浪起伏）。</p>
+  <p>本例默认创建一个正方体。分段数大于 1 时，可在顶点级别做变形（如波浪起伏）。</p>
+  <p>画面左上角的<b>参数面板</b>可实时调整宽、高、深及三个方向的分段数，拖动滑块即可看到几何体即时变化。</p>
   <p>颜色由 <b>MeshNormalMaterial</b> 根据法线方向着色，便于观察每个面的朝向。拖动鼠标可环绕查看。</p>
 `;
 
@@ -156,7 +227,31 @@ export const builtinGeometries: Lesson[] = [
     id: 'box-geometry',
     title: 'BoxGeometry 立方体',
     description: boxDescription,
-    createGeometry: () => new THREE.BoxGeometry(1.6, 1.6, 1.6),
+    createGeometry: (p) =>
+      new THREE.BoxGeometry(
+        p.width,
+        p.height,
+        p.depth,
+        p.widthSegments,
+        p.heightSegments,
+        p.depthSegments,
+      ),
+    params: {
+      width: 1.6,
+      height: 1.6,
+      depth: 1.6,
+      widthSegments: 1,
+      heightSegments: 1,
+      depthSegments: 1,
+    },
+    controls: [
+      { key: 'width', label: '宽度 width', min: 0.2, max: 3, step: 0.1, value: 1.6 },
+      { key: 'height', label: '高度 height', min: 0.2, max: 3, step: 0.1, value: 1.6 },
+      { key: 'depth', label: '深度 depth', min: 0.2, max: 3, step: 0.1, value: 1.6 },
+      { key: 'widthSegments', label: '宽度分段', min: 1, max: 10, step: 1, value: 1 },
+      { key: 'heightSegments', label: '高度分段', min: 1, max: 10, step: 1, value: 1 },
+      { key: 'depthSegments', label: '深度分段', min: 1, max: 10, step: 1, value: 1 },
+    ],
     cameraPos: [0, 1.6, 5],
   }),
   makeGeometryLesson({
