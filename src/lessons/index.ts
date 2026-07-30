@@ -1,5 +1,5 @@
 import type { Chapter } from './types';
-import { firstScene } from './basics/firstScene';
+import { scene } from './basics/scene.ts';
 import { coordinates } from './basics/coordinates';
 import { perspectiveCamera } from './camera/perspectiveCamera';
 import { orthographicCamera } from './camera/orthographicCamera';
@@ -16,7 +16,7 @@ export const chapters: Chapter[] = [
   {
     id: 'basics',
     title: '基础入门',
-    lessons: [firstScene, coordinates],
+    lessons: [scene, coordinates],
   },
   {
     id: 'camera',

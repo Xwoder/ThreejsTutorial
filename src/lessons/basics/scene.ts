@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
 
-export const firstScene: Lesson = {
+export const scene: Lesson = {
   id: 'first-scene',
   title: 'Scene 场景',
   description: `
