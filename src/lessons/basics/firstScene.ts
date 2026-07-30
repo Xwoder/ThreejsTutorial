@@ -4,7 +4,7 @@ import { createContext, makeCleanup } from '../helper';
 
 export const firstScene: Lesson = {
   id: 'first-scene',
-  title: '你的第一个场景',
+  title: 'Scene 场景',
   description: `
     <h2>三大核心要素</h2>
     <p>任何 Three.js 应用都离不开三个东西：<b>场景（Scene）</b>、<b>相机（Camera）</b> 和 <b>渲染器（Renderer）</b>。</p>
