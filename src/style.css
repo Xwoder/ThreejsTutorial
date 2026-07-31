@@ -333,3 +333,50 @@ body {
   color: #a5f3fc;
   line-height: 1.6;
 }
+
+/* 自定义滚动条 —— 与暗色主题统一 */
+.sidebar,
+.doc-panel,
+.camera-controls,
+.doc-content pre {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.sidebar::-webkit-scrollbar,
+.doc-panel::-webkit-scrollbar,
+.camera-controls::-webkit-scrollbar,
+.doc-content pre::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.sidebar::-webkit-scrollbar-track,
+.doc-panel::-webkit-scrollbar-track,
+.camera-controls::-webkit-scrollbar-track,
+.doc-content pre::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb,
+.doc-panel::-webkit-scrollbar-thumb,
+.camera-controls::-webkit-scrollbar-thumb,
+.doc-content pre::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover,
+.doc-panel::-webkit-scrollbar-thumb:hover,
+.camera-controls::-webkit-scrollbar-thumb:hover,
+.doc-content pre::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* 滚动条角落留白（多数浏览器自动透明，此处兜底） */
+.sidebar::-webkit-scrollbar-corner,
+.doc-panel::-webkit-scrollbar-corner,
+.camera-controls::-webkit-scrollbar-corner {
+  background: transparent;
+}
