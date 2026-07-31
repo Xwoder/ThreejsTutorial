@@ -60,7 +60,7 @@ export const extrudeGeometry: Lesson = makeGeometryLesson({
   },
   controls: [
     { key: 'depth', label: 'depth', min: 0.1, max: 3, step: 0.1, value: 0.6, desc: '拉伸厚度', precision: 1 },
-    { key: 'bevelEnabled', label: 'bevelEnabled', min: 0, max: 1, step: 1, value: 1, desc: '是否倒角（1 开启）', precision: 0 },
+    { key: 'bevelEnabled', label: 'bevelEnabled', type: 'checkbox', min: 0, max: 1, step: 1, value: 1, desc: '是否倒角' },
     { key: 'bevelThickness', label: 'bevelThickness', min: 0, max: 0.5, step: 0.02, value: 0.1, desc: '倒角厚度', precision: 2 },
     { key: 'bevelSize', label: 'bevelSize', min: 0, max: 0.5, step: 0.02, value: 0.1, desc: '倒角尺寸', precision: 2 },
     { key: 'bevelSegments', label: 'bevelSegments', min: 0, max: 10, step: 1, value: 3, desc: '倒角细分', precision: 0 },

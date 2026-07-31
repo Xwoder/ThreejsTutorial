@@ -1,13 +1,15 @@
 export interface ParamSlider {
   key: string;
   label: string;
+  /** 控件类型：'range' 为滑块（默认），'checkbox' 为勾选框，适用于布尔型参数 */
+  type?: 'range' | 'checkbox';
   min: number;
   max: number;
   step: number;
   value: number;
-  /** 参数说明，显示在滑块下方 */
+  /** 参数说明，显示在控件下方 */
   desc?: string;
-  /** 数值显示小数位数（默认 2） */
+  /** 数值显示小数位数（默认 2），仅 'range' 类型生效 */
   precision?: number;
   /** 是否禁用滑块，用于由外部逻辑而非用户直接控制的参数（如随画布变化的 aspect） */
   disabled?: boolean;
@@ -50,6 +52,8 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
   const rows = new Map<string, { input: HTMLInputElement; value: HTMLElement }>();
 
   controls.forEach((c) => {
+    const isCheckbox = c.type === 'checkbox';
+
     const row = document.createElement('div');
     row.className = 'camera-control-row';
     row.dataset.key = c.key;
@@ -62,21 +66,35 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
     valueEl.className = 'camera-control-value';
     valueEl.textContent = Number(c.value).toFixed(c.precision ?? 2);
     header.append(label, valueEl);
+    if (isCheckbox) valueEl.style.display = 'none';
 
     const input = document.createElement('input');
-    input.type = 'range';
-    input.min = String(c.min);
-    input.max = String(c.max);
-    input.step = String(c.step);
-    input.value = String(c.value);
-    if (c.disabled) input.disabled = true;
-    input.addEventListener('input', () => {
-      const v = Number(input.value);
-      valueEl.textContent = v.toFixed(c.precision ?? 2);
-      onChange?.(c.key, v);
-    });
+    if (isCheckbox) {
+      input.type = 'checkbox';
+      input.checked = c.value >= 0.5;
+      if (c.disabled) input.disabled = true;
+      input.addEventListener('change', () => {
+        const v = input.checked ? 1 : 0;
+        onChange?.(c.key, v);
+      });
+      // 勾选框与标题同行显示
+      header.appendChild(input);
+    } else {
+      input.type = 'range';
+      input.min = String(c.min);
+      input.max = String(c.max);
+      input.step = String(c.step);
+      input.value = String(c.value);
+      if (c.disabled) input.disabled = true;
+      input.addEventListener('input', () => {
+        const v = Number(input.value);
+        valueEl.textContent = v.toFixed(c.precision ?? 2);
+        onChange?.(c.key, v);
+      });
+      row.appendChild(input);
+    }
 
-    row.append(header, input);
+    row.appendChild(header);
 
     if (c.desc) {
       const desc = document.createElement('div');
@@ -103,8 +121,12 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
       const def = defaults[c.key];
       if (def === undefined) return;
       const row = rows.get(c.key)!;
-      row.input.value = String(def);
-      row.value.textContent = Number(def).toFixed(c.precision ?? 2);
+      if (c.type === 'checkbox') {
+        row.input.checked = def >= 0.5;
+      } else {
+        row.input.value = String(def);
+        row.value.textContent = Number(def).toFixed(c.precision ?? 2);
+      }
       onChange?.(c.key, def);
     });
   });
@@ -119,8 +141,12 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
       if (!row) return;
       const c = controls.find((x) => x.key === key);
       const precision = c?.precision ?? 2;
-      row.input.value = String(value);
-      row.value.textContent = Number(value).toFixed(precision);
+      if (c?.type === 'checkbox') {
+        row.input.checked = value >= 0.5;
+      } else {
+        row.input.value = String(value);
+        row.value.textContent = Number(value).toFixed(precision);
+      }
     },
     getInput(key) {
       return rows.get(key)?.input;
