@@ -13,6 +13,9 @@ import { ambientDirectional } from './light/ambientDirectional';
 import { pointSpot } from './light/pointSpot';
 import { animationLoop } from './animation/animationLoop';
 import { orbitControls } from './animation/orbitControls';
+import { mercedes } from './examples/mercedes';
+import { ferrari } from './examples/ferrari';
+import { airco } from './examples/airco';
 
 export const chapters: Chapter[] = [
   {
@@ -44,5 +47,10 @@ export const chapters: Chapter[] = [
     id: 'animation',
     title: '动画与交互',
     lessons: [animationLoop, orbitControls],
+  },
+  {
+    id: 'examples',
+    title: '示例',
+    lessons: [mercedes, ferrari, airco],
   },
 ];
