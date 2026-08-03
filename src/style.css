@@ -256,7 +256,7 @@ body {
   position: absolute;
   top: 16px;
   right: 16px;
-  padding: 12px 14px;
+  padding: 14px 16px;
   background: rgba(30, 41, 59, 0.92);
   border: 1px solid #334155;
   border-radius: 10px;
@@ -264,12 +264,28 @@ body {
   color: #e2e8f0;
   font-size: 11px;
   z-index: 5;
+  min-width: 168px;
+}
+
+.transform-panel-heading {
+  font-size: 14px;
+  font-weight: 800;
+  color: #f8fafc;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+.transform-panel-divider {
+  height: 0;
+  margin: 12px 0 14px;
+  border-top: 1px dashed #475569;
 }
 
 .transform-space-title {
   font-size: 12px;
   font-weight: 700;
   color: #38bdf8;
+  margin-top: 18px;
   margin-bottom: 10px;
   letter-spacing: 0.5px;
 }

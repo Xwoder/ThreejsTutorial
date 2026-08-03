@@ -4,6 +4,60 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
 
+/** 控制面板中「标题 + 一组按钮」的配置项 */
+export interface ControlPanelButtonOptions {
+  /** 分组标题，例如「模式」「坐标空间」 */
+  title: string;
+  /** 按钮定义 */
+  items: ControlPanelButtonItem[];
+}
+
+/** 单个按钮的定义 */
+export interface ControlPanelButtonItem {
+  /** 按钮文字 */
+  label: string;
+  /** 点击回调 */
+  onClick: () => void;
+  /** 是否处于选中（高亮）状态 */
+  active: () => boolean;
+}
+
+/**
+ * 创建一个「标题 + 一组按钮」的控制面板分组。
+ * 返回分组 DOM 元素和用于刷新高亮状态的 sync 方法。
+ */
+function createControlPanelGroup(options: ControlPanelButtonOptions): {
+  el: HTMLDivElement;
+  sync: () => void;
+} {
+  const group = document.createElement('div');
+
+  const title = document.createElement('div');
+  title.className = 'transform-space-title';
+  title.textContent = options.title;
+  group.appendChild(title);
+
+  const row = document.createElement('div');
+  row.className = 'transform-space-buttons';
+
+  const buttons = options.items.map((item) => {
+    const btn = document.createElement('button');
+    btn.textContent = item.label;
+    btn.addEventListener('click', item.onClick);
+    row.appendChild(btn);
+    return btn;
+  });
+  group.appendChild(row);
+
+  const sync = () => {
+    buttons.forEach((btn, i) => {
+      btn.classList.toggle('active', options.items[i].active());
+    });
+  };
+
+  return { el: group, sync };
+}
+
 export const transformControls: Lesson = {
   id: 'transform-controls',
   title: 'TransformControls 变换控制器',
@@ -107,37 +161,52 @@ control.setSpace('world'   | 'local');  // 世界坐标 / 本地坐标</code></p
       if (e.key === 'w' || e.key === 'W') transform.setMode('translate');
       else if (e.key === 'e' || e.key === 'E') transform.setMode('rotate');
       else if (e.key === 'r' || e.key === 'R') transform.setMode('scale');
+      else return;
+      syncModeButtons();
     };
     window.addEventListener('keydown', onKey);
 
-    // 右上角面板：两个按钮切换 World / Local 坐标空间
+    // 右上角面板：总标题 → 虚线分隔符 → 模式 → 坐标空间
     const panel = document.createElement('div');
     panel.className = 'transform-space-panel';
-    panel.innerHTML = `<div class="transform-space-title">坐标空间</div>`;
-    const btnRow = document.createElement('div');
-    btnRow.className = 'transform-space-buttons';
-    const worldBtn = document.createElement('button');
-    worldBtn.textContent = 'World';
-    const localBtn = document.createElement('button');
-    localBtn.textContent = 'Local';
-    btnRow.append(worldBtn, localBtn);
-    panel.appendChild(btnRow);
+
+    // 总标题
+    const panelHeading = document.createElement('div');
+    panelHeading.className = 'transform-panel-heading';
+    panelHeading.textContent = '控制面板';
+    panel.appendChild(panelHeading);
+
+    // 虚线分隔符
+    const divider = document.createElement('div');
+    divider.className = 'transform-panel-divider';
+    panel.appendChild(divider);
+
+    // 变换模式分组（平移 / 旋转 / 缩放），与键盘 W/E/R 联动
+    const modeGroup = createControlPanelGroup({
+      title: '模式',
+      items: [
+        { label: '平移', onClick: () => transform.setMode('translate'), active: () => transform.mode === 'translate' },
+        { label: '旋转', onClick: () => transform.setMode('rotate'), active: () => transform.mode === 'rotate' },
+        { label: '缩放', onClick: () => transform.setMode('scale'), active: () => transform.mode === 'scale' },
+      ],
+    });
+    panel.appendChild(modeGroup.el);
+
+    // 坐标空间分组（World / Local）
+    const spaceGroup = createControlPanelGroup({
+      title: '坐标空间',
+      items: [
+        { label: 'World', onClick: () => transform.setSpace('world'), active: () => transform.space === 'world' },
+        { label: 'Local', onClick: () => transform.setSpace('local'), active: () => transform.space === 'local' },
+      ],
+    });
+    panel.appendChild(spaceGroup.el);
     container.appendChild(panel);
 
-    const syncSpaceButtons = () => {
-      const isLocal = transform.space === 'local';
-      worldBtn.classList.toggle('active', !isLocal);
-      localBtn.classList.toggle('active', isLocal);
-    };
-    worldBtn.addEventListener('click', () => {
-      transform.setSpace('world');
-      syncSpaceButtons();
-    });
-    localBtn.addEventListener('click', () => {
-      transform.setSpace('local');
-      syncSpaceButtons();
-    });
+    const syncModeButtons = () => modeGroup.sync();
+    const syncSpaceButtons = () => spaceGroup.sync();
     syncSpaceButtons();
+    syncModeButtons();
 
     let raf = 0;
     const loop = () => {
