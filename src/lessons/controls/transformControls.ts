@@ -110,6 +110,35 @@ control.setSpace('world'   | 'local');  // 世界坐标 / 本地坐标</code></p
     };
     window.addEventListener('keydown', onKey);
 
+    // 右上角面板：两个按钮切换 World / Local 坐标空间
+    const panel = document.createElement('div');
+    panel.className = 'transform-space-panel';
+    panel.innerHTML = `<div class="transform-space-title">坐标空间</div>`;
+    const btnRow = document.createElement('div');
+    btnRow.className = 'transform-space-buttons';
+    const worldBtn = document.createElement('button');
+    worldBtn.textContent = 'World';
+    const localBtn = document.createElement('button');
+    localBtn.textContent = 'Local';
+    btnRow.append(worldBtn, localBtn);
+    panel.appendChild(btnRow);
+    container.appendChild(panel);
+
+    const syncSpaceButtons = () => {
+      const isLocal = transform.space === 'local';
+      worldBtn.classList.toggle('active', !isLocal);
+      localBtn.classList.toggle('active', isLocal);
+    };
+    worldBtn.addEventListener('click', () => {
+      transform.setSpace('world');
+      syncSpaceButtons();
+    });
+    localBtn.addEventListener('click', () => {
+      transform.setSpace('local');
+      syncSpaceButtons();
+    });
+    syncSpaceButtons();
+
     let raf = 0;
     const loop = () => {
       raf = requestAnimationFrame(loop);
@@ -122,6 +151,7 @@ control.setSpace('world'   | 'local');  // 世界坐标 / 本地坐标</code></p
       cancelAnimationFrame(raf);
       window.removeEventListener('keydown', onKey);
       ctx.renderer.domElement.removeEventListener('pointerdown', onClick);
+      panel.remove();
       transform.detach();
       transform.dispose();
       orbit.dispose();
