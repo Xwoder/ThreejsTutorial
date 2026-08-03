@@ -16,6 +16,7 @@ import { orbitControls } from './animation/orbitControls';
 import { mercedes } from './examples/mercedes';
 import { ferrari } from './examples/ferrari';
 import { airco } from './examples/airco';
+import { meshTextured } from './examples/meshTextured';
 
 export const chapters: Chapter[] = [
   {
@@ -51,6 +52,6 @@ export const chapters: Chapter[] = [
   {
     id: 'examples',
     title: '示例',
-    lessons: [mercedes, ferrari, airco],
+    lessons: [mercedes, ferrari, airco, meshTextured],
   },
 ];
