@@ -195,18 +195,17 @@ controls.addEventListener('unlock', () => { /* 已退出锁定 */ });</code></pr
     const controls = new PointerLockControls(camera, ctx.renderer.domElement);
 
     const tip = document.createElement('div');
-    tip.textContent = '点击画布';
+    tip.textContent = '点击画布进入指针锁定状态';
     tip.style.cssText = `
-      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-      padding: 12px 18px; border-radius: 10px; background: rgba(15,23,42,.82);
-      color: #e2e8f0; font: 15px sans-serif; pointer-events: none; user-select: none;
-      box-shadow: 0 4px 20px rgba(0,0,0,.4);
+      position: absolute; right: 12px; top: 12px; padding: 6px 10px;
+      border-radius: 6px; background: rgba(0,0,0,.45); color: #cbd5e1;
+      font: 12px monospace; pointer-events: none; user-select: none;
     `;
     container.appendChild(tip);
 
     // 右上角固定文本标签：锁定时显示"按 ESC 键退出"
     const escHint = document.createElement('div');
-    escHint.textContent = '按 ESC 键退出';
+    escHint.textContent = '按 ESC 键退出指针锁定状态';
     escHint.style.cssText = `
       position: absolute; right: 12px; top: 12px; padding: 6px 10px;
       border-radius: 6px; background: rgba(0,0,0,.45); color: #cbd5e1;
