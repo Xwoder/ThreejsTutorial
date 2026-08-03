@@ -218,7 +218,17 @@ function animate() {
       controls.update(delta);
       if (camera.position.y < 0.5) camera.position.y = 0.5; // 保持相机在地面之上
       const p = camera.position;
-      hud.textContent = `坐标: (${p.x.toFixed(1)}, ${p.y.toFixed(1)}, ${p.z.toFixed(1)})\n速度: ${controls.movementSpeed}`;
+      const euler = new THREE.Euler().setFromQuaternion(camera.quaternion);
+      const dir = new THREE.Vector3();
+      camera.getWorldDirection(dir);
+      hud.textContent =
+        `坐标: (${p.x.toFixed(2)}, ${p.y.toFixed(2)}, ${p.z.toFixed(2)})\n` +
+        `速度: ${controls.movementSpeed}\n` +
+        `旋转: ${THREE.MathUtils.radToDeg(euler.x).toFixed(2)}°  ` +
+        `${THREE.MathUtils.radToDeg(euler.y).toFixed(2)}°  ` +
+        `${THREE.MathUtils.radToDeg(euler.z).toFixed(2)}°\n` +
+        `方向: ${dir.x.toFixed(2)}, ${dir.y.toFixed(2)}, ${dir.z.toFixed(2)}\n` +
+        `高度: ${p.y.toFixed(2)}`;
       ctx.renderer.render(ctx.scene, camera);
     };
     loop();
