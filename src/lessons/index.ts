@@ -47,7 +47,12 @@ export const chapters: Chapter[] = [
   {
     id: 'animation',
     title: '动画与交互',
-    lessons: [animationLoop, orbitControls],
+    lessons: [animationLoop],
+  },
+  {
+    id: 'controls',
+    title: '控制器',
+    lessons: [orbitControls],
   },
   {
     id: 'examples',
