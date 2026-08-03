@@ -236,6 +236,7 @@ controls.addEventListener('unlock', () => { /* 已退出锁定 */ });</code></pr
     ctx.renderer.domElement.addEventListener('click', onClick);
     const onLock = () => {
       tip.style.display = 'none';
+      errHint.style.display = 'none';
       crosshair.style.display = '';
       escHint.style.display = '';
     };
@@ -244,8 +245,29 @@ controls.addEventListener('unlock', () => { /* 已退出锁定 */ });</code></pr
       crosshair.style.display = 'none';
       escHint.style.display = 'none';
     };
+
+    // 画布上方中间的提示（冷却期等锁定失败时使用）
+    const errHint = document.createElement('div');
+    errHint.textContent = '锁定失败，请稍候再点击画布';
+    errHint.style.cssText = `
+      position: absolute; right: 12px; top: 44px;
+      padding: 6px 12px; border-radius: 6px; background: rgba(127,29,29,.85);
+      color: #fecaca; font: 12px monospace; pointer-events: none; user-select: none;
+      display: none; white-space: nowrap;
+    `;
+    container.appendChild(errHint);
+
+    let errTimer = 0;
+    const onError = () => {
+      errHint.style.display = '';
+      clearTimeout(errTimer);
+      errTimer = window.setTimeout(() => {
+        errHint.style.display = 'none';
+      }, 2000);
+    };
     controls.addEventListener('lock', onLock);
     controls.addEventListener('unlock', onUnlock);
+    document.addEventListener('pointerlockerror', onError);
 
     let raf = 0;
     const loop = () => {
@@ -260,10 +282,12 @@ controls.addEventListener('unlock', () => { /* 已退出锁定 */ });</code></pr
       ctx.renderer.domElement.removeEventListener('click', onClick);
       controls.removeEventListener('lock', onLock);
       controls.removeEventListener('unlock', onUnlock);
+      document.removeEventListener('pointerlockerror', onError);
       tip.remove();
       crosshair.remove();
       hud.remove();
       escHint.remove();
+      errHint.remove();
       controls.dispose();
     });
   },
