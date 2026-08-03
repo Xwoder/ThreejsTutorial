@@ -13,6 +13,7 @@ import { ambientDirectional } from './light/ambientDirectional';
 import { pointSpot } from './light/pointSpot';
 import { animationLoop } from './animation/animationLoop';
 import { orbitControls } from './animation/orbitControls';
+import { trackballControls } from './controls/trackballControls';
 import { mercedes } from './examples/mercedes';
 import { ferrari } from './examples/ferrari';
 import { airco } from './examples/airco';
@@ -52,7 +53,7 @@ export const chapters: Chapter[] = [
   {
     id: 'controls',
     title: '控制器',
-    lessons: [orbitControls],
+    lessons: [orbitControls, trackballControls],
   },
   {
     id: 'examples',
