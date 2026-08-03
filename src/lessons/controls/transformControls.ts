@@ -3,60 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
-
-/** 控制面板中「标题 + 一组按钮」的配置项 */
-export interface ControlPanelButtonOptions {
-  /** 分组标题，例如「模式」「坐标空间」 */
-  title: string;
-  /** 按钮定义 */
-  items: ControlPanelButtonItem[];
-}
-
-/** 单个按钮的定义 */
-export interface ControlPanelButtonItem {
-  /** 按钮文字 */
-  label: string;
-  /** 点击回调 */
-  onClick: () => void;
-  /** 是否处于选中（高亮）状态 */
-  active: () => boolean;
-}
-
-/**
- * 创建一个「标题 + 一组按钮」的控制面板分组。
- * 返回分组 DOM 元素和用于刷新高亮状态的 sync 方法。
- */
-function createControlPanelGroup(options: ControlPanelButtonOptions): {
-  el: HTMLDivElement;
-  sync: () => void;
-} {
-  const group = document.createElement('div');
-
-  const title = document.createElement('div');
-  title.className = 'transform-space-title';
-  title.textContent = options.title;
-  group.appendChild(title);
-
-  const row = document.createElement('div');
-  row.className = 'transform-space-buttons';
-
-  const buttons = options.items.map((item) => {
-    const btn = document.createElement('button');
-    btn.textContent = item.label;
-    btn.addEventListener('click', item.onClick);
-    row.appendChild(btn);
-    return btn;
-  });
-  group.appendChild(row);
-
-  const sync = () => {
-    buttons.forEach((btn, i) => {
-      btn.classList.toggle('active', options.items[i].active());
-    });
-  };
-
-  return { el: group, sync };
-}
+import { createControlPanelGroup } from '../controlPanel';
 
 export const transformControls: Lesson = {
   id: 'transform-controls',

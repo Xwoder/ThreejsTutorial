@@ -281,21 +281,25 @@ body {
   border-top: 1px dashed #475569;
 }
 
-.transform-space-title {
+/* 通用「标题 + 按钮组」分组（createControlPanelGroup） */
+.control-group {
+  margin-top: 18px;
+}
+
+.control-group-title {
   font-size: 12px;
   font-weight: 700;
   color: #38bdf8;
-  margin-top: 18px;
   margin-bottom: 10px;
   letter-spacing: 0.5px;
 }
 
-.transform-space-buttons {
+.control-group-buttons {
   display: flex;
   gap: 8px;
 }
 
-.transform-space-buttons button {
+.control-group-buttons button {
   flex: 1;
   padding: 8px 14px;
   background: #0b1120;
@@ -308,12 +312,12 @@ body {
   transition: all 0.2s;
 }
 
-.transform-space-buttons button:hover {
+.control-group-buttons button:hover {
   color: #e2e8f0;
   border-color: #475569;
 }
 
-.transform-space-buttons button.active {
+.control-group-buttons button.active {
   background: #38bdf8;
   color: #0f172a;
   border-color: #38bdf8;

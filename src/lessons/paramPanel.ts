@@ -1,3 +1,9 @@
+import {
+  createControlPanelGroup,
+  type ControlPanelButtonOptions,
+  type ControlPanelGroup,
+} from './controlPanel';
+
 export interface ParamSlider {
   key: string;
   label: string;
@@ -37,6 +43,8 @@ export interface ParamPanel {
   setDisplay(key: string, value: number): void;
   /** 获取某个参数行的滑块元素 */
   getInput(key: string): HTMLInputElement | undefined;
+  /** 在面板末尾追加一个「标题 + 按钮组」分组（见 createControlPanelGroup） */
+  addControlGroup(options: ControlPanelButtonOptions): ControlPanelGroup;
   /** 从 DOM 中移除面板 */
   remove(): void;
 }
@@ -150,6 +158,11 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
     },
     getInput(key) {
       return rows.get(key)?.input;
+    },
+    addControlGroup(options) {
+      const group = createControlPanelGroup(options);
+      el.appendChild(group.el);
+      return group;
     },
     remove() {
       el.remove();
