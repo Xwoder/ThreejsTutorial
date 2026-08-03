@@ -19,6 +19,7 @@ import { firstPersonControls } from './controls/firstPersonControls';
 import { pointerLockControls } from './controls/pointerLockControls';
 import { dragControls } from './controls/dragControls';
 import { arcballControls } from './controls/arcballControls';
+import { mapControls } from './controls/mapControls';
 import { mercedes } from './examples/mercedes';
 import { ferrari } from './examples/ferrari';
 import { airco } from './examples/airco';
@@ -58,7 +59,7 @@ export const chapters: Chapter[] = [
   {
     id: 'controls',
     title: '控制器',
-    lessons: [orbitControls, trackballControls, flyControls, firstPersonControls, pointerLockControls, dragControls, arcballControls],
+    lessons: [orbitControls, trackballControls, flyControls, firstPersonControls, pointerLockControls, dragControls, arcballControls, mapControls],
   },
   {
     id: 'examples',
