@@ -4,7 +4,7 @@ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
 
-import modelUrl from '../../assets/mesh_textured_moved_nn_smooth_moved.fbx?url';
+import modelUrl from '../../assets/model/mesh_textured_moved_nn_smooth_moved.fbx?url';
 
 export const meshTextured: Lesson = {
   id: 'example-mesh-textured-fbx',

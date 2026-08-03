@@ -5,7 +5,7 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
 
-import modelUrl from '../../assets/AIRCO_DH2_v2_by_Joshua_Johanson_9iVI9GHMleJ.glb?url';
+import modelUrl from '../../assets/model/AIRCO_DH2_v2_by_Joshua_Johanson_9iVI9GHMleJ.glb?url';
 
 export const airco: Lesson = {
   id: 'example-airco-dh2',

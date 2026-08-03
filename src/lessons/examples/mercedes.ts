@@ -5,7 +5,7 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
 
-import modelUrl from '../../assets/1996_mercedes-benz_e50_amg_w210.glb?url';
+import modelUrl from '../../assets/model/1996_mercedes-benz_e50_amg_w210.glb?url';
 
 export const mercedes: Lesson = {
   id: 'example-mercedes-e50-amg',

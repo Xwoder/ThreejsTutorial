@@ -5,7 +5,7 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
 
-import modelUrl from '../../assets/ferrari_296_challenge_2024.glb?url';
+import modelUrl from '../../assets/model/ferrari_296_challenge_2024.glb?url';
 
 export const ferrari: Lesson = {
   id: 'example-ferrari-296-challenge-2024',
