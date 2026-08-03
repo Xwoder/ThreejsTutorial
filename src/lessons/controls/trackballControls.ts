@@ -33,24 +33,30 @@ controls.dynamicDampingFactor = 0.15; // 阻尼系数</code></pre>
     const ctx = createContext(container);
     ctx.scene.background = new THREE.Color(0x0f172a);
 
-    const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
-    camera.position.set(4, 3, 6);
+    const { width, height } = ctx.getSize();
+    const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 100);
+    camera.position.set(6, 5, 8);
     ctx.onResize((w, h) => {
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
     });
 
-    ctx.scene.add(new THREE.GridHelper(12, 12, 0x475569, 0x1e293b));
-    const mesh = new THREE.Mesh(
-      new THREE.IcosahedronGeometry(1.4, 1),
-      new THREE.MeshStandardMaterial({ color: 0x38bdf8, metalness: 0.4, roughness: 0.3, flatShading: true }),
-    );
-    mesh.position.y = 1.6;
-    ctx.scene.add(mesh);
+    ctx.scene.add(new THREE.GridHelper(14, 14, 0x475569, 0x1e293b));
 
-    ctx.scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.3);
-    dirLight.position.set(4, 6, 3);
+    const colors = [0xc084fc, 0x22c55e, 0x38bdf8, 0xf59e0b, 0xef4444];
+    colors.forEach((color, i) => {
+      const mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(1.2, 1.2, 1.2),
+        new THREE.MeshStandardMaterial({ color, metalness: 0.3, roughness: 0.5 }),
+      );
+      const angle = (i / colors.length) * Math.PI * 2;
+      mesh.position.set(Math.cos(angle) * 3, 0.6, Math.sin(angle) * 3);
+      ctx.scene.add(mesh);
+    });
+
+    ctx.scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.4);
+    dirLight.position.set(5, 8, 4);
     ctx.scene.add(dirLight);
 
     const controls = new TrackballControls(camera, ctx.renderer.domElement);
@@ -59,7 +65,6 @@ controls.dynamicDampingFactor = 0.15; // 阻尼系数</code></pre>
     controls.panSpeed = 0.8;
     controls.staticMoving = false;
     controls.dynamicDampingFactor = 0.15;
-    controls.target.set(0, 1.5, 0);
 
     let raf = 0;
     const loop = () => {

@@ -60,7 +60,7 @@ export const chapters: Chapter[] = [
   {
     id: 'controls',
     title: '控制器',
-    lessons: [orbitControls, trackballControls, flyControls, firstPersonControls, pointerLockControls, dragControls, arcballControls, mapControls, transformControls],
+    lessons: [orbitControls, trackballControls, arcballControls, flyControls, firstPersonControls, pointerLockControls, dragControls, mapControls, transformControls],
   },
   {
     id: 'examples',
