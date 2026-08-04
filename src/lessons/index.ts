@@ -25,6 +25,7 @@ import { mercedes } from './examples/mercedes';
 import { ferrari } from './examples/ferrari';
 import { airco } from './examples/airco';
 import { meshTextured } from './examples/meshTextured';
+import { rubiksCube } from './examples/rubiksCube';
 
 export const chapters: Chapter[] = [
   {
@@ -65,6 +66,6 @@ export const chapters: Chapter[] = [
   {
     id: 'examples',
     title: '示例',
-    lessons: [mercedes, ferrari, airco, meshTextured],
+    lessons: [mercedes, ferrari, airco, meshTextured, rubiksCube],
   },
 ];
