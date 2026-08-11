@@ -90,12 +90,12 @@ export const solarSystem: Lesson = {
         );
         moon.position.set(3, 0, 0);
 
-        // 地球公转组：绕太阳旋转
+         /* 地球公转组：绕太阳旋转 */
         const earthOrbit = new THREE.Group();
         ctx.scene.add(earthOrbit);
         earthOrbit.add(earth);
 
-        // 月亮公转组：作为地球的子节点，随地球一起移动
+        /* 月亮公转组：作为地球的子节点，随地球一起移动 */
         const moonOrbit = new THREE.Group();
         earth.add(moonOrbit);
         moonOrbit.add(moon);
