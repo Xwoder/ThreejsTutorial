@@ -99,7 +99,7 @@ export const solarSystem: Lesson = {
         const moonOrbit = new THREE.Group();
         earth.add(moonOrbit);
         moonOrbit.add(moon);
-        
+
         ctx.onResize((w, h) => {
             camera.aspect = w / h;
             camera.updateProjectionMatrix();
@@ -113,10 +113,10 @@ export const solarSystem: Lesson = {
             const dt = Math.min((now - last) / 1000, 0.1); // 限制单帧最大步长
             last = now;
 
-            sun.rotation.y += dt * 0.3;
-            earthOrbit.rotation.y += dt * 0.5;   // 地球绕太阳公转
-            earth.rotation.y += dt;         // 地球自转
-            moonOrbit.rotation.y += dt * 2.0;     // 月亮绕地球公转
+            sun.rotation.y += dt * 0.3; /* 太阳自转 */
+            earth.rotation.y += dt; /* 地球自转 */
+            earthOrbit.rotation.y += dt * 0.5; /* 地球绕太阳公转 */
+            moonOrbit.rotation.y += dt * 2.0; /* 月亮绕地球公转 */
 
             controls.update();
             ctx.renderer.render(ctx.scene, camera);
