@@ -28,6 +28,7 @@ import { meshTextured } from './examples/meshTextured';
 import { rubiksCube } from './examples/rubiksCube';
 import { solarSystem } from './examples/solarSystem';
 import { canyonTerrain } from './examples/canyonTerrain';
+import { darkAlienTerrain } from './examples/darkAlienTerrain';
 
 export const chapters: Chapter[] = [
   {
@@ -68,6 +69,6 @@ export const chapters: Chapter[] = [
   {
     id: 'examples',
     title: '示例',
-    lessons: [mercedes, ferrari, airco, meshTextured, rubiksCube, solarSystem, canyonTerrain],
+    lessons: [mercedes, ferrari, airco, meshTextured, rubiksCube, solarSystem, canyonTerrain, darkAlienTerrain],
   },
 ];

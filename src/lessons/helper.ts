@@ -1,5 +1,32 @@
 import * as THREE from 'three';
 
+/**
+ * 通用图片纹理加载器，统一设置各向异性 + 跨域。
+ * @param url 图片地址
+ * @param options.colorSpace 颜色空间：sRGB 颜色贴图 / NoColorSpace 高度/法线等数据贴图
+ * @param options.flipY 是否翻转 Y（PNG 漫反射通常 true，高度图通常 false）
+ */
+export function loadTexture(
+  url: string,
+  onLoad: (tex: THREE.Texture) => void,
+  onError?: (err: unknown) => void,
+  options: { colorSpace?: THREE.ColorSpace; flipY?: boolean } = {},
+): void {
+  const loader = new THREE.TextureLoader();
+  loader.setCrossOrigin('anonymous');
+  loader.load(
+    url,
+    (t) => {
+      if (options.colorSpace) t.colorSpace = options.colorSpace;
+      if (options.flipY !== undefined) t.flipY = options.flipY;
+      t.anisotropy = 8;
+      onLoad(t);
+    },
+    undefined,
+    onError,
+  );
+}
+
 export interface SceneContext {
   renderer: THREE.WebGLRenderer;
   scene: THREE.Scene;

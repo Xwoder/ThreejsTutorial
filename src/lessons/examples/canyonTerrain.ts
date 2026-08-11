@@ -2,35 +2,24 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { Lesson } from '../types';
-import { createContext, makeCleanup } from '../helper';
+import { createContext, loadTexture, makeCleanup } from '../helper';
 
 import heightMapUrl from '../../assets/model/height/Canyon Height Maps/Canyon Height Map.png?url';
 import diffuseMapUrl from '../../assets/model/height/Canyon Height Maps/Canyon Diffuse.png?url';
 import normalMapUrl from '../../assets/model/height/Canyon Height Maps/Canyon Normal Map.png?url';
 
 /**
- * 加载图片作为纹理，附带错误提示
+ * 加载图片作为纹理，附带错误提示（在 helper.ts 中抽出了通用实现）
  */
-function loadTexture(
-  url: string,
-  onLoad: (tex: THREE.Texture) => void,
-  onError: (err: unknown) => void,
-  options: { colorSpace?: THREE.ColorSpace; flipY?: boolean } = {},
-): void {
-  const loader = new THREE.TextureLoader();
-  loader.setCrossOrigin('anonymous');
-  loader.load(
-    url,
-    (t) => {
-      if (options.colorSpace) t.colorSpace = options.colorSpace;
-      if (options.flipY !== undefined) t.flipY = options.flipY;
-      t.anisotropy = 8;
-      onLoad(t);
-    },
-    undefined,
-    onError,
-  );
+function makeLoadingTip(text: string): HTMLDivElement {
+  const tip = document.createElement('div');
+  tip.textContent = text;
+  tip.style.cssText =
+    'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:#94a3b8;font-size:14px;background:rgba(0,0,0,0.4);padding:10px 16px;border-radius:6px;';
+  return tip;
 }
+
+void makeLoadingTip; // 工具函数保留供将来扩展使用
 
 export const canyonTerrain: Lesson = {
   id: 'example-canyon-heightmap',
@@ -97,7 +86,6 @@ const mat = new THREE.MeshStandardMaterial({
 
     // 纹理状态
     const tex: { height?: THREE.Texture; diffuse?: THREE.Texture; normal?: THREE.Texture } = {};
-    const errors: string[] = [];
 
     const tryBuildTerrain = () => {
       if (!tex.height || !tex.diffuse || !tex.normal) return;
@@ -133,7 +121,6 @@ const mat = new THREE.MeshStandardMaterial({
         tryBuildTerrain();
       },
       (e) => {
-        errors.push('高度图加载失败');
         console.error('Heightmap 加载失败', e);
         loadingTip.textContent = '高度图加载失败，请检查网络';
       },
@@ -149,7 +136,6 @@ const mat = new THREE.MeshStandardMaterial({
         tryBuildTerrain();
       },
       (e) => {
-        errors.push('漫反射贴图加载失败');
         console.error('Diffuse 加载失败', e);
       },
     );
@@ -164,7 +150,6 @@ const mat = new THREE.MeshStandardMaterial({
         tryBuildTerrain();
       },
       (e) => {
-        errors.push('法线贴图加载失败');
         console.error('NormalMap 加载失败', e);
       },
     );
