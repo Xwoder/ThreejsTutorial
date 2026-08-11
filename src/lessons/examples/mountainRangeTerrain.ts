@@ -16,7 +16,7 @@ export const mountainRangeTerrain: Lesson = {
     <h3>核心概念</h3>
     <ul>
       <li><b>displacementMap</b>：根据灰度值沿法线方向移动顶点。顶点越密（细分越高），地形越精细。8K 分辨率提供了极为丰富的细节。</li>
-      <li><b>displacementScale</b>：位移幅度。山脉场景使用较大的缩放值（60），营造高耸的视觉效果。</li>
+      <li><b>displacementScale</b>：位移幅度。山脉场景使用较大的缩放值（140），营造高耸的视觉效果。</li>
       <li><b>bumpMap</b>：复用高度图做凹凸贴图，仅影响光照计算（不移动顶点），以极低开销补充微观细节。</li>
       <li><b>map</b>：漫反射贴图，为地形表面提供真实的颜色（雪顶、岩石、植被等）。</li>
     </ul>
@@ -25,7 +25,7 @@ export const mountainRangeTerrain: Lesson = {
 const mat = new THREE.MeshStandardMaterial({
   map: diffuseTexture,
   displacementMap: heightTexture,
-  displacementScale: 60,
+  displacementScale: 140,
   bumpMap: heightTexture,
   bumpScale: 0.8,
   roughness: 0.85,
@@ -66,15 +66,15 @@ const mat = new THREE.MeshStandardMaterial({
     const hemi = new THREE.HemisphereLight(0xb1e1ff, 0x5b4a3a, 0.7);
     ctx.scene.add(hemi);
 
-    // 地面网格参考
-    ctx.scene.add(new THREE.GridHelper(400, 40, 0x556677, 0x334455));
+    // 地面网格参考：边长与地形平面(200×200)保持一致
+    ctx.scene.add(new THREE.GridHelper(200, 40, 0x556677, 0x334455));
 
     const controls = new OrbitControls(camera, ctx.renderer.domElement);
     controls.enableDamping = true;
     controls.maxPolarAngle = Math.PI / 2 - 0.05; // 限制相机不要钻到地下
     controls.minDistance = 5;
     controls.maxDistance = 500;
-    controls.target.set(0, 15, 0);
+    controls.target.set(0, 55, 0); // 对准地形中部（高度 0~140 的中点附近），构图居中
 
     // 加载提示
     const loadingTip = document.createElement('div');
@@ -95,17 +95,18 @@ const mat = new THREE.MeshStandardMaterial({
         map: tex.diffuse,
         // 位移贴图：真正移动顶点生成山脉地形
         displacementMap: tex.height,
-        displacementScale: 60, // 较大幅度，营造高耸山脉效果
+        displacementScale: 200, // 增大位移幅度，使山峰更高耸
         // 凹凸贴图：复用高度图，低开销补充微观凹凸细节
         bumpMap: tex.height,
         bumpScale: 0.8,
         roughness: 0.85,
         metalness: 0.02,
+        side: THREE.DoubleSide, // 双面渲染，从下方仰望时底面也实心可见
       });
 
       const terrain = new THREE.Mesh(geo, mat);
       terrain.rotation.x = -Math.PI / 2; // 将平面从 XY 旋转到 XZ 地面
-      terrain.position.y = -15; // 略微下沉，留出空间观察地形起伏
+      terrain.position.y = 0; // 地形基面与参考网格(y=0)齐平，山脉从地面拔起
       ctx.scene.add(terrain);
 
       built = true;

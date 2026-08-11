@@ -40,7 +40,7 @@ const mat = new THREE.MeshStandardMaterial({
   map: diffuseTexture,
   normalMap: normalTexture,
   displacementMap: heightTexture,
-  displacementScale: 40,
+  displacementScale: 100,
   normalScale: new THREE.Vector2(1, 1),
 });</code></pre>
     <p>用鼠标拖动环绕观察，滚轮缩放。</p>
@@ -75,7 +75,7 @@ const mat = new THREE.MeshStandardMaterial({
     controls.maxPolarAngle = Math.PI / 2 - 0.05; // 限制相机不要钻到地下
     controls.minDistance = 5;
     controls.maxDistance = 400;
-    controls.target.set(0, 10, 0);
+    controls.target.set(0, 25, 0);
 
     // 加载提示
     const loadingTip = document.createElement('div');
@@ -97,14 +97,14 @@ const mat = new THREE.MeshStandardMaterial({
         map: tex.diffuse,
         normalMap: tex.normal,
         displacementMap: tex.height,
-        displacementScale: 40, // 控制高度起伏的强度
+        displacementScale: 100, // 控制高度起伏的强度
         // 让 displacement 真正生效，需要足够细分顶点
         normalScale: new THREE.Vector2(1.2, 1.2),
       });
 
       const terrain = new THREE.Mesh(geo, mat);
       terrain.rotation.x = -Math.PI / 2; // 把平面从 XY 旋转到 XZ 地面
-      terrain.position.y = -10; // 略微下沉，留出空间观察地形
+      terrain.position.y = -25; // 下沉以容纳高峰，让地形起伏在视野中
       ctx.scene.add(terrain);
 
       // 加载完成，移除提示
