@@ -99,15 +99,7 @@ export const solarSystem: Lesson = {
         const moonOrbit = new THREE.Group();
         earth.add(moonOrbit);
         moonOrbit.add(moon);
-
-        // 公转轨道线（仅作示意）
-        const orbitRing = new THREE.Mesh(
-            new THREE.RingGeometry(11.98, 12.02, 128),
-            new THREE.MeshBasicMaterial({color: 0x334155, side: THREE.DoubleSide}),
-        );
-        orbitRing.rotation.x = Math.PI / 2;
-        ctx.scene.add(orbitRing);
-
+        
         ctx.onResize((w, h) => {
             camera.aspect = w / h;
             camera.updateProjectionMatrix();
