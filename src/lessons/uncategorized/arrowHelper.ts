@@ -25,7 +25,7 @@ export const arrowHelper: Lesson = {
       <li><code>setLength(length, headLength, headWidth)</code>：修改长度与头部尺寸</li>
       <li><code>setColor(color)</code>：修改颜色</li>
     </ul>
-    <p>画布中黄色箭头会随「方向角」参数绕 Y 轴转动，拖动参数面板即可体验上述方法的效果。</p>
+    <p>画布中黄色箭头会随「方向 X/Y/Z」参数改变指向，拖动参数面板即可体验上述方法的效果。</p>
   `,
     create(container) {
         const ctx = createContext(container);
@@ -47,7 +47,7 @@ export const arrowHelper: Lesson = {
 
         // 可动态修改的主箭头：方向随参数变化
         const mainArrow = new THREE.ArrowHelper(
-            new THREE.Vector3(1, 0.6, 1).normalize(),
+            new THREE.Vector3(1, 1, 1).normalize(),
             new THREE.Vector3(0, 0, 0),
             3,
             0xffd60a,
@@ -61,8 +61,9 @@ export const arrowHelper: Lesson = {
             length: 3,
             headLength: 0.6,
             headWidth: 0.35,
-            angle: Math.PI / 4,
-            color: 0xffd60a,
+          dirX: 1,
+          dirY: 1,
+          dirZ: 1,
         };
 
         const panel = createParamPanel({
@@ -99,24 +100,46 @@ export const arrowHelper: Lesson = {
                     precision: 2
                 },
                 {
-                    key: 'angle',
-                    label: '方向角',
+                  key: 'dirX',
+                  label: '方向 X',
                     type: 'range',
-                    min: 0,
-                    max: 6.28,
-                    step: 0.05,
-                    value: state.angle,
-                    precision: 2,
-                    desc: '主箭头绕 Y 轴旋转的角度'
+                  min: -2,
+                  max: 2,
+                  step: 0.05,
+                  value: state.dirX,
+                  precision: 2,
+                  desc: '方向向量的 X 分量（内部自动归一化）'
                 },
-                {key: 'color', label: '颜色', type: 'color', min: 0, max: 0xffffff, step: 1, value: state.color},
+              {
+                key: 'dirY',
+                label: '方向 Y',
+                type: 'range',
+                min: -2,
+                max: 2,
+                step: 0.05,
+                value: state.dirY,
+                precision: 2,
+                desc: '方向向量的 Y 分量（内部自动归一化）'
+              },
+              {
+                key: 'dirZ',
+                label: '方向 Z',
+                type: 'range',
+                min: -2,
+                max: 2,
+                    step: 0.05,
+                value: state.dirZ,
+                    precision: 2,
+                desc: '方向向量的 Z 分量（内部自动归一化）'
+                },
             ],
             defaults: {
                 length: 3,
                 headLength: 0.6,
                 headWidth: 0.35,
-                angle: Math.PI / 4,
-                color: 0xffd60a,
+              dirX: 1,
+              dirY: 1,
+              dirZ: 1,
             },
             onChange(key, value) {
                 switch (key) {
@@ -126,12 +149,10 @@ export const arrowHelper: Lesson = {
                         state[key] = value;
                         mainArrow.setLength(state.length, state.headLength, state.headWidth);
                         break;
-                    case 'angle':
-                        state.angle = value;
-                        break;
-                    case 'color':
-                        state.color = value;
-                        mainArrow.setColor(value);
+                  case 'dirX':
+                  case 'dirY':
+                  case 'dirZ':
+                    state[key] = value;
                         break;
                 }
             },
@@ -147,8 +168,8 @@ export const arrowHelper: Lesson = {
         let raf = 0;
         const loop = () => {
             raf = requestAnimationFrame(loop);
-            // 通过 setDirection 让主箭头指向球面上随角度变化的点
-            const dir = new THREE.Vector3(Math.sin(state.angle), 0.6, Math.cos(state.angle)).normalize();
+          // 通过 setDirection 让主箭头指向三个方向分量组成的向量
+          const dir = new THREE.Vector3(state.dirX, state.dirY, state.dirZ).normalize();
             mainArrow.setDirection(dir);
             controls.update();
             ctx.renderer.render(ctx.scene, camera);

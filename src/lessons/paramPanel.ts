@@ -115,10 +115,14 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
         valueEl.textContent = v.toFixed(c.precision ?? 2);
         onChange?.(c.key, v);
       });
-      row.appendChild(input);
     }
 
     row.appendChild(header);
+
+    // 滑块类型的名称显示在滑动条上方，因此滑动条放在 header 之后
+    if (!isCheckbox && !isColor) {
+      row.appendChild(input);
+    }
 
     if (c.desc) {
       const desc = document.createElement('div');
