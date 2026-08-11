@@ -3,6 +3,29 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
 
+/** 在 canvas 上随机散布斑块，用于给球体增加可见纹理 */
+function makeBlobTexture(base: string, blob: string, count: number, size = 512): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size / 2;
+  const c = canvas.getContext('2d')!;
+  c.fillStyle = base;
+  c.fillRect(0, 0, canvas.width, canvas.height);
+  for (let i = 0; i < count; i++) {
+    const x = Math.random() * canvas.width;
+    const y = Math.random() * canvas.height;
+    const r = 8 + Math.random() * 28;
+    c.beginPath();
+    c.arc(x, y, r, 0, Math.PI * 2);
+    c.fillStyle = blob;
+    c.globalAlpha = 0.5 + Math.random() * 0.5;
+    c.fill();
+  }
+  c.globalAlpha = 1;
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
 export const solarSystem: Lesson = {
   id: 'example-solar-system',
   title: '太阳系',
@@ -34,7 +57,7 @@ export const solarSystem: Lesson = {
     // ---- 天体 ----
     const sun = new THREE.Mesh(
       new THREE.SphereGeometry(3, 48, 48),
-      new THREE.MeshBasicMaterial({ color: 0xff5522 }),
+      new THREE.MeshBasicMaterial({ map: makeBlobTexture('#ff6a00', '#ff8c1a', 90) }),
     );
     ctx.scene.add(sun);
 
@@ -44,7 +67,11 @@ export const solarSystem: Lesson = {
 
     const earth = new THREE.Mesh(
       new THREE.SphereGeometry(1.2, 48, 48),
-      new THREE.MeshStandardMaterial({ color: 0x3b82f6, roughness: 0.9, metalness: 0 }),
+      new THREE.MeshStandardMaterial({
+        map: makeBlobTexture('#1e63c4', '#3fae5a', 50),
+        roughness: 0.9,
+        metalness: 0,
+      }),
     );
     earth.position.set(12, 0, 0);
     earthOrbit.add(earth);
@@ -55,7 +82,11 @@ export const solarSystem: Lesson = {
 
     const moon = new THREE.Mesh(
       new THREE.SphereGeometry(0.4, 32, 32),
-      new THREE.MeshStandardMaterial({ color: 0xcfcfcf, roughness: 1, metalness: 0 }),
+      new THREE.MeshStandardMaterial({
+        map: makeBlobTexture('#bdbdbd', '#8a8a8a', 40),
+        roughness: 1,
+        metalness: 0,
+      }),
     );
     moon.position.set(3, 0, 0);
     moonOrbit.add(moon);
