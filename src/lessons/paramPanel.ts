@@ -7,8 +7,8 @@ import {
 export interface ParamSlider {
   key: string;
   label: string;
-  /** 控件类型：'range' 为滑块（默认），'checkbox' 为勾选框，适用于布尔型参数 */
-  type?: 'range' | 'checkbox';
+  /** 控件类型：'range' 为滑块（默认），'checkbox' 为勾选框，'color' 为颜色选择器（value 为 0xRRGGBB） */
+  type?: 'range' | 'checkbox' | 'color';
   min: number;
   max: number;
   step: number;
@@ -59,8 +59,11 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
 
   const rows = new Map<string, { input: HTMLInputElement; value: HTMLElement }>();
 
+  const hexStr = (n: number) => '#' + (n & 0xffffff).toString(16).padStart(6, '0');
+
   controls.forEach((c) => {
     const isCheckbox = c.type === 'checkbox';
+    const isColor = c.type === 'color';
 
     const row = document.createElement('div');
     row.className = 'camera-control-row';
@@ -72,7 +75,9 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
     label.textContent = c.label;
     const valueEl = document.createElement('span');
     valueEl.className = 'camera-control-value';
-    valueEl.textContent = Number(c.value).toFixed(c.precision ?? 2);
+    valueEl.textContent = isColor
+        ? hexStr(c.value).toUpperCase()
+        : Number(c.value).toFixed(c.precision ?? 2);
     header.append(label, valueEl);
     if (isCheckbox) valueEl.style.display = 'none';
 
@@ -86,6 +91,17 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
         onChange?.(c.key, v);
       });
       // 勾选框与标题同行显示
+      header.appendChild(input);
+    } else if (isColor) {
+      input.type = 'color';
+      input.value = hexStr(c.value);
+      if (c.disabled) input.disabled = true;
+      input.addEventListener('input', () => {
+        const v = parseInt(input.value.slice(1), 16);
+        valueEl.textContent = hexStr(v).toUpperCase();
+        onChange?.(c.key, v);
+      });
+      // 颜色选择器与标题同行显示
       header.appendChild(input);
     } else {
       input.type = 'range';
@@ -131,6 +147,9 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
       const row = rows.get(c.key)!;
       if (c.type === 'checkbox') {
         row.input.checked = def >= 0.5;
+      } else if (c.type === 'color') {
+        row.input.value = hexStr(def);
+        row.value.textContent = hexStr(def).toUpperCase();
       } else {
         row.input.value = String(def);
         row.value.textContent = Number(def).toFixed(c.precision ?? 2);
@@ -151,6 +170,9 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
       const precision = c?.precision ?? 2;
       if (c?.type === 'checkbox') {
         row.input.checked = value >= 0.5;
+      } else if (c?.type === 'color') {
+        row.input.value = hexStr(value);
+        row.value.textContent = hexStr(value).toUpperCase();
       } else {
         row.input.value = String(value);
         row.value.textContent = Number(value).toFixed(precision);

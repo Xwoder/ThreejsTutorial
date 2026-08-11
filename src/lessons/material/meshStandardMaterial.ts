@@ -41,7 +41,10 @@ export const meshStandardMaterial: Lesson = {
             camera.updateProjectionMatrix();
         });
 
-        const count = 5;
+        const cols = 3;
+        const rows = 3;
+        const count = cols * rows;
+        const spacing = 2.0;
         const meshes: THREE.Mesh[] = [];
         for (let i = 0; i < count; i++) {
             const metalness = i / (count - 1);
@@ -53,7 +56,13 @@ export const meshStandardMaterial: Lesson = {
                     roughness: 0.25,
                 }),
             );
-            mesh.position.set((i - (count - 1) / 2) * 1.6, 0, 0);
+            const col = i % cols;
+            const row = Math.floor(i / cols);
+            mesh.position.set(
+                (col - (cols - 1) / 2) * spacing,
+                -(row - (rows - 1) / 2) * spacing,
+                0,
+            );
             meshes.push(mesh);
             ctx.scene.add(mesh);
         }

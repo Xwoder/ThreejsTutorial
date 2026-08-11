@@ -20,7 +20,7 @@ export const meshPhongMaterial: Lesson = {
 })</code></pre>
     <p>真实感不如 PBR 的 MeshStandardMaterial，但计算量小，适合移动端或简单效果。</p>
     <h3>本例说明</h3>
-    <p>两个球体颜色相同：左侧 <code>shininess: 10</code>，右侧 <code>shininess: 100</code>。旋转球体观察高光区域的大小差异。</p>
+    <p>9 个小球按 3×3 排列，<code>shininess</code> 从 10 到 1000 均匀递增。旋转球体观察高光区域的大小差异。</p>
   `,
     create(container) {
         const ctx = createContext(container);
@@ -33,19 +33,27 @@ export const meshPhongMaterial: Lesson = {
             camera.updateProjectionMatrix();
         });
 
-        const low = new THREE.Mesh(
-            new THREE.SphereGeometry(1.1, 48, 24),
-            new THREE.MeshPhongMaterial({color: 0x60a5fa, shininess: 10, specular: 0xffffff}),
-        );
-        low.position.set(-1.5, 0, 0);
-        ctx.scene.add(low);
-
-        const high = new THREE.Mesh(
-            new THREE.SphereGeometry(1.1, 48, 24),
-            new THREE.MeshPhongMaterial({color: 0x60a5fa, shininess: 100, specular: 0xffffff}),
-        );
-        high.position.set(1.5, 0, 0);
-        ctx.scene.add(high);
+        const cols = 3;
+        const rows = 3;
+        const count = cols * rows;
+        const spacing = 2.0;
+        const meshes: THREE.Mesh[] = [];
+        for (let i = 0; i < count; i++) {
+            const shininess = i * 10;
+            const mesh = new THREE.Mesh(
+                new THREE.SphereGeometry(0.7, 48, 24),
+                new THREE.MeshPhongMaterial({color: 0x60a5fa, shininess, specular: 0xffffff}),
+            );
+            const col = i % cols;
+            const row = Math.floor(i / cols);
+            mesh.position.set(
+                (col - (cols - 1) / 2) * spacing,
+                -(row - (rows - 1) / 2) * spacing,
+                0,
+            );
+            meshes.push(mesh);
+            ctx.scene.add(mesh);
+        }
 
         ctx.scene.add(new THREE.AmbientLight(0xffffff, 0.4));
         const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
@@ -58,8 +66,7 @@ export const meshPhongMaterial: Lesson = {
         let raf = 0;
         const loop = () => {
             raf = requestAnimationFrame(loop);
-            low.rotation.y += 0.01;
-            high.rotation.y -= 0.01;
+            meshes.forEach((m) => (m.rotation.y += 0.01));
             controls.update();
             ctx.renderer.render(ctx.scene, camera);
         };
