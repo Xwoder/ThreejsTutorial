@@ -29,6 +29,7 @@ import { rubiksCube } from './examples/rubiksCube';
 import { solarSystem } from './examples/solarSystem';
 import { canyonTerrain } from './examples/canyonTerrain';
 import { mountainRangeTerrain } from './examples/mountainRangeTerrain';
+import {arrowHelper} from './uncategorized/arrowHelper';
 
 export const chapters: Chapter[] = [
   {
@@ -70,5 +71,10 @@ export const chapters: Chapter[] = [
     id: 'examples',
     title: '示例',
     lessons: [mercedes, ferrari, airco, meshTextured, rubiksCube, solarSystem, canyonTerrain, mountainRangeTerrain],
+  },
+  {
+    id: 'uncategorized',
+    title: '未分类',
+    lessons: [arrowHelper],
   },
 ];
