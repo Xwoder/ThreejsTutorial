@@ -49,7 +49,7 @@ export const chapters: Chapter[] = [
   {
     id: 'material',
     title: '材质',
-    lessons: [materialTypes, textures],
+    lessons: [...materialTypes, textures],
   },
   {
     id: 'light',
