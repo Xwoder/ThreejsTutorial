@@ -1,4 +1,7 @@
 import * as THREE from 'three';
+import {Line2} from 'three/examples/jsm/lines/Line2.js';
+import {LineGeometry} from 'three/examples/jsm/lines/LineGeometry.js';
+import {LineMaterial} from 'three/examples/jsm/lines/LineMaterial.js';
 
 /**
  * 通用图片纹理加载器，统一设置各向异性 + 跨域。
@@ -104,6 +107,23 @@ function makeAxisLabel(text: string, color: string): THREE.Sprite {
 }
 
 /**
+ * 创建一条加粗轴线（Line2 + 世界单位线宽，替代 WebGL 线宽受限的 AxesHelper）。
+ * @param to 轴线终点（世界坐标，起点为原点）
+ * @param color 颜色
+ * @param width 线宽（世界单位）
+ */
+function makeAxisLine(to: THREE.Vector3, color: string, width: number): Line2 {
+  const geometry = new LineGeometry();
+  geometry.setPositions([0, 0, 0, to.x, to.y, to.z]);
+  const material = new LineMaterial({color, linewidth: width, worldUnits: true});
+  const line = new Line2(geometry, material);
+  line.computeLineDistances();
+  // 避免短线段因包围球计算被错误裁剪
+  line.frustumCulled = false;
+  return line;
+}
+
+/**
  * 创建带 X/Y/Z 文字标签的坐标轴辅助对象。
  * X 轴为红色、Y 轴为绿色、Z 轴为蓝色，标签紧贴各轴线末端并始终显示在最前。
  *
@@ -111,7 +131,16 @@ function makeAxisLabel(text: string, color: string): THREE.Sprite {
  */
 export function createAxesWithLabels(size = 6): THREE.Group {
   const group = new THREE.Group();
-  group.add(new THREE.AxesHelper(size));
+
+  // 加粗的轴线：粗细随坐标轴尺寸等比缩放
+  const lineWidth = size * 0.01;
+  [
+    {dir: new THREE.Vector3(size, 0, 0), color: '#ff453a'},
+    {dir: new THREE.Vector3(0, size, 0), color: '#32d74b'},
+    {dir: new THREE.Vector3(0, 0, size), color: '#0a84ff'},
+  ].forEach(({dir, color}) => {
+    group.add(makeAxisLine(dir, color, lineWidth));
+  });
 
   // 标签中心仅略超出轴末端，避免离顶端过远
   const d = size + 0.2;
