@@ -81,7 +81,7 @@ export const solarSystem: Lesson = {
 
       sun.rotation.y += dt * 0.3;
       earthOrbit.rotation.y += dt * 0.5;   // 地球绕太阳公转
-      earth.rotation.y += dt * 1.0;         // 地球自转
+      earth.rotation.y += dt;         // 地球自转
       moonOrbit.rotation.y += dt * 2.0;     // 月亮绕地球公转
 
       controls.update();
