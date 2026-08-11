@@ -4,9 +4,9 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import type { Lesson } from '../types';
 import { createContext, loadTexture, makeCleanup } from '../helper';
 
-import heightMapUrl from '../../assets/model/height/Canyon Height Maps/Canyon Height Map.png?url';
-import diffuseMapUrl from '../../assets/model/height/Canyon Height Maps/Canyon Diffuse.png?url';
-import normalMapUrl from '../../assets/model/height/Canyon Height Maps/Canyon Normal Map.png?url';
+import heightMapUrl from '../../assets/HeightMap/Canyon Height Maps/Canyon Height Map.png?url';
+import diffuseMapUrl from '../../assets/HeightMap/Canyon Height Maps/Canyon Diffuse.png?url';
+import normalMapUrl from '../../assets/HeightMap/Canyon Height Maps/Canyon Normal Map.png?url';
 
 /**
  * 加载图片作为纹理，附带错误提示（在 helper.ts 中抽出了通用实现）

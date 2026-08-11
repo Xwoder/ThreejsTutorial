@@ -4,8 +4,8 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import type { Lesson } from '../types';
 import { createContext, loadTexture, makeCleanup } from '../helper';
 
-import heightMapUrl from '../../assets/model/height/Mountain Range 8k Height Map/Mountain Range Height Map PNG.png?url';
-import diffuseMapUrl from '../../assets/model/height/Mountain Range 8k Height Map/Mountain Range Diffuse PNG.png?url';
+import heightMapUrl from '../../assets/HeightMap/Mountain Range 8k Height Map/Mountain Range Height Map PNG.png?url';
+import diffuseMapUrl from '../../assets/HeightMap/Mountain Range 8k Height Map/Mountain Range Diffuse PNG.png?url';
 
 export const mountainRangeTerrain: Lesson = {
   id: 'example-mountain-range-heightmap',
