@@ -105,7 +105,7 @@ function makeAxisLabel(text: string, color: string): THREE.Sprite {
 
 /**
  * 创建带 X/Y/Z 文字标签的坐标轴辅助对象。
- * X 轴为红色、Y 轴为绿色、Z 轴为蓝色，标签放在各轴线末端并始终显示在最前。
+ * X 轴为红色、Y 轴为绿色、Z 轴为蓝色，标签紧贴各轴线末端并始终显示在最前。
  *
  * @param size 坐标轴长度
  */
@@ -113,7 +113,8 @@ export function createAxesWithLabels(size = 6): THREE.Group {
   const group = new THREE.Group();
   group.add(new THREE.AxesHelper(size));
 
-  const d = size + 0.6;
+  // 标签中心仅略超出轴末端，避免离顶端过远
+  const d = size + 0.2;
   const labelScale = size * 0.28;
   const labels: { text: string; color: string; pos: THREE.Vector3 }[] = [
     { text: 'X', color: '#ff453a', pos: new THREE.Vector3(d, 0, 0) },
