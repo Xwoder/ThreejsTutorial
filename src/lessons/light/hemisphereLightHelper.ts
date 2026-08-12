@@ -5,7 +5,7 @@ import {createContext, makeCleanup} from '../helper';
 import {createParamPanel} from '../paramPanel';
 
 export const hemisphereLightHelper: Lesson = {
-    id: 'hemisphere-light-helper',
+    id: 'hemisphere-light',
     title: 'HemisphereLightHelper 半球光辅助线',
     description: `
     <h2>HemisphereLight 半球光</h2>
