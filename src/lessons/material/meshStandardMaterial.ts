@@ -9,18 +9,23 @@ import {createParamPanel} from '../../utils/paramPanel.ts';
 function makeLabelSprite(
     text: string,
     color = '#e2e8f0',
+    fontSize = 30,
+    width = 256,
+    framed = true,
 ): { sprite: THREE.Sprite; texture: THREE.CanvasTexture } {
     const canvas = document.createElement('canvas');
-    canvas.width = 256;
+    canvas.width = width;
     canvas.height = 64;
     const c = canvas.getContext('2d')!;
-    c.fillStyle = 'rgba(15, 23, 42, 0.72)';
-    c.fillRect(0, 0, canvas.width, canvas.height);
-    c.strokeStyle = 'rgba(148, 163, 184, 0.5)';
-    c.lineWidth = 2;
-    c.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+    if (framed) {
+        c.fillStyle = 'rgba(15, 23, 42, 0.72)';
+        c.fillRect(0, 0, canvas.width, canvas.height);
+        c.strokeStyle = 'rgba(148, 163, 184, 0.5)';
+        c.lineWidth = 2;
+        c.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+    }
     c.fillStyle = color;
-    c.font = 'bold 30px monospace';
+    c.font = `bold ${fontSize}px monospace`;
     c.textAlign = 'center';
     c.textBaseline = 'middle';
     c.fillText(text, canvas.width / 2, canvas.height / 2);
@@ -111,6 +116,107 @@ export const meshStandardMaterial: Lesson = {
             }
         }
 
+        // 两个轴向箭头：在左上角球外围交点汇合，形成坐标轴式交角，不穿过球体
+        // 第一球（左上角）：col 0, row 0 => x = -(cols-1)/2*spacing, y = +(rows-1)/2*spacing
+        const firstX = -((cols - 1) / 2) * spacing;
+        const firstY = ((rows - 1) / 2) * spacing;
+        const axisSpan = (cols - 1) * spacing; // 跨过整排/整列的长度
+        const radius = 0.8; // 球半径
+        const offset = radius + 0.35; // 箭头离球面的外侧距离
+        // 两轴交点：左上角球左上方外围角点
+        const origin = new THREE.Vector3(firstX - offset, firstY + offset, 0);
+        const extra = 0.9; // 超出最后一球球边缘外的额外延伸
+        // 交点向右直到最后一球右边缘外再延伸 extra
+        const spanX = axisSpan + offset + extra;
+        // 交点向下直到最后一球下边缘外再延伸 extra
+        const spanY = axisSpan + offset + extra;
+
+        // metalness：沿 X 正方向（向右），位于第一行球上方外围
+        const arrowM = new THREE.ArrowHelper(
+            new THREE.Vector3(1, 0, 0),
+            origin,
+            spanX,
+            0x38bdf8,
+            0.3,
+            0.18,
+        );
+        // roughness：沿 Y 负方向（向下），位于第一列球左侧外围
+        const arrowR = new THREE.ArrowHelper(
+            new THREE.Vector3(0, -1, 0),
+            origin,
+            spanY,
+            0x34d399,
+            0.3,
+            0.18,
+        );
+        ctx.scene.add(arrowM, arrowR);
+
+        // 交点向负方向各延伸一小段（不带箭头），让相交更明显（形成 L 形）
+        const tailLen = 0.8;
+        const mTailGeo = new THREE.BufferGeometry().setFromPoints([
+            origin.clone().add(new THREE.Vector3(-tailLen, 0, 0)),
+            origin.clone(),
+        ]);
+        const mTail = new THREE.Line(
+            mTailGeo,
+            new THREE.LineBasicMaterial({color: 0x38bdf8}),
+        );
+        const rTailGeo = new THREE.BufferGeometry().setFromPoints([
+            origin.clone().add(new THREE.Vector3(0, tailLen, 0)),
+            origin.clone(),
+        ]);
+        const rTail = new THREE.Line(
+            rTailGeo,
+            new THREE.LineBasicMaterial({color: 0x34d399}),
+        );
+        ctx.scene.add(mTail, rTail);
+
+        // 轴中间只显示标签名
+        const {sprite: mSprite, texture: mTex} = makeLabelSprite(
+            'metalness',
+            '#38bdf8',
+            28,
+            300,
+            false,
+        );
+        mSprite.position.set(origin.x + spanX / 2, firstY + offset + 0.3, 0);
+        mSprite.scale.set(2.0, 0.5, 1);
+        ctx.scene.add(mSprite);
+
+        const {sprite: rSprite, texture: rTex} = makeLabelSprite(
+            'roughness',
+            '#34d399',
+            28,
+            300,
+            false,
+        );
+        rSprite.position.set(firstX - offset - 0.85, origin.y - spanY / 2, 0);
+        rSprite.scale.set(2.0, 0.5, 1);
+        ctx.scene.add(rSprite);
+
+        // 各自轴的远端显示 "1"，紧贴箭头头部，位于轴线外侧（与轴名同侧）
+        const {sprite: mOne, texture: mOneTex} = makeLabelSprite('1', '#38bdf8', 30, 256, false);
+        mOne.position.set(origin.x + spanX - 0.3, firstY + offset + 0.3, 0);
+        mOne.scale.set(0.85, 0.28, 1);
+        ctx.scene.add(mOne);
+
+        const {sprite: rOne, texture: rOneTex} = makeLabelSprite('1', '#34d399', 30, 256, false);
+        rOne.position.set(firstX - offset - 0.35, origin.y - spanY + 0.3, 0);
+        rOne.scale.set(0.85, 0.28, 1);
+        ctx.scene.add(rOne);
+
+        // 共用一个 "0"：显示在交点（原点）左上角负方向区域
+        const {sprite: zeroSprite, texture: zeroTex} = makeLabelSprite(
+            '0',
+            '#e2e8f0',
+            30,
+            256,
+            false,
+        );
+        zeroSprite.position.set(origin.x - 0.3, origin.y + 0.3, 0);
+        zeroSprite.scale.set(0.85, 0.28, 1);
+        ctx.scene.add(zeroSprite);
+
         const ambient = new THREE.AmbientLight(0xffffff, 0.3);
         ctx.scene.add(ambient);
         const dirLight = new THREE.DirectionalLight(0xffffff, 1);
@@ -175,6 +281,22 @@ export const meshStandardMaterial: Lesson = {
             pmrem.dispose();
             labelTextures.forEach((t) => t.dispose());
             labelSprites.forEach((s) => s.material.dispose());
+            arrowM.dispose();
+            arrowR.dispose();
+            mTailGeo.dispose();
+            rTailGeo.dispose();
+            (mTail.material as THREE.Material).dispose();
+            (rTail.material as THREE.Material).dispose();
+            mTex.dispose();
+            rTex.dispose();
+            mSprite.material.dispose();
+            rSprite.material.dispose();
+            mOneTex.dispose();
+            rOneTex.dispose();
+            mOne.material.dispose();
+            rOne.material.dispose();
+            zeroTex.dispose();
+            zeroSprite.material.dispose();
             panel.remove();
         });
     },
