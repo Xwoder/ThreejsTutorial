@@ -25,8 +25,8 @@ scene.add(helper);</code></pre>
         ctx.scene.background = new THREE.Color(0x111827);
 
         const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 100);
-        camera.position.set(9, 6, 10);
-        camera.lookAt(0, 1, 0);
+        camera.position.set(5.5, 3.2, 6.5);
+        camera.lookAt(2.2, 3, 3.5);
         ctx.onResize((w, h) => {
             camera.aspect = w / h;
             camera.updateProjectionMatrix();
@@ -34,12 +34,12 @@ scene.add(helper);</code></pre>
 
         const controls = new OrbitControls(camera, ctx.renderer.domElement);
         controls.enableDamping = true;
-        controls.target.set(0, 1, 0);
+        controls.target.set(2.2, 3, 3.5);
 
         ctx.scene.add(new THREE.GridHelper(10, 10, 0x475569, 0x1e293b));
 
         // 被调试的相机：它的视锥体将由 CameraHelper 可视化
-        const targetCamera = new THREE.PerspectiveCamera(60, 1, 0.5, 15);
+        const targetCamera = new THREE.PerspectiveCamera(30, 1, 0.5, 10);
         targetCamera.position.set(3, 2.5, 5);
         targetCamera.lookAt(0, 1, 0);
         ctx.scene.add(targetCamera); // 挂到场景中，helper 才能拿到正确的世界矩阵
@@ -71,9 +71,9 @@ scene.add(helper);</code></pre>
 
         // 参数状态
         const state = {
-            fov: 60,
+            fov: 30,
             near: 0.5,
-            far: 15,
+            far: 10,
             showHelper: 1,
         };
 
@@ -135,9 +135,9 @@ scene.add(helper);</code></pre>
                 },
             ],
             defaults: {
-                fov: 60,
+                fov: 30,
                 near: 0.5,
-                far: 15,
+                far: 10,
                 showHelper: 1,
             },
             onChange(key, value) {
