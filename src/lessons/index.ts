@@ -10,8 +10,10 @@ import { customGeometry } from './geometry/customGeometry';
 import { materialTypes } from './material/materialTypes';
 import { textures } from './material/textures';
 import { ambientDirectional } from './light/ambientDirectional';
-import { pointSpot } from './light/pointSpot';
+import {pointLight} from './light/pointLight';
+import {spotLight} from './light/spotLight';
 import {directionalLight} from './light/directionalLight';
+import {hemisphereLightHelper} from './light/hemisphereLightHelper';
 import { animationLoop } from './animation/animationLoop';
 import { orbitControls } from './animation/orbitControls';
 import { trackballControls } from './controls/trackballControls';
@@ -57,14 +59,9 @@ export const chapters: Chapter[] = [
     lessons: [...materialTypes, textures],
   },
   {
-    id: 'light',
-    title: '灯光',
-    lessons: [ambientDirectional, pointSpot],
-  },
-  {
     id: 'lights',
     title: '光',
-    lessons: [directionalLight],
+    lessons: [ambientDirectional, pointLight, spotLight, directionalLight, hemisphereLightHelper],
   },
   {
     id: 'animation',
