@@ -6,7 +6,7 @@ import {createParamPanel} from '../paramPanel';
 
 export const axesHelper: Lesson = {
     id: 'axes-helper',
-    title: 'AxesHelper 坐标轴（三轴异色）',
+    title: 'AxesHelper 坐标轴',
     description: `
     <h2>AxesHelper 坐标轴</h2>
     <p><code>AxesHelper</code> 用三条不同颜色的线段表示三个轴向，帮助快速建立空间方向感。默认约定：<b style="color:#f87171">X 轴为红色</b>、<b style="color:#4ade80">Y 轴为绿色</b>、<b style="color:#60a5fa">Z 轴为蓝色</b>。</p>
