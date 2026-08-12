@@ -7,8 +7,8 @@ const PERSP_FOV = 55;
 const CAMERA_POSITION = new THREE.Vector3(20, 14, 20);
 
 export const cameraCompare: Lesson = {
-    id: 'camera/',
-    title: '透视 vs 正交（对比）',
+    id: 'camera/perspective-vs-orthographic',
+    title: '对比透视相机与正交相机',
     description: `
     <h2>Perspective vs Orthographic</h2>
     <p>同一个场景、两套相机同时渲染：左侧为 <b>透视相机</b>（PerspectiveCamera），右侧为 <b>正交相机</b>（OrthographicCamera）。</p>
