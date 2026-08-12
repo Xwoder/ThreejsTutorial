@@ -31,6 +31,7 @@ import { canyonTerrain } from './examples/canyonTerrain';
 import { mountainRangeTerrain } from './examples/mountainRangeTerrain';
 import {arrowHelper} from './uncategorized/arrowHelper';
 import {axesHelper} from './uncategorized/axesHelper';
+import {cameraHelper} from './uncategorized/cameraHelper';
 
 export const chapters: Chapter[] = [
   {
@@ -76,6 +77,6 @@ export const chapters: Chapter[] = [
   {
     id: 'uncategorized',
     title: '未分类',
-    lessons: [arrowHelper, axesHelper],
+    lessons: [arrowHelper, axesHelper, cameraHelper],
   },
 ];
