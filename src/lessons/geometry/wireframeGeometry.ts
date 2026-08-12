@@ -148,7 +148,7 @@ function createWireframeDemo(container: HTMLElement, type: ShapeType): () => voi
 function makeShapeLesson(type: ShapeType): Lesson {
   const meta = shapeMeta[type];
   return {
-    id: `wireframe-geometry-${type}`,
+    id: `geometry/wireframe-geometry/wireframe-geometry-${type}`,
     title: meta.label,
     description: `
       <h2>WireframeGeometry × ${meta.label}</h2>
