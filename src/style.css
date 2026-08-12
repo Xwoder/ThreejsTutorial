@@ -146,6 +146,61 @@ body {
   color: var(--text-dim);
 }
 
+/* 透视 vs 正交 双画布对比 */
+.camera-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  height: 100%;
+  gap: 1px;
+  background: #334155;
+}
+
+.camera-pane {
+  position: relative;
+  overflow: hidden;
+  background: #111827;
+  min-width: 0;
+}
+
+.camera-pane-tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.78);
+  border: 1px solid #334155;
+  color: #e2e8f0;
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.camera-pane-tag .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.camera-pane-tag .dot.persp {
+  background: #38bdf8;
+  box-shadow: 0 0 6px #38bdf8;
+}
+
+.camera-pane-tag .dot.ortho {
+  background: #f59e0b;
+  box-shadow: 0 0 6px #f59e0b;
+}
+
 .demo-toolbar {
   position: absolute;
   left: 16px;

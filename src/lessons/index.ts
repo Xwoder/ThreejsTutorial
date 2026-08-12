@@ -3,6 +3,7 @@ import { scene } from './basics/scene.ts';
 import { coordinates } from './basics/coordinates';
 import { perspectiveCamera } from './camera/perspectiveCamera';
 import { orthographicCamera } from './camera/orthographicCamera';
+import {cameraCompare} from './camera/cameraCompare';
 import { stereoCamera } from './camera/stereoCamera';
 import { cubeCamera } from './camera/cubeCamera';
 import { builtinGeometries } from './geometry/builtinGeometries';
@@ -46,7 +47,7 @@ export const chapters: Chapter[] = [
   {
     id: 'camera',
     title: '相机',
-    lessons: [perspectiveCamera, orthographicCamera, stereoCamera, cubeCamera],
+    lessons: [cameraCompare, perspectiveCamera, orthographicCamera, stereoCamera, cubeCamera],
   },
   {
     id: 'geometry',
