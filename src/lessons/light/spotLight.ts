@@ -39,29 +39,78 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
             camera.updateProjectionMatrix();
         });
 
-        const material = new THREE.MeshStandardMaterial({color: 0x94a3b8, roughness: 0.5});
-        const floor = new THREE.Mesh(new THREE.PlaneGeometry(14, 14), material);
+        const floorMat = new THREE.MeshStandardMaterial({color: 0x94a3b8, roughness: 0.9});
+        const floor = new THREE.Mesh(new THREE.PlaneGeometry(14, 14), floorMat);
         floor.rotation.x = -Math.PI / 2;
         ctx.scene.add(floor);
-        for (let i = 0; i < 4; i++) {
-            const box = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), material);
-            box.position.set((i - 1.5) * 2, 0.4, (i % 2) * 2 - 1);
-            ctx.scene.add(box);
-        }
+
+        // 立体场景：立方体分布在空间不同位置、不同高度层
+        const props: { geo: THREE.BufferGeometry; mat: THREE.MeshStandardMaterial; pos: THREE.Vector3 }[] = [
+            // 低层（贴地）
+            {
+                geo: new THREE.BoxGeometry(1.0, 1.0, 1.0),
+                mat: new THREE.MeshStandardMaterial({color: 0x60a5fa, roughness: 0.6}),
+                pos: new THREE.Vector3(3.5, 0.5, 2.5)
+            },
+            {
+                geo: new THREE.BoxGeometry(0.9, 0.9, 0.9),
+                mat: new THREE.MeshStandardMaterial({color: 0xfbbf24, roughness: 0.5}),
+                pos: new THREE.Vector3(-3.5, 0.45, 3.0)
+            },
+            // 中层（悬浮约 1.5~2）
+            {
+                geo: new THREE.BoxGeometry(1.2, 1.2, 1.2),
+                mat: new THREE.MeshStandardMaterial({color: 0x34d399, roughness: 0.4}),
+                pos: new THREE.Vector3(2.0, 1.6, -3.0)
+            },
+            {
+                geo: new THREE.BoxGeometry(0.8, 0.8, 0.8),
+                mat: new THREE.MeshStandardMaterial({color: 0xfb7185, roughness: 0.5}),
+                pos: new THREE.Vector3(-2.5, 1.9, -2.0)
+            },
+            {
+                geo: new THREE.BoxGeometry(1.4, 1.4, 1.4),
+                mat: new THREE.MeshStandardMaterial({color: 0xa78bfa, roughness: 0.5}),
+                pos: new THREE.Vector3(1.0, 1.7, 3.5)
+            },
+            // 高层（悬浮约 3~4）
+            {
+                geo: new THREE.BoxGeometry(0.7, 0.7, 0.7),
+                mat: new THREE.MeshStandardMaterial({color: 0x7dd3fc, roughness: 0.3}),
+                pos: new THREE.Vector3(-1.5, 3.2, -3.5)
+            },
+            {
+                geo: new THREE.BoxGeometry(1.0, 1.0, 1.0),
+                mat: new THREE.MeshStandardMaterial({color: 0xf472b6, roughness: 0.5}),
+                pos: new THREE.Vector3(3.0, 3.4, -1.5)
+            },
+            {
+                geo: new THREE.BoxGeometry(0.9, 0.9, 0.9),
+                mat: new THREE.MeshStandardMaterial({color: 0x38bdf8, roughness: 0.4}),
+                pos: new THREE.Vector3(-2.0, 4.2, 1.8)
+            },
+        ];
+        const meshes = props.map(({geo, mat, pos}) => {
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.copy(pos);
+            ctx.scene.add(mesh);
+            return mesh;
+        });
 
         // 微弱环境光，避免完全漆黑
         ctx.scene.add(new THREE.AmbientLight(0xffffff, 0.08));
 
         const spot = new THREE.SpotLight(0x7dd3fc, 120);
-        spot.position.set(3, 5, 0);
+        spot.position.set(0, 4, 0); // 聚光灯竖直向上移动，悬于原点上方
         spot.angle = Math.PI / 8;
         spot.penumbra = 0.35;
         const target = new THREE.Object3D();
-        target.position.set(3, 0, 0);
+        target.position.set(3, 0, 2);
         ctx.scene.add(target);
         spot.target = target;
         ctx.scene.add(spot);
-        ctx.scene.add(new THREE.SpotLightHelper(spot));
+        const spotHelper = new THREE.SpotLightHelper(spot);
+        ctx.scene.add(spotHelper);
 
         const panel = createParamPanel({
             container,
@@ -126,8 +175,37 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
                     desc: '照射目标在 X 方向的位置',
                     precision: 1
                 },
+                {
+                    key: 'targetY',
+                    label: '目标 Y',
+                    min: 0,
+                    max: 3.5,
+                    step: 0.1,
+                    value: 0,
+                    desc: '控制光锥俯仰角：0 = 垂直向下，越大越接近水平（超过光源高度会朝上照射，无意义）',
+                    precision: 1
+                },
+                {
+                    key: 'targetZ',
+                    label: '目标 Z',
+                    min: -6,
+                    max: 6,
+                    step: 0.1,
+                    value: 0,
+                    desc: '照射目标在 Z 方向的位置',
+                    precision: 1
+                },
             ],
-            defaults: {intensity: 120, angle: 22.5, penumbra: 0.35, distance: 0, color: 0x7dd3fc, targetX: 3},
+            defaults: {
+                intensity: 120,
+                angle: 22.5,
+                penumbra: 0.35,
+                distance: 0,
+                color: 0x7dd3fc,
+                targetX: 3,
+                targetY: 0,
+                targetZ: 2
+            },
             onChange: (key, value) => {
                 switch (key) {
                     case 'intensity':
@@ -147,6 +225,15 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
                         break;
                     case 'targetX':
                         target.position.x = value;
+                        spotHelper.update();
+                        break;
+                    case 'targetY':
+                        target.position.y = value;
+                        spotHelper.update();
+                        break;
+                    case 'targetZ':
+                        target.position.z = value;
+                        spotHelper.update();
                         break;
                 }
             },
@@ -158,6 +245,7 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
         let raf = 0;
         const loop = () => {
             raf = requestAnimationFrame(loop);
+            spotHelper.update();
             controls.update();
             ctx.renderer.render(ctx.scene, camera);
         };
@@ -166,6 +254,13 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
         return makeCleanup(ctx, () => {
             cancelAnimationFrame(raf);
             controls.dispose();
+            spotHelper.dispose();
+            meshes.forEach((m) => {
+                m.geometry.dispose();
+                (m.material as THREE.Material).dispose();
+            });
+            floor.geometry.dispose();
+            floorMat.dispose();
             panel.remove();
         });
     },
