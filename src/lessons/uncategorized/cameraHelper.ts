@@ -25,8 +25,8 @@ scene.add(helper);</code></pre>
         ctx.scene.background = new THREE.Color(0x111827);
 
         const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 100);
-        camera.position.set(5.5, 3.2, 6.5);
-        camera.lookAt(2.2, 3, 3.5);
+        camera.position.set(6.5, 5.5, 10);
+        camera.lookAt(3.5, 2, 4);
         ctx.onResize((w, h) => {
             camera.aspect = w / h;
             camera.updateProjectionMatrix();
@@ -34,14 +34,14 @@ scene.add(helper);</code></pre>
 
         const controls = new OrbitControls(camera, ctx.renderer.domElement);
         controls.enableDamping = true;
-        controls.target.set(2.2, 3, 3.5);
+        controls.target.set(3.5, 2, 4);
 
         ctx.scene.add(new THREE.GridHelper(10, 10, 0x475569, 0x1e293b));
 
         // 被调试的相机：它的视锥体将由 CameraHelper 可视化
-        const targetCamera = new THREE.PerspectiveCamera(30, 1, 0.5, 10);
-        targetCamera.position.set(3, 2.5, 5);
-        targetCamera.lookAt(0, 1, 0);
+        const targetCamera = new THREE.PerspectiveCamera(30, 1, 0.5, 7);
+        targetCamera.position.set(0.5, 2.5, 4);
+        targetCamera.lookAt(8, 1.5, 4);
         ctx.scene.add(targetCamera); // 挂到场景中，helper 才能拿到正确的世界矩阵
 
         const helper = new THREE.CameraHelper(targetCamera);
@@ -54,28 +54,43 @@ scene.add(helper);</code></pre>
         );
         ctx.scene.add(helper);
 
+        // 参数状态
+        const state = {
+            fov: 30,
+            near: 0.5,
+            far: 7,
+            showHelper: 1,
+        };
+
+        /** 在被调试相机的视锥体内随机生成一个点（沿视线方向随机距离，横截面内随机偏移） */
+        const randPointInFrustum = () => {
+            const dir = new THREE.Vector3();
+            targetCamera.getWorldDirection(dir);
+            const d = THREE.MathUtils.lerp(state.near + 0.8, state.far - 0.8, Math.random());
+            const half = d * Math.tan(THREE.MathUtils.degToRad(state.fov) / 2) * 0.75;
+            const right = new THREE.Vector3().crossVectors(dir, targetCamera.up).normalize();
+            const up = new THREE.Vector3().crossVectors(right, dir).normalize();
+            return targetCamera.position
+                .clone()
+                .addScaledVector(dir, d)
+                .addScaledVector(right, (Math.random() * 2 - 1) * half)
+                .addScaledVector(up, (Math.random() * 2 - 1) * half);
+        };
+
         // 视锥体内的演示物体
         const box = new THREE.Mesh(
             new THREE.BoxGeometry(1, 1, 1),
             new THREE.MeshNormalMaterial(),
         );
-        box.position.set(0.8, 1, -0.5);
+        box.position.copy(randPointInFrustum());
         ctx.scene.add(box);
 
         const sphere = new THREE.Mesh(
             new THREE.SphereGeometry(0.5, 32, 32),
             new THREE.MeshNormalMaterial(),
         );
-        sphere.position.set(-1, 0.6, 1.2);
+        sphere.position.copy(randPointInFrustum());
         ctx.scene.add(sphere);
-
-        // 参数状态
-        const state = {
-            fov: 30,
-            near: 0.5,
-            far: 10,
-            showHelper: 1,
-        };
 
         const applyCamera = () => {
             targetCamera.fov = state.fov;
@@ -137,7 +152,7 @@ scene.add(helper);</code></pre>
             defaults: {
                 fov: 30,
                 near: 0.5,
-                far: 10,
+                far: 7,
                 showHelper: 1,
             },
             onChange(key, value) {
