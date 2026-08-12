@@ -14,6 +14,7 @@ import {pointLight} from './light/pointLight';
 import {spotLight} from './light/spotLight';
 import {directionalLight} from './light/directionalLight';
 import {hemisphereLightHelper} from './light/hemisphereLightHelper';
+import {rectAreaLight} from './light/rectAreaLight';
 import { animationLoop } from './animation/animationLoop';
 import { orbitControls } from './animation/orbitControls';
 import { trackballControls } from './controls/trackballControls';
@@ -61,7 +62,7 @@ export const chapters: Chapter[] = [
   {
     id: 'lights',
     title: '光',
-    lessons: [ambientLight, pointLight, spotLight, directionalLight, hemisphereLightHelper],
+    lessons: [ambientLight, pointLight, spotLight, directionalLight, hemisphereLightHelper, rectAreaLight],
   },
   {
     id: 'animation',
