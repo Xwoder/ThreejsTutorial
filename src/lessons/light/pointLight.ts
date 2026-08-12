@@ -21,7 +21,7 @@ light.position.set(0, 2, 0);</code></pre>
       <li><code>decay</code> 衰减系数（默认 2，即平方反比衰减）</li>
     </ul>
     <h3>观察要点</h3>
-    <p>橙色小球即光源本体（也可用 <code>PointLightHelper</code> 标示）。拖动「强度 / 衰减距离」观察光斑范围变化，或把「强度」调大让整片地面都亮起来。开启「自动环绕」可看到光随位置移动。</p>
+    <p>白色小球即光源本体（也可用 <code>PointLightHelper</code> 标示）。拖动「强度 / 衰减距离」观察光斑范围变化，或把「强度」调大让整片地面都亮起来。开启「自动环绕」可看到光随位置移动。</p>
   `,
     create(container) {
         const ctx = createContext(container);
@@ -39,8 +39,12 @@ light.position.set(0, 2, 0);</code></pre>
         const floor = new THREE.Mesh(new THREE.PlaneGeometry(14, 14), material);
         floor.rotation.x = -Math.PI / 2;
         ctx.scene.add(floor);
+        const boxColors = [0x60a5fa, 0xfbbf24, 0x34d399, 0xfb7185];
         for (let i = 0; i < 4; i++) {
-            const box = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), material);
+            const box = new THREE.Mesh(
+                new THREE.BoxGeometry(0.8, 0.8, 0.8),
+                new THREE.MeshStandardMaterial({color: boxColors[i], roughness: 0.5})
+            );
             box.position.set((i - 1.5) * 2, 0.4, (i % 2) * 2 - 1);
             ctx.scene.add(box);
         }
@@ -48,12 +52,13 @@ light.position.set(0, 2, 0);</code></pre>
         // 微弱环境光，避免完全漆黑
         ctx.scene.add(new THREE.AmbientLight(0xffffff, 0.08));
 
-        const point = new THREE.PointLight(0xff9f43, 30, 20);
-        point.position.set(0, 2, 0);
+        const point = new THREE.PointLight(0xffffff, 30, 20);
+        point.position.set(0, 3, 0);
         ctx.scene.add(point);
-        ctx.scene.add(new THREE.PointLightHelper(point, 0.25));
+        const pointHelper = new THREE.PointLightHelper(point, 0.25);
+        ctx.scene.add(pointHelper);
 
-        const state = {orbit: true};
+        const state = {orbit: true, height: 3};
         const clock = new THREE.Clock();
         const controls = new OrbitControls(camera, ctx.renderer.domElement);
         controls.enableDamping = true;
@@ -63,7 +68,7 @@ light.position.set(0, 2, 0);</code></pre>
             raf = requestAnimationFrame(loop);
             const t = clock.getElapsedTime();
             if (state.orbit) {
-                point.position.set(Math.cos(t) * 3, 1.8, Math.sin(t) * 3);
+                point.position.set(Math.cos(t) * 3, state.height, Math.sin(t) * 3);
             }
             controls.update();
             ctx.renderer.render(ctx.scene, camera);
@@ -99,7 +104,7 @@ light.position.set(0, 2, 0);</code></pre>
                     min: 0,
                     max: 0xffffff,
                     step: 1,
-                    value: 0xff9f43,
+                    value: 0xffffff,
                     desc: '光的颜色'
                 },
                 {
@@ -108,7 +113,7 @@ light.position.set(0, 2, 0);</code></pre>
                     min: 0.5,
                     max: 6,
                     step: 0.1,
-                    value: 1.8,
+                    value: 3,
                     desc: '光源距离地面的高度',
                     precision: 1
                 },
@@ -122,8 +127,18 @@ light.position.set(0, 2, 0);</code></pre>
                     value: 1,
                     desc: '光源绕场景中心旋转，观察光照随位置变化'
                 },
+                {
+                    key: 'showHelper',
+                    label: '显示 PointLightHelper',
+                    type: 'checkbox',
+                    min: 0,
+                    max: 1,
+                    step: 1,
+                    value: 1,
+                    desc: '是否显示标示光源位置的小球辅助线'
+                },
             ],
-            defaults: {intensity: 30, distance: 20, color: 0xff9f43, height: 1.8, orbit: 1},
+            defaults: {intensity: 30, distance: 20, color: 0xffffff, height: 3, orbit: 1, showHelper: 1},
             onChange: (key, value) => {
                 switch (key) {
                     case 'intensity':
@@ -136,10 +151,14 @@ light.position.set(0, 2, 0);</code></pre>
                         point.color.setHex(value);
                         break;
                     case 'height':
+                        state.height = value;
                         point.position.y = value;
                         break;
                     case 'orbit':
                         state.orbit = value >= 0.5;
+                        break;
+                    case 'showHelper':
+                        pointHelper.visible = value >= 0.5;
                         break;
                 }
             },
