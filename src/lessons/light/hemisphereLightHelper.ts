@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import type {Lesson} from '../types';
 import {createContext, makeCleanup} from '../helper';
-import {createParamPanel} from '../paramPanel';
+import {createParamPanel} from '../../utils/paramPanel.ts';
 
 export const hemisphereLightHelper: Lesson = {
     id: 'hemisphere-light',

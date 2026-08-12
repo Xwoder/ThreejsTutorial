@@ -3,7 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import type { Lesson } from '../types';
 import {createContext, makeCleanup} from '../helper';
 import {AxesWithLabels} from '../../utils/AxesWithLabels.ts';
-import { createParamPanel, type ParamSlider } from '../paramPanel';
+import {createParamPanel, type ParamSlider} from '../../utils/paramPanel.ts';
 
 const DEFAULT_VIEW = 4.5;
 const DEFAULT_NEAR = 0.1;

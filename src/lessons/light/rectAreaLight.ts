@@ -3,7 +3,7 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {RectAreaLightHelper} from 'three/examples/jsm/helpers/RectAreaLightHelper.js';
 import type {Lesson} from '../types';
 import {createContext, makeCleanup} from '../helper';
-import {createParamPanel} from '../paramPanel';
+import {createParamPanel} from '../../utils/paramPanel.ts';
 
 export const rectAreaLight: Lesson = {
     id: 'rect-area-light',

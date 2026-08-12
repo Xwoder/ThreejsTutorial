@@ -4,7 +4,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
-import {createParamPanel} from '../paramPanel';
+import {createParamPanel} from '../../utils/paramPanel.ts';
 
 import modelUrl from '../../assets/model/AIRCO_DH2_v2_by_Joshua_Johanson_9iVI9GHMleJ.glb?url';
 

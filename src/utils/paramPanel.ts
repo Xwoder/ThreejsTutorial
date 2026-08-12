@@ -2,7 +2,7 @@ import {
   createControlPanelGroup,
   type ControlPanelButtonOptions,
   type ControlPanelGroup,
-} from './controlPanel';
+} from '../lessons/controlPanel.ts';
 
 export interface ParamSlider {
   key: string;

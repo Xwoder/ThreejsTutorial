@@ -3,7 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import type { Lesson } from '../types';
 import {createContext, makeCleanup} from '../helper';
 import {AxesWithLabels} from '../../utils/AxesWithLabels.ts';
-import { createParamPanel, type ParamSlider } from '../paramPanel';
+import {createParamPanel, type ParamSlider} from '../../utils/paramPanel.ts';
 
 /** 默认双眼间距（米），约等于真人瞳距 */
 const DEFAULT_EYE_SEP = 0.064;

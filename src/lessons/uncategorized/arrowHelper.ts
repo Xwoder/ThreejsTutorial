@@ -3,7 +3,7 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import type {Lesson} from '../types';
 import {createContext, makeCleanup} from '../helper';
 import {AxesWithLabels} from '../../utils/AxesWithLabels.ts';
-import {createParamPanel} from '../paramPanel';
+import {createParamPanel} from '../../utils/paramPanel.ts';
 
 export const arrowHelper: Lesson = {
     id: 'arrow-helper',
