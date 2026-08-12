@@ -108,7 +108,7 @@ export const arrowHelper: Lesson = {
                   step: 0.05,
                   value: state.dirX,
                   precision: 2,
-                  desc: '方向向量的 X 分量（内部自动归一化）'
+                    desc: '方向向量的 X 分量'
                 },
               {
                 key: 'dirY',
@@ -119,7 +119,7 @@ export const arrowHelper: Lesson = {
                 step: 0.05,
                 value: state.dirY,
                 precision: 2,
-                desc: '方向向量的 Y 分量（内部自动归一化）'
+                  desc: '方向向量的 Y 分量'
               },
               {
                 key: 'dirZ',
@@ -130,7 +130,7 @@ export const arrowHelper: Lesson = {
                     step: 0.05,
                 value: state.dirZ,
                     precision: 2,
-                desc: '方向向量的 Z 分量（内部自动归一化）'
+                  desc: '方向向量的 Z 分量'
                 },
             ],
             defaults: {
