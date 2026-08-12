@@ -4,6 +4,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
+import {createParamPanel} from '../paramPanel';
 
 import modelUrl from '../../assets/model/AIRCO_DH2_v2_by_Joshua_Johanson_9iVI9GHMleJ.glb?url';
 
@@ -38,10 +39,28 @@ loader.load(url, (gltf) => {
 
     ctx.scene.add(new THREE.GridHelper(20, 20, 0x475569, 0x1e293b));
     // 暖黄色环境光：给整个场景（含机翼）染上一层暖色调
-    ctx.scene.add(new THREE.AmbientLight(0xffd9a0, 1));
-    const dir = new THREE.DirectionalLight(0xffffff, 3);
-    dir.position.set(5, 10, 7);
-    ctx.scene.add(dir);
+      const ambient = new THREE.AmbientLight(0xffd9a0, 1);
+      ctx.scene.add(ambient);
+
+      const panel = createParamPanel({
+          container,
+          controls: [
+              {
+                  key: 'ambient',
+                  label: '环境光强度',
+                  min: 0,
+                  max: 5,
+                  step: 0.1,
+                  value: 1,
+                  desc: '暖黄色环境光 AmbientLight',
+                  precision: 2
+              },
+          ],
+          defaults: {ambient: 1},
+          onChange: (key, value) => {
+              if (key === 'ambient') ambient.intensity = value;
+          },
+      });
 
     const controls = new OrbitControls(camera, ctx.renderer.domElement);
     controls.enableDamping = true;
@@ -90,6 +109,7 @@ loader.load(url, (gltf) => {
       controls.dispose();
       pmrem.dispose();
       loadingTip.remove();
+        panel.remove();
     });
   },
 };
