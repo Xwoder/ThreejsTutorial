@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import type {Lesson} from '../types';
 import {createContext, makeCleanup} from '../helper';
-import {AxesWithLabels} from '../AxesWithLabels';
+import {AxesWithLabels} from '../../utils/AxesWithLabels.ts';
 import {createParamPanel} from '../paramPanel';
 
 export const arrowHelper: Lesson = {

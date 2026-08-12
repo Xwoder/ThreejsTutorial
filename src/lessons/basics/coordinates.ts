@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import type { Lesson } from '../types';
 import {createContext, makeCleanup} from '../helper';
-import {AxesWithLabels} from '../AxesWithLabels';
+import {AxesWithLabels} from '../../utils/AxesWithLabels.ts';
 
 export const coordinates: Lesson = {
   id: 'coordinates',
