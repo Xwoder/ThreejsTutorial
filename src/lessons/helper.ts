@@ -3,8 +3,20 @@ import * as THREE from 'three';
 /**
  * 通用图片纹理加载器，统一设置各向异性 + 跨域。
  * @param url 图片地址
+ * @param onLoad
+ * @param onError
+ * @param options
  * @param options.colorSpace 颜色空间：sRGB 颜色贴图 / NoColorSpace 高度/法线等数据贴图
  * @param options.flipY 是否翻转 Y（PNG 漫反射通常 true，高度图通常 false）
+ */
+/**
+ * 加载纹理资源，支持自定义颜色空间、Y 轴翻转和各项异性过滤。
+ * @param url - 纹理图片的 URL 地址
+ * @param onLoad - 纹理加载成功后的回调，接收加载完成的 Texture 对象
+ * @param onError - 可选，纹理加载失败时的回调
+ * @param options - 可选配置项
+ * @param options.colorSpace - 可选，纹理的颜色空间（如 SRGBColorSpace）
+ * @param options.flipY - 可选，是否翻转纹理的 Y 轴
  */
 export function loadTexture(
   url: string,
