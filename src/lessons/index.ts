@@ -37,6 +37,7 @@ import {arrowHelper} from './uncategorized/arrowHelper';
 import {axesHelper} from './uncategorized/axesHelper';
 import {cameraHelper} from './uncategorized/cameraHelper';
 import {gridHelper} from './uncategorized/gridHelper';
+import {pbrGrass} from './uncategorized/pbrGrass';
 
 export const chapters: Chapter[] = [
   {
@@ -82,6 +83,6 @@ export const chapters: Chapter[] = [
   {
     id: 'uncategorized',
     title: '未分类',
-    lessons: [arrowHelper, axesHelper, cameraHelper, gridHelper],
+    lessons: [arrowHelper, axesHelper, cameraHelper, gridHelper, pbrGrass],
   },
 ];
