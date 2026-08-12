@@ -38,7 +38,7 @@ function starShape(): THREE.Shape {
 }
 
 export const extrudeGeometry: Lesson = makeGeometryLesson({
-  id: 'extrude-geometry',
+  id: 'geometry/extrude-geometry',
   title: 'ExtrudeGeometry 拉伸体',
   description: extrudeDescription,
   createGeometry: (p) =>

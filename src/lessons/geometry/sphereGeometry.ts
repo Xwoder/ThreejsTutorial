@@ -16,7 +16,7 @@ const sphereDescription = `
 `;
 
 export const sphereGeometry: Lesson = makeGeometryLesson({
-  id: 'sphere-geometry',
+  id: 'geometry/sphere-geometry',
   title: 'SphereGeometry 球体',
   description: sphereDescription,
   createGeometry: (p) =>

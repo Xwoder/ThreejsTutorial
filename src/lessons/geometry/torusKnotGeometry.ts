@@ -17,7 +17,7 @@ const torusKnotDescription = `
 `;
 
 export const torusKnotGeometry: Lesson = makeGeometryLesson({
-  id: 'torus-knot-geometry',
+  id: 'geometry/torus-knot-geometry',
   title: 'TorusKnotGeometry 环面纽结',
   description: torusKnotDescription,
   createGeometry: (p) =>

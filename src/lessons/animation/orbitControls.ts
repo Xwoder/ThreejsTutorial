@@ -4,7 +4,7 @@ import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
 
 export const orbitControls: Lesson = {
-  id: 'orbit-controls',
+  id: 'controls/orbit-controls',
   title: 'OrbitControls 轨道控制器',
   description: `
     <h2>让用户与场景交互</h2>

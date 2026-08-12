@@ -5,7 +5,7 @@ import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
 
 export const dragControls: Lesson = {
-  id: 'drag-controls',
+  id: 'controls/drag-controls',
   title: 'DragControls 拖拽控制器',
   description: `
     <h2>用鼠标直接拖动物体</h2>

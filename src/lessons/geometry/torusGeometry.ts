@@ -16,7 +16,7 @@ const torusDescription = `
 `;
 
 export const torusGeometry: Lesson = makeGeometryLesson({
-  id: 'torus-geometry',
+  id: 'geometry/torus-geometry',
   title: 'TorusGeometry 圆环',
   description: torusDescription,
   createGeometry: (p) =>

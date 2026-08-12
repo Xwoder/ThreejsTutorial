@@ -4,7 +4,7 @@ import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
 
 export const flyControls: Lesson = {
-  id: 'fly-controls',
+  id: 'controls/fly-controls',
   title: 'FlyControls 飞行控制器',
   description: `
     <h2>像开飞机一样在场景中飞行</h2>

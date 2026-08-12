@@ -5,7 +5,7 @@ import {createContext, makeCleanup} from '../helper';
 import {createParamPanel} from '../../utils/paramPanel.ts';
 
 export const directionalLight: Lesson = {
-    id: 'directional-light',
+    id: 'lights/directional-light',
     title: 'DirectionalLight 平行光',
     description: `
     <h2>DirectionalLight 平行光</h2>

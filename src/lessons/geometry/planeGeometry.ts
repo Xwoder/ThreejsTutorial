@@ -15,7 +15,7 @@ const planeDescription = `
 `;
 
 export const planeGeometry: Lesson = makeGeometryLesson({
-  id: 'plane-geometry',
+  id: 'geometry/plane-geometry',
   title: 'PlaneGeometry 平面',
   description: planeDescription,
   createGeometry: (p) =>

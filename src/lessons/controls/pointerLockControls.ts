@@ -29,7 +29,7 @@ function makeWoodTexture(): THREE.CanvasTexture {
 }
 
 export const pointerLockControls: Lesson = {
-  id: 'pointer-lock-controls',
+  id: 'controls/pointer-lock-controls',
   title: 'PointerLockControls 指针锁定控制器',
     description: `
     <h2>PointerLockControls 指针锁定控制器</h2>

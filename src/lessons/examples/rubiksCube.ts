@@ -72,7 +72,7 @@ function createCubeGroup(): THREE.Group {
 }
 
 export const rubiksCube: Lesson = {
-    id: 'example-rubiks-cube',
+    id: 'examples/example-rubiks-cube',
     title: '三阶魔方',
     description: `
     <h2>三阶魔方</h2>

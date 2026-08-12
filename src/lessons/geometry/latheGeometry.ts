@@ -30,7 +30,7 @@ function vaseProfile(scale: number): THREE.Vector2[] {
 }
 
 export const latheGeometry: Lesson = makeGeometryLesson({
-  id: 'lathe-geometry',
+  id: 'geometry/lathe-geometry',
   title: 'LatheGeometry 车削体',
   description: latheDescription,
   createGeometry: (p) =>

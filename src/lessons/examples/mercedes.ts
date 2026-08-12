@@ -8,7 +8,7 @@ import { createContext, makeCleanup } from '../helper';
 import modelUrl from '../../assets/model/1996_mercedes-benz_e50_amg_w210.glb?url';
 
 export const mercedes: Lesson = {
-  id: 'example-mercedes-e50-amg',
+    id: 'examples/example-mercedes-e50-amg',
   title: '奔驰 E50 AMG (W210)',
   description: `
     <h2>加载 GLB 模型</h2>

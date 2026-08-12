@@ -3,7 +3,7 @@ import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
 
 export const scene: Lesson = {
-  id: 'first-scene',
+  id: 'basics/first-scene',
   title: 'Scene 场景',
   description: `
     <h2>三大核心要素</h2>

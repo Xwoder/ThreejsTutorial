@@ -13,7 +13,7 @@ const dodecahedronDescription = `
 `;
 
 export const dodecahedronGeometry: Lesson = makeGeometryLesson({
-  id: 'dodecahedron-geometry',
+  id: 'geometry/polyhedron/dodecahedron-geometry',
   title: 'DodecahedronGeometry 十二面体',
   description: dodecahedronDescription,
   createGeometry: (p) =>

@@ -170,7 +170,7 @@ const overviewDescription = `
 `;
 
 export const wireframeGeometry: Lesson = {
-  id: 'wireframe-geometry',
+  id: 'geometry/wireframe-geometry',
   title: 'WireframeGeometry 线框',
   description: overviewDescription,
   children: [

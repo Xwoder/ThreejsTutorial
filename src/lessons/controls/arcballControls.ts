@@ -4,7 +4,7 @@ import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
 
 export const arcballControls: Lesson = {
-  id: 'arcball-controls',
+  id: 'controls/arcball-controls',
   title: 'ArcballControls 轨迹球控制器',
   description: `
     <h2>更自由的物体旋转</h2>

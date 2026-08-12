@@ -13,7 +13,7 @@ const icosahedronDescription = `
 `;
 
 export const icosahedronGeometry: Lesson = makeGeometryLesson({
-  id: 'icosahedron-geometry',
+  id: 'geometry/polyhedron/icosahedron-geometry',
   title: 'IcosahedronGeometry 二十面体',
   description: icosahedronDescription,
   createGeometry: (p) =>

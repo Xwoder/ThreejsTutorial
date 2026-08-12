@@ -4,7 +4,7 @@ import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
 
 export const trackballControls: Lesson = {
-  id: 'trackball-controls',
+  id: 'controls/trackball-controls',
   title: 'TrackballControls 轨迹球控制器',
   description: `
     <h2>无约束的自由旋转</h2>

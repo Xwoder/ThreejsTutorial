@@ -13,7 +13,7 @@ const octahedronDescription = `
 `;
 
 export const octahedronGeometry: Lesson = makeGeometryLesson({
-  id: 'octahedron-geometry',
+  id: 'geometry/polyhedron/octahedron-geometry',
   title: 'OctahedronGeometry 八面体',
   description: octahedronDescription,
   createGeometry: (p) =>

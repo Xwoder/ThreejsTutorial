@@ -29,7 +29,7 @@ function makeWoodTexture(): THREE.CanvasTexture {
 }
 
 export const firstPersonControls: Lesson = {
-  id: 'first-person-controls',
+  id: 'controls/first-person-controls',
   title: 'FirstPersonControls 第一人称漫游控制器',
   description: `
     <h2>FirstPersonControls 第一人称漫游控制器</h2>

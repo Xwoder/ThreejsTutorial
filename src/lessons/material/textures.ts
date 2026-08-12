@@ -4,7 +4,7 @@ import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
 
 export const textures: Lesson = {
-  id: 'textures',
+  id: 'material/textures',
   title: '纹理贴图',
   description: `
     <h2>Texture</h2>

@@ -17,7 +17,7 @@ const coneDescription = `
 `;
 
 export const coneGeometry: Lesson = makeGeometryLesson({
-  id: 'cone-geometry',
+  id: 'geometry/cone-geometry',
   title: 'ConeGeometry 圆锥',
   description: coneDescription,
   createGeometry: (p) =>

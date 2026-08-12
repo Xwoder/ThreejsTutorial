@@ -4,7 +4,7 @@ import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
 
 export const mapControls: Lesson = {
-  id: 'map-controls',
+  id: 'controls/map-controls',
   title: 'MapControls 地图控制器',
   description: `
     <h2>像地图软件一样浏览场景</h2>

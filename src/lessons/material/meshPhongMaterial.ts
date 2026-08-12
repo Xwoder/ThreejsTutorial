@@ -4,7 +4,7 @@ import type {Lesson} from '../types';
 import {createContext, makeCleanup} from '../helper';
 
 export const meshPhongMaterial: Lesson = {
-    id: 'mesh-phong-material',
+    id: 'material/mesh-phong-material',
     title: 'MeshPhongMaterial 高光材质',
     description: `
     <h2>MeshPhongMaterial</h2>

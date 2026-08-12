@@ -4,7 +4,7 @@ import {createContext, makeCleanup} from '../helper';
 import {AxesWithLabels} from '../../utils/AxesWithLabels.ts';
 
 export const coordinates: Lesson = {
-  id: 'coordinates',
+  id: 'basics/coordinates',
   title: '坐标系与轴向',
   description: `
     <h2>右手坐标系</h2>

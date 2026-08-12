@@ -57,7 +57,7 @@ const indices = [
 ];
 
 export const polyhedronGeometry: Lesson = makeGeometryLesson({
-  id: 'polyhedron-geometry',
+  id: 'geometry/polyhedron/polyhedron-geometry',
   title: 'PolyhedronGeometry 多面体',
   description: polyhedronDescription,
   createGeometry: (p) =>

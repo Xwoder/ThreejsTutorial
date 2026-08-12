@@ -8,7 +8,7 @@ import { createContext, makeCleanup } from '../helper';
 import modelUrl from '../../assets/model/ferrari_296_challenge_2024.glb?url';
 
 export const ferrari: Lesson = {
-  id: 'example-ferrari-296-challenge-2024',
+    id: 'examples/example-ferrari-296-challenge-2024',
   title: '法拉利 296 Challenge (2024)',
   description: `
     <h2>加载 GLB 模型</h2>

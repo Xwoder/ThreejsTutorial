@@ -22,7 +22,7 @@ function makeLoadingTip(text: string): HTMLDivElement {
 void makeLoadingTip; // 工具函数保留供将来扩展使用
 
 export const canyonTerrain: Lesson = {
-  id: 'example-canyon-heightmap',
+  id: 'examples/example-canyon-heightmap',
   title: '峡谷高度图地形',
   description: `
     <h2>使用 Height Map 构建真实地形</h2>

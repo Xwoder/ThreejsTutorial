@@ -6,7 +6,7 @@ import {AxesWithLabels} from '../../utils/AxesWithLabels.ts';
 import {createParamPanel} from '../../utils/paramPanel.ts';
 
 export const arrowHelper: Lesson = {
-    id: 'arrow-helper',
+    id: 'uncategorized/arrow-helper',
     title: 'ArrowHelper 辅助箭头',
     description: `
     <h2>ArrowHelper 辅助箭头</h2>

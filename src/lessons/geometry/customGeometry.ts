@@ -4,7 +4,7 @@ import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
 
 export const customGeometry: Lesson = {
-  id: 'custom-geometry',
+  id: 'geometry/custom-geometry',
   title: '自定义几何体',
   description: `
     <h2>BufferGeometry</h2>

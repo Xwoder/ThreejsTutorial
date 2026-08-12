@@ -6,7 +6,7 @@ import {createContext, makeCleanup} from '../helper';
 import {createParamPanel} from '../../utils/paramPanel.ts';
 
 export const rectAreaLight: Lesson = {
-    id: 'rect-area-light',
+    id: 'lights/rect-area-light',
     title: 'RectAreaLight 矩形区域光',
     description: `
     <h2>RectAreaLight 矩形区域光</h2>

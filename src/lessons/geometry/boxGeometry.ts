@@ -18,7 +18,7 @@ const boxDescription = `
 `;
 
 export const boxGeometry: Lesson = makeGeometryLesson({
-  id: 'box-geometry',
+  id: 'geometry/box-geometry',
   title: 'BoxGeometry 立方体',
   description: boxDescription,
   createGeometry: (p) =>

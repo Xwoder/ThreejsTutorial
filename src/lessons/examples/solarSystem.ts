@@ -28,7 +28,7 @@ function makeBlobTexture(base: string, blob: string, count: number, size = 512):
 }
 
 export const solarSystem: Lesson = {
-    id: 'example-solar-system',
+    id: 'examples/example-solar-system',
     title: '太阳系',
     description: `
     <h2>太阳系</h2>

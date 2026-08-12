@@ -13,7 +13,7 @@ const tetrahedronDescription = `
 `;
 
 export const tetrahedronGeometry: Lesson = makeGeometryLesson({
-  id: 'tetrahedron-geometry',
+  id: 'geometry/polyhedron/tetrahedron-geometry',
   title: 'TetrahedronGeometry 四面体',
   description: tetrahedronDescription,
   createGeometry: (p) =>

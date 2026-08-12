@@ -6,7 +6,7 @@ import {createParamPanel} from '../../utils/paramPanel.ts';
 import type {ParamSlider} from '../../utils/paramPanel.ts';
 
 export const meshBasicMaterial: Lesson = {
-  id: 'mesh-basic-material',
+  id: 'material/mesh-basic-material',
   title: 'MeshBasicMaterial 基础材质',
   description: `
     <h2>MeshBasicMaterial</h2>

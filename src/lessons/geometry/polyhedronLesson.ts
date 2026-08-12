@@ -18,7 +18,7 @@ const overviewDescription = `
 `;
 
 export const polyhedron: Lesson = {
-  id: 'polyhedron',
+  id: 'geometry/polyhedron',
   title: '多面体 Polyhedron',
   description: overviewDescription,
   children: [

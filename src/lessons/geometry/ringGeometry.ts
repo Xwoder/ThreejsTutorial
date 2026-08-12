@@ -17,7 +17,7 @@ const ringDescription = `
 `;
 
 export const ringGeometry: Lesson = makeGeometryLesson({
-  id: 'ring-geometry',
+  id: 'geometry/ring-geometry',
   title: 'RingGeometry 圆环',
   description: ringDescription,
   createGeometry: (p) =>

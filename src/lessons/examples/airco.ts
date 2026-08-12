@@ -9,7 +9,7 @@ import {createParamPanel} from '../../utils/paramPanel.ts';
 import modelUrl from '../../assets/model/AIRCO_DH2_v2_by_Joshua_Johanson_9iVI9GHMleJ.glb?url';
 
 export const airco: Lesson = {
-  id: 'example-airco-dh2',
+    id: 'examples/example-airco-dh2',
   title: 'AIRCO DH2 (一战双翼机)',
   description: `
     <h2>加载 GLB 模型</h2>

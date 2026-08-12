@@ -15,7 +15,7 @@ const capsuleDescription = `
 `;
 
 export const capsuleGeometry: Lesson = makeGeometryLesson({
-  id: 'capsule-geometry',
+  id: 'geometry/capsule-geometry',
   title: 'CapsuleGeometry 胶囊体',
   description: capsuleDescription,
   createGeometry: (p) =>

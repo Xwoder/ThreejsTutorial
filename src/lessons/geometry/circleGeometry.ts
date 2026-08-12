@@ -15,7 +15,7 @@ const circleDescription = `
 `;
 
 export const circleGeometry: Lesson = makeGeometryLesson({
-  id: 'circle-geometry',
+  id: 'geometry/circle-geometry',
   title: 'CircleGeometry 圆形',
   description: circleDescription,
   createGeometry: (p) =>

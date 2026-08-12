@@ -25,7 +25,7 @@ const tubePath = new THREE.CatmullRomCurve3([
 ]);
 
 export const tubeGeometry: Lesson = makeGeometryLesson({
-  id: 'tube-geometry',
+  id: 'geometry/tube-geometry',
   title: 'TubeGeometry 管状',
   description: tubeDescription,
   createGeometry: (p) =>

@@ -5,7 +5,7 @@ import {createContext, makeCleanup} from '../helper';
 import {createParamPanel} from '../../utils/paramPanel.ts';
 
 export const cameraHelper: Lesson = {
-    id: 'camera-helper',
+    id: 'uncategorized/camera-helper',
     title: 'CameraHelper 相机视锥体',
     description: `
     <h2>CameraHelper 相机辅助</h2>

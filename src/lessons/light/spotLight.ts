@@ -5,7 +5,7 @@ import {createContext, makeCleanup} from '../helper';
 import {createParamPanel} from '../../utils/paramPanel.ts';
 
 export const spotLight: Lesson = {
-    id: 'spot-light',
+    id: 'lights/spot-light',
     title: 'SpotLight 聚光灯',
     description: `
     <h2>SpotLight 聚光灯</h2>

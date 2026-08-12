@@ -8,7 +8,7 @@ import heightMapUrl from '../../assets/HeightMap/Mountain Range 8k Height Map/Mo
 import diffuseMapUrl from '../../assets/HeightMap/Mountain Range 8k Height Map/Mountain Range Diffuse PNG.png?url';
 
 export const mountainRangeTerrain: Lesson = {
-  id: 'example-mountain-range-heightmap',
+  id: 'examples/example-mountain-range-heightmap',
   title: '山脉高度图地形',
   description: `
     <h2>使用 8K Height Map 构建巍峨山脉</h2>

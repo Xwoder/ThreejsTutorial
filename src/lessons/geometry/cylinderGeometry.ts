@@ -18,7 +18,7 @@ const cylinderDescription = `
 `;
 
 export const cylinderGeometry: Lesson = makeGeometryLesson({
-  id: 'cylinder-geometry',
+  id: 'geometry/cylinder-geometry',
   title: 'CylinderGeometry 圆柱',
   description: cylinderDescription,
   createGeometry: (p) =>

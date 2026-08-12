@@ -4,7 +4,7 @@ import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
 
 export const animationLoop: Lesson = {
-  id: 'animation-loop',
+  id: 'animation/animation-loop',
   title: '动画循环与时间',
   description: `
     <h2>requestAnimationFrame</h2>

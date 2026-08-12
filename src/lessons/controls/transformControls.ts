@@ -6,7 +6,7 @@ import { createContext, makeCleanup } from '../helper';
 import { createControlPanelGroup } from '../controlPanel';
 
 export const transformControls: Lesson = {
-  id: 'transform-controls',
+  id: 'controls/transform-controls',
   title: 'TransformControls 变换控制器',
   description: `
     <h2>可视化编辑物体的位置 / 旋转 / 缩放</h2>

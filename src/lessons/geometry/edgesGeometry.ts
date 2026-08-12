@@ -181,7 +181,7 @@ const overviewDescription = `
 `;
 
 export const edgesGeometry: Lesson = {
-  id: 'edges-geometry',
+  id: 'geometry/edges-geometry',
   title: 'EdgesGeometry 边缘线',
   description: overviewDescription,
   children: [

@@ -26,7 +26,7 @@ function heartShape(): THREE.Shape {
 }
 
 export const shapeGeometry: Lesson = makeGeometryLesson({
-  id: 'shape-geometry',
+  id: 'geometry/shape-geometry',
   title: 'ShapeGeometry 形状',
   description: shapeDescription,
   createGeometry: (p) => new THREE.ShapeGeometry(heartShape(), p.curveSegments),
