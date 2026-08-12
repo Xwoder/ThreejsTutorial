@@ -79,7 +79,7 @@ renderer.shadowMap.enabled = true;</code></pre>
         ctx.scene.add(new THREE.AmbientLight(0xffffff, 0.12));
 
         // 平行光：方向 = position → target（默认原点）
-        const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 5);
         dirLight.castShadow = true;
         dirLight.shadow.mapSize.set(1024, 1024);
         dirLight.shadow.camera.left = -7;
@@ -115,9 +115,9 @@ renderer.shadowMap.enabled = true;</code></pre>
                     key: 'intensity',
                     label: '光照强度',
                     min: 0,
-                    max: 5,
+                    max: 10,
                     step: 0.05,
-                    value: 1.5,
+                    value: 5,
                     desc: '平行光强度，可超过 1 来提高亮度',
                     precision: 2
                 },
@@ -153,7 +153,7 @@ renderer.shadowMap.enabled = true;</code></pre>
                 },
                 {
                     key: 'showHelper',
-                    label: '显示光源方向',
+                    label: '显示 DirectionalLightHelper',
                     type: 'checkbox',
                     min: 0,
                     max: 1,
@@ -162,7 +162,7 @@ renderer.shadowMap.enabled = true;</code></pre>
                     desc: '黄色箭头标示平行光的照射方向'
                 },
             ],
-            defaults: {intensity: 1.5, azimuth: 45, elevation: 40, castShadow: 1, showHelper: 1},
+            defaults: {intensity: 5, azimuth: 45, elevation: 40, castShadow: 1, showHelper: 1},
             onChange: (key, value) => {
                 if (key === 'intensity') {
                     dirLight.intensity = value;
