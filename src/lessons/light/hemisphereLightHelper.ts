@@ -41,22 +41,27 @@ scene.add(helper)</code></pre>
         floor.rotation.x = -Math.PI / 2;
         ctx.scene.add(floor);
 
-        // 若干材质各异的物体，便于观察上下半球的颜色倾向
+        // 若干材质各异的物体，便于观察上下半球的颜色倾向（全部离开地面一定距离）
         const meshes = [
             {
                 geo: new THREE.SphereGeometry(0.9, 48, 32),
                 mat: new THREE.MeshStandardMaterial({color: 0xffffff, roughness: 0.2, metalness: 0.1}),
-                pos: new THREE.Vector3(-2.2, 1, 0.8)
+                pos: new THREE.Vector3(-2.2, 1.4, 0.8)
             },
             {
                 geo: new THREE.BoxGeometry(1.5, 1.5, 1.5),
                 mat: new THREE.MeshStandardMaterial({color: 0xffffff, roughness: 0.6}),
-                pos: new THREE.Vector3(0, 0.75, -1)
+                pos: new THREE.Vector3(0, 1.25, -1)
             },
             {
                 geo: new THREE.CylinderGeometry(0.6, 0.6, 2.2, 32),
                 mat: new THREE.MeshStandardMaterial({color: 0xffffff, roughness: 0.35, metalness: 0.4}),
-                pos: new THREE.Vector3(2.4, 1.1, 1)
+                pos: new THREE.Vector3(2.4, 1.6, 1)
+            },
+            {
+                geo: new THREE.TorusKnotGeometry(0.55, 0.2, 100, 16),
+                mat: new THREE.MeshStandardMaterial({color: 0xffffff, roughness: 0.3, metalness: 0.5}),
+                pos: new THREE.Vector3(-1.2, 1.3, -1.6)
             },
         ];
         meshes.forEach(({geo, mat, pos}) => {
@@ -71,7 +76,7 @@ scene.add(helper)</code></pre>
         ctx.scene.add(hemi);
 
         // 辅助线：上半球天空色、下半球地面色的线框球
-        const helper = new THREE.HemisphereLightHelper(hemi, 2.5);
+        const helper = new THREE.HemisphereLightHelper(hemi, 1);
         ctx.scene.add(helper);
 
         const panel = createParamPanel({
