@@ -92,12 +92,11 @@ new THREE.OrthographicCamera(left, right, top, bottom, near, far)</code></pre>
             }
         }
 
-        // 原点标记：帮助对齐两个视图的中心
+        // 原点标记：球心位于世界原点 (0, 0, 0)，帮助对齐两个视图的中心
         const marker = new THREE.Mesh(
-            new THREE.SphereGeometry(0.6, 24, 24),
+            new THREE.SphereGeometry(0.3, 24, 24),
             new THREE.MeshBasicMaterial({color: 0xfbbf24}),
         );
-        marker.position.set(0, 0.6, 0);
         scene.add(marker);
 
         // 两个相机，初始位置与朝向完全一致
