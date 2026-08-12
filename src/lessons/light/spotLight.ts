@@ -98,10 +98,10 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
         });
 
         // 比较暗的环境光：照亮背光面，同时保留聚光灯的明暗对比
-        ctx.scene.add(new THREE.AmbientLight(0xffffff, 0.3));
+        ctx.scene.add(new THREE.AmbientLight(0xffffff, 1));
 
         const spot = new THREE.SpotLight(0xffffff, 120);
-        spot.position.set(0, 4, 0); // 聚光灯竖直向上移动，悬于原点上方
+        spot.position.set(0, 6, 0); // 聚光灯竖直向上移动，悬于原点上方
         spot.angle = Math.PI / 8;
         spot.penumbra = 0.35;
         const target = new THREE.Object3D();
@@ -179,7 +179,7 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
                     key: 'targetY',
                     label: '目标 Y',
                     min: 0,
-                    max: 3.5,
+                    max: 5.5,
                     step: 0.1,
                     value: 0,
                     desc: '控制光锥俯仰角：0 = 垂直向下，越大越接近水平（超过光源高度会朝上照射，无意义）',
