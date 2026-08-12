@@ -195,6 +195,16 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
                     desc: '照射目标在 Z 方向的位置',
                     precision: 1
                 },
+                {
+                    key: 'showHelper',
+                    label: '显示 SpotLightHelper',
+                    type: 'checkbox',
+                    min: 0,
+                    max: 1,
+                    step: 1,
+                    value: 1,
+                    desc: '是否显示半透明的聚光灯锥体辅助线'
+                },
             ],
             defaults: {
                 intensity: 120,
@@ -204,7 +214,8 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
                 color: 0xffffff,
                 targetX: 3,
                 targetY: 0,
-                targetZ: 2
+                targetZ: 2,
+                showHelper: 1
             },
             onChange: (key, value) => {
                 switch (key) {
@@ -234,6 +245,9 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
                     case 'targetZ':
                         target.position.z = value;
                         spotHelper.update();
+                        break;
+                    case 'showHelper':
+                        spotHelper.visible = value >= 0.5;
                         break;
                 }
             },
