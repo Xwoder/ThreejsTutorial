@@ -100,7 +100,7 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
         // 微弱环境光，避免完全漆黑
         ctx.scene.add(new THREE.AmbientLight(0xffffff, 0.08));
 
-        const spot = new THREE.SpotLight(0x7dd3fc, 120);
+        const spot = new THREE.SpotLight(0xffffff, 120);
         spot.position.set(0, 4, 0); // 聚光灯竖直向上移动，悬于原点上方
         spot.angle = Math.PI / 8;
         spot.penumbra = 0.35;
@@ -162,7 +162,7 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
                     min: 0,
                     max: 0xffffff,
                     step: 1,
-                    value: 0x7dd3fc,
+                    value: 0xffffff,
                     desc: '光的颜色'
                 },
                 {
@@ -201,7 +201,7 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
                 angle: 22.5,
                 penumbra: 0.35,
                 distance: 0,
-                color: 0x7dd3fc,
+                color: 0xffffff,
                 targetX: 3,
                 targetY: 0,
                 targetZ: 2
