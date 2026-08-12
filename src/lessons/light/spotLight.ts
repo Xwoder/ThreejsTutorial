@@ -97,8 +97,8 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
             return mesh;
         });
 
-        // 微弱环境光，避免完全漆黑
-        ctx.scene.add(new THREE.AmbientLight(0xffffff, 0.08));
+        // 比较暗的环境光：照亮背光面，同时保留聚光灯的明暗对比
+        ctx.scene.add(new THREE.AmbientLight(0xffffff, 0.3));
 
         const spot = new THREE.SpotLight(0xffffff, 120);
         spot.position.set(0, 4, 0); // 聚光灯竖直向上移动，悬于原点上方
