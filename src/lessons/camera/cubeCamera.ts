@@ -9,7 +9,7 @@ const DEFAULT_RES = 256;
 const SPHERE_POS = new THREE.Vector3(0, 2, 0);
 
 export const cubeCamera: Lesson = {
-  id: 'cube-camera',
+    id: 'camera/cube-camera',
   title: 'CubeCamera 立方体相机',
   description: `
     <h2>CubeCamera</h2>

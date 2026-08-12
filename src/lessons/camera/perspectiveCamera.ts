@@ -10,7 +10,7 @@ const DEFAULT_NEAR = 0.1;
 const DEFAULT_FAR = 2000;
 
 export const perspectiveCamera: Lesson = {
-  id: 'perspective-camera',
+  id: 'camera/perspective-camera',
   title: 'PerspectiveCamera 透视相机',
   description: `
     <h2>PerspectiveCamera</h2>

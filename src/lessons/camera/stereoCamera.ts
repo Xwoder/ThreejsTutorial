@@ -9,7 +9,7 @@ import {createParamPanel, type ParamSlider} from '../../utils/paramPanel.ts';
 const DEFAULT_EYE_SEP = 0.064;
 
 export const stereoCamera: Lesson = {
-  id: 'stereo-camera',
+  id: 'camera/stereo-camera',
   title: 'StereoCamera 立体相机',
   description: `
     <h2>StereoCamera</h2>

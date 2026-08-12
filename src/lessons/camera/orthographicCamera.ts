@@ -10,7 +10,7 @@ const DEFAULT_NEAR = 0.1;
 const DEFAULT_FAR = 100;
 
 export const orthographicCamera: Lesson = {
-  id: 'orthographic-camera',
+    id: 'camera/orthographic-camera',
   title: 'OrthographicCamera 正交相机',
   description: `
     <h2>OrthographicCamera</h2>
