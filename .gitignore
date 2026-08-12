@@ -207,3 +207,4 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/macos,windows,linux,webstorm,react
 /src/assets/HeightMap/*
 /src/assets/Model/*
+/src/assets/PBR/*
