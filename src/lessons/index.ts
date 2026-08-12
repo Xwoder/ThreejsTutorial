@@ -9,7 +9,7 @@ import { builtinGeometries } from './geometry/builtinGeometries';
 import { customGeometry } from './geometry/customGeometry';
 import { materialTypes } from './material/materialTypes';
 import { textures } from './material/textures';
-import { ambientDirectional } from './light/ambientDirectional';
+import {ambientLight} from './light/ambientLight';
 import {pointLight} from './light/pointLight';
 import {spotLight} from './light/spotLight';
 import {directionalLight} from './light/directionalLight';
@@ -61,7 +61,7 @@ export const chapters: Chapter[] = [
   {
     id: 'lights',
     title: '光',
-    lessons: [ambientDirectional, pointLight, spotLight, directionalLight, hemisphereLightHelper],
+    lessons: [ambientLight, pointLight, spotLight, directionalLight, hemisphereLightHelper],
   },
   {
     id: 'animation',
