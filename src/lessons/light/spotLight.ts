@@ -239,6 +239,26 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
             },
         });
 
+        // 点击立方体 → 聚光灯自动瞄准该立方体
+        const raycaster = new THREE.Raycaster();
+        const pointer = new THREE.Vector2();
+        const onClick = (e: MouseEvent) => {
+            const rect = ctx.renderer.domElement.getBoundingClientRect();
+            pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+            pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+            raycaster.setFromCamera(pointer, camera);
+            const hit = raycaster.intersectObjects(meshes, false)[0];
+            if (!hit) return;
+            // 将聚光灯照射目标移动到被点击的立方体中心
+            target.position.copy(hit.object.position);
+            spotHelper.update();
+            // 同步参数面板的 X/Y/Z 滑块显示
+            panel.setDisplay('targetX', target.position.x);
+            panel.setDisplay('targetY', target.position.y);
+            panel.setDisplay('targetZ', target.position.z);
+        };
+        ctx.renderer.domElement.addEventListener('click', onClick);
+
         const controls = new OrbitControls(camera, ctx.renderer.domElement);
         controls.enableDamping = true;
 
@@ -254,6 +274,7 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
         return makeCleanup(ctx, () => {
             cancelAnimationFrame(raf);
             controls.dispose();
+            ctx.renderer.domElement.removeEventListener('click', onClick);
             spotHelper.dispose();
             meshes.forEach((m) => {
                 m.geometry.dispose();
