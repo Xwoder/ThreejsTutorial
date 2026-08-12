@@ -28,7 +28,6 @@ import { transformControls } from './controls/transformControls';
 import { mercedes } from './examples/mercedes';
 import { ferrari } from './examples/ferrari';
 import { airco } from './examples/airco';
-import { meshTextured } from './examples/meshTextured';
 import { rubiksCube } from './examples/rubiksCube';
 import { solarSystem } from './examples/solarSystem';
 import { canyonTerrain } from './examples/canyonTerrain';
@@ -77,7 +76,7 @@ export const chapters: Chapter[] = [
   {
     id: 'examples',
     title: '示例',
-    lessons: [mercedes, ferrari, airco, meshTextured, rubiksCube, solarSystem, canyonTerrain, mountainRangeTerrain],
+    lessons: [mercedes, ferrari, airco, rubiksCube, solarSystem, canyonTerrain, mountainRangeTerrain],
   },
   {
     id: 'uncategorized',
