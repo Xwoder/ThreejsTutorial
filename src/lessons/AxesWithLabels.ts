@@ -67,12 +67,14 @@ export class AxesWithLabels extends THREE.Group {
             this.add(makeAxisLine(dir, color, lineWidth));
         });
 
-        // 标签中心仅略超出轴末端，避免离顶端过远
-        const d = size + 0.2;
-        const labelScale = size * 0.28;
+        // 标签紧贴轴末端，仅间隔很小一段距离
+        const labelScale = size * 0.10;
+        const d = size + labelScale * 0.25;
+        // Y 轴竖直放置，视觉上容易贴着轴线，单独多留一点间距
+        const dY = size + labelScale * 0.4;
         const labels: { text: string; color: string; pos: THREE.Vector3 }[] = [
             {text: 'X', color: '#ff453a', pos: new THREE.Vector3(d, 0, 0)},
-            {text: 'Y', color: '#32d74b', pos: new THREE.Vector3(0, d, 0)},
+            {text: 'Y', color: '#32d74b', pos: new THREE.Vector3(0, dY, 0)},
             {text: 'Z', color: '#0a84ff', pos: new THREE.Vector3(0, 0, d)},
         ];
         labels.forEach(({text, color, pos}) => {
