@@ -11,6 +11,7 @@ import { materialTypes } from './material/materialTypes';
 import { textures } from './material/textures';
 import { ambientDirectional } from './light/ambientDirectional';
 import { pointSpot } from './light/pointSpot';
+import {directionalLight} from './light/directionalLight';
 import { animationLoop } from './animation/animationLoop';
 import { orbitControls } from './animation/orbitControls';
 import { trackballControls } from './controls/trackballControls';
@@ -58,6 +59,11 @@ export const chapters: Chapter[] = [
     id: 'light',
     title: '灯光',
     lessons: [ambientDirectional, pointSpot],
+  },
+  {
+    id: 'lights',
+    title: '光',
+    lessons: [directionalLight],
   },
   {
     id: 'animation',
