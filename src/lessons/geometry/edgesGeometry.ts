@@ -156,7 +156,7 @@ function createEdgesDemo(container: HTMLElement, type: ShapeType): () => void {
 function makeShapeLesson(type: ShapeType): Lesson {
   const meta = shapeMeta[type];
   return {
-    id: `edges-geometry-${type}`,
+    id: `geometry/edges-geometry/edges-geometry-${type}`,
     title: meta.label,
     description: `
       <h2>EdgesGeometry × ${meta.label}</h2>
