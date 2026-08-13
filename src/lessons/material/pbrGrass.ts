@@ -14,10 +14,10 @@ import heightUrl from '../../assets/PbrTexture/leafy-grass2-bl/leafy-grass2-heig
 
 export const pbrGrass: Lesson = {
     id: 'material/textures/pbr-grass',
-    title: 'PBR 草地材质（平面）',
+    title: 'PBR 草地材质',
     description: `
     <h2>PBR 贴图链演示：leafy-grass2</h2>
-    <p>用一张<strong>平面</strong>演示一套完整的 PBR 材质贴图（<code>src/assets/PbrTexture/leafy-grass2-bl/</code>）。草叶材质最常用的贴图有：</p>
+    <p>用<strong>平面、立方体、球体</strong>三个物体演示一套完整的 PBR 材质贴图（<code>src/assets/PbrTexture/leafy-grass2-bl/</code>），三个物体共用同一个材质。草叶材质最常用的贴图有：</p>
     <ul>
       <li><b>albedo（漫反射）</b>：决定颜色，需声明 <code>SRGBColorSpace</code>。</li>
       <li><b>normal（法线）</b>：模拟草叶表面的微小凹凸与光照细节。</li>
@@ -35,7 +35,7 @@ export const pbrGrass: Lesson = {
   bumpMap: heightTexture,
 });</code></pre>
     <p>由于设置了贴图，材质最终值 = 贴图采样值 × 右侧面板对应参数，拖动滑块即可实时观察每张贴图的贡献。</p>
-    <p>本示例将平面<strong>平放在地面上</strong>（绕 X 轴旋转 90°），并使用 <code>side: THREE.DoubleSide</code> 双面渲染，可旋转到地面下方查看背面。</p>
+    <p>平面<strong>平放在地面上</strong>（绕 X 轴旋转 90°），立方体与球体立于两侧并缓慢旋转。三个几何体都复制了 <code>uv</code> 到 <code>uv2</code> 以支持 <code>aoMap</code>，并使用 <code>side: THREE.DoubleSide</code> 双面渲染。</p>
     <p>鼠标拖动环绕观察，滚轮缩放。</p>
   `,
     create(container) {
@@ -49,9 +49,8 @@ export const pbrGrass: Lesson = {
         ctx.scene.environmentIntensity = 0.6;
 
         const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 100);
-        // 初始视角：站在高处俯视地面
-        camera.position.set(0, 6, 4);
-        camera.lookAt(0, 0, 0);
+        camera.position.set(0, 2.5, 6);
+        camera.lookAt(0, 0.5, 0);
         ctx.onResize((w, h) => {
             camera.aspect = w / h;
             camera.updateProjectionMatrix();
@@ -59,16 +58,16 @@ export const pbrGrass: Lesson = {
 
         const controls = new OrbitControls(camera, ctx.renderer.domElement);
         controls.enableDamping = true;
-        controls.target.set(0, 0, 0);
+        controls.target.set(0, 0.5, 0);
 
-        ctx.scene.add(new THREE.GridHelper(8, 8, 0x475569, 0x1e293b));
+        ctx.scene.add(new THREE.GridHelper(16, 16, 0x475569, 0x1e293b));
         ctx.scene.add(new THREE.AmbientLight(0xffffff, 0.4));
         const dirLight = new THREE.DirectionalLight(0xffffff, 1.6);
         dirLight.position.set(3, 5, 4);
         ctx.scene.add(dirLight);
 
         // 平面：细分 32×32，并复制 uv 到 uv2 以支持 aoMap
-        const geometry = new THREE.PlaneGeometry(3, 3, 32, 32);
+        const geometry = new THREE.PlaneGeometry(10, 10, 32, 32);
         geometry.setAttribute('uv2', geometry.getAttribute('uv').clone());
 
         const material = new THREE.MeshStandardMaterial({
@@ -84,6 +83,19 @@ export const pbrGrass: Lesson = {
         mesh.rotation.x = -Math.PI / 2;
         mesh.position.y = 0.001;
         ctx.scene.add(mesh);
+
+        // 立方体与球体：与平面共用草地材质，同样复制 uv 到 uv2 以支持 aoMap
+        const cubeGeo = new THREE.BoxGeometry(1.4, 1.4, 1.4);
+        cubeGeo.setAttribute('uv2', cubeGeo.getAttribute('uv').clone());
+        const cube = new THREE.Mesh(cubeGeo, material);
+        cube.position.set(-1.6, 1, 0);
+        ctx.scene.add(cube);
+
+        const sphereGeo = new THREE.SphereGeometry(0.9, 48, 24);
+        sphereGeo.setAttribute('uv2', sphereGeo.getAttribute('uv').clone());
+        const sphere = new THREE.Mesh(sphereGeo, material);
+        sphere.position.set(1.6, 1, 0);
+        ctx.scene.add(sphere);
 
         // 各贴图加载完成后统一应用到材质
         const tex: {
@@ -238,6 +250,8 @@ export const pbrGrass: Lesson = {
         let raf = 0;
         const loop = () => {
             raf = requestAnimationFrame(loop);
+            cube.rotation.y += 0.008;
+            sphere.rotation.y -= 0.008;
             controls.update();
             ctx.renderer.render(ctx.scene, camera);
         };
@@ -249,6 +263,8 @@ export const pbrGrass: Lesson = {
             pmrem.dispose();
             envTex.dispose();
             geometry.dispose();
+            cubeGeo.dispose();
+            sphereGeo.dispose();
             material.dispose();
             Object.values(tex).forEach((t) => t?.dispose());
             panel.remove();
