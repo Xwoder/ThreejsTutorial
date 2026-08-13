@@ -10,7 +10,6 @@ import { builtinGeometries } from './geometry/builtinGeometries';
 import { customGeometry } from './geometry/customGeometry';
 import { materialTypes } from './material/materialTypes';
 import {textures} from './material/texturesGroup';
-import {pbrGrass} from './material/pbrGrass';
 import {ambientLight} from './light/ambientLight';
 import {pointLight} from './light/pointLight';
 import {spotLight} from './light/spotLight';
@@ -58,7 +57,7 @@ export const chapters: Chapter[] = [
   {
     id: 'material',
     title: '材质',
-    lessons: [...materialTypes, textures, pbrGrass],
+    lessons: [...materialTypes, textures],
   },
   {
     id: 'lights',
