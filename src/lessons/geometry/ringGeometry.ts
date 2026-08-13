@@ -14,6 +14,7 @@ const ringDescription = `
   thetaLength     // 扫过角度（2π 为整环）
 )</code></pre>
   <p>本例使用 <code>RingGeometry(1, 2, 32)</code>。缩小 <code>thetaLength</code> 可得到一段圆弧环；加大 <code>phiSegments</code> 可让内外边缘更区分。</p>
+  <p>左上角提供 3 个选项卡：<b>几何体</b>（原始面片）、<b>边缘</b>（<code>EdgesGeometry</code>）、<b>框线</b>（<code>WireframeGeometry</code>）。环面是平面，所有三角面共面、夹角为 0，因此 <code>EdgesGeometry</code> 默认阈值下<strong>不会画出任何棱线</strong>；而 <code>WireframeGeometry</code> 会把全部三角边画出，正好看清环形网格的内外圈细分结构。</p>
 `;
 
 export const ringGeometry: Lesson = makeGeometryLesson({
@@ -44,4 +45,6 @@ export const ringGeometry: Lesson = makeGeometryLesson({
     { key: 'thetaLength', label: 'thetaLength', min: 0.1, max: Math.PI * 2, step: 0.01, value: Math.PI * 2, desc: '扫过角度（2π 为整环，调小成弧段）', precision: 2 },
   ],
   cameraPos: [0, 0, 5],
+  side: THREE.DoubleSide,
+  viewTabs: true,
 });

@@ -13,6 +13,8 @@ export interface GeometryLessonOptions {
   params?: Record<string, number>;
   controls?: ParamSlider[];
   cameraPos?: [number, number, number];
+  /** 相机注视目标（OrbitControls target），默认原点。几何体中心不在原点时用它让物体居中 */
+  target?: [number, number, number];
   /** 旋转速度倍率 */
   spin?: number;
   /** 渲染面：默认 THREE.FrontSide，平面类几何体可设为 THREE.DoubleSide 让两面都可见 */
@@ -33,6 +35,7 @@ export function makeGeometryLesson(opts: GeometryLessonOptions): Lesson {
     params: initialParams = {},
     controls = [],
     cameraPos = [0, 1.5, 5],
+    target = [0, 0, 0],
     spin = 1,
     side = THREE.FrontSide,
     viewTabs = false,
@@ -67,6 +70,8 @@ export function makeGeometryLesson(opts: GeometryLessonOptions): Lesson {
 
       const orbit = new OrbitControls(camera, ctx.renderer.domElement);
       orbit.enableDamping = true;
+      orbit.target.set(...target);
+      camera.lookAt(...target);
 
       let mode: ViewMode = 'geometry';
       const buildGeometry = () => createGeometry(params);
