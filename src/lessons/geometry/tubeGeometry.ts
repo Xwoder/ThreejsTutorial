@@ -50,5 +50,6 @@ export const tubeGeometry: Lesson = makeGeometryLesson({
     { key: 'closed', label: 'closed', min: 0, max: 1, step: 1, value: 0, desc: '是否首尾闭合（1 为成环）', precision: 0 },
   ],
   cameraPos: [0, 0, 6],
+  side: THREE.DoubleSide,
   viewTabs: true,
 });
