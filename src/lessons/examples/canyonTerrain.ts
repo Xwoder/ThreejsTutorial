@@ -8,19 +8,6 @@ import heightMapUrl from '../../assets/HeightMap/Canyon Height Maps/Canyon Heigh
 import diffuseMapUrl from '../../assets/HeightMap/Canyon Height Maps/Canyon Diffuse.png?url';
 import normalMapUrl from '../../assets/HeightMap/Canyon Height Maps/Canyon Normal Map.png?url';
 
-/**
- * 加载图片作为纹理，附带错误提示（在 helper.ts 中抽出了通用实现）
- */
-function makeLoadingTip(text: string): HTMLDivElement {
-  const tip = document.createElement('div');
-  tip.textContent = text;
-  tip.style.cssText =
-    'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:#94a3b8;font-size:14px;background:rgba(0,0,0,0.4);padding:10px 16px;border-radius:6px;';
-  return tip;
-}
-
-void makeLoadingTip; // 工具函数保留供将来扩展使用
-
 export const canyonTerrain: Lesson = {
   id: 'examples/example-canyon-heightmap',
   title: '峡谷高度图地形',
