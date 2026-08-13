@@ -13,6 +13,7 @@ const tubeDescription = `
   closed          // 是否首尾闭合
 )</code></pre>
   <p>本例用一条扭动的曲线演示。勾选 <code>closed</code> 可让管道首尾相连成环。</p>
+  <p>左上角提供 3 个选项卡：<b>几何体</b>（原始面片）、<b>边缘</b>（<code>EdgesGeometry</code> 提取硬边棱线）、<b>框线</b>（<code>WireframeGeometry</code> 画出全部三角棱）。</p>
 `;
 
 // 一条扭动的三维曲线
@@ -49,4 +50,5 @@ export const tubeGeometry: Lesson = makeGeometryLesson({
     { key: 'closed', label: 'closed', min: 0, max: 1, step: 1, value: 0, desc: '是否首尾闭合（1 为成环）', precision: 0 },
   ],
   cameraPos: [0, 0, 6],
+  viewTabs: true,
 });
