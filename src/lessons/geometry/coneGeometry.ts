@@ -14,6 +14,7 @@ const coneDescription = `
   thetaStart, thetaLength
 )</code></pre>
   <p>本例使用 <code>ConeGeometry(1, 2, 32)</code>。把 <code>openEnded</code> 调为 <code>1</code> 可得到一个无底的圆锥面（如漏斗）。</p>
+  <p>左上角提供 3 个选项卡：<b>几何体</b>（原始面片）、<b>边缘</b>（<code>EdgesGeometry</code> 提取硬边棱线）、<b>框线</b>（<code>WireframeGeometry</code> 画出全部三角棱）。</p>
 `;
 
 export const coneGeometry: Lesson = makeGeometryLesson({
@@ -47,4 +48,5 @@ export const coneGeometry: Lesson = makeGeometryLesson({
     { key: 'openEnded', label: 'openEnded', min: 0, max: 1, step: 1, value: 0, desc: '是否开口（1 为无底面）', precision: 0 },
   ],
   cameraPos: [0, 0.5, 5],
+  viewTabs: true,
 });

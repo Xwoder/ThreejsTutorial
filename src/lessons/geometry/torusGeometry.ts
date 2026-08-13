@@ -13,6 +13,7 @@ const torusDescription = `
   arc             // 环的角度范围（默认 2π 整圈）
 )</code></pre>
   <p>本例使用 <code>TorusGeometry(1, 0.4, 16, 80)</code>。<code>arc</code> 小于 <code>2π</code> 时可得到一段圆弧环。</p>
+  <p>左上角提供 3 个选项卡：<b>几何体</b>（原始面片）、<b>边缘</b>（<code>EdgesGeometry</code> 提取硬边棱线）、<b>框线</b>（<code>WireframeGeometry</code> 画出全部三角棱）。</p>
 `;
 
 export const torusGeometry: Lesson = makeGeometryLesson({
@@ -42,4 +43,5 @@ export const torusGeometry: Lesson = makeGeometryLesson({
     { key: 'arc', label: 'arc', min: 0.1, max: Math.PI * 2, step: 0.01, value: Math.PI * 2, desc: '环的角度范围（2π 为整圈）', precision: 2 },
   ],
   cameraPos: [0, 0, 5],
+  viewTabs: true,
 });

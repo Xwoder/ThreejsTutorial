@@ -14,6 +14,7 @@ const torusKnotDescription = `
   q               // 绕管自身圈数
 )</code></pre>
   <p>本例使用 <code>TorusKnotGeometry(1, 0.3, 128, 16, 2, 3)</code>。<code>p</code> 与 <code>q</code> 互质时能得到不自我交叠的纽结形态。</p>
+  <p>左上角提供 3 个选项卡：<b>几何体</b>（原始面片）、<b>边缘</b>（<code>EdgesGeometry</code> 提取硬边棱线）、<b>框线</b>（<code>WireframeGeometry</code> 画出全部三角棱）。</p>
 `;
 
 export const torusKnotGeometry: Lesson = makeGeometryLesson({
@@ -47,4 +48,5 @@ export const torusKnotGeometry: Lesson = makeGeometryLesson({
   ],
   cameraPos: [0, 0, 5],
   spin: 0.8,
+  viewTabs: true,
 });

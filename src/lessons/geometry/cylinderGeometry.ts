@@ -15,6 +15,7 @@ const cylinderDescription = `
   thetaStart, thetaLength
 )</code></pre>
   <p>本例使用 <code>CylinderGeometry(1, 1, 2, 32)</code>。让 <code>radiusTop</code> 与 <code>radiusBottom</code> 不同即可得到圆台（圆锥台）。</p>
+  <p>左上角提供 3 个选项卡：<b>几何体</b>（原始面片）、<b>边缘</b>（<code>EdgesGeometry</code> 提取硬边棱线）、<b>框线</b>（<code>WireframeGeometry</code> 画出全部三角棱）。</p>
 `;
 
 export const cylinderGeometry: Lesson = makeGeometryLesson({
@@ -51,4 +52,5 @@ export const cylinderGeometry: Lesson = makeGeometryLesson({
     { key: 'openEnded', label: 'openEnded', min: 0, max: 1, step: 1, value: 0, desc: '是否开口（1 为无顶底）', precision: 0 },
   ],
   cameraPos: [0, 0.5, 5],
+  viewTabs: true,
 });

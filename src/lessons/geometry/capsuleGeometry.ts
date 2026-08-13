@@ -12,6 +12,7 @@ const capsuleDescription = `
   radialSegments // 圆周分段
 )</code></pre>
   <p>本例使用 <code>CapsuleGeometry(1, 2, 8, 32)</code>。增大 <code>radius</code> 或减小 <code>length</code> 会更接近球体。</p>
+  <p>左上角提供 3 个选项卡：<b>几何体</b>（原始面片）、<b>边缘</b>（<code>EdgesGeometry</code> 提取硬边棱线）、<b>框线</b>（<code>WireframeGeometry</code> 画出全部三角棱）。</p>
 `;
 
 export const capsuleGeometry: Lesson = makeGeometryLesson({
@@ -38,4 +39,5 @@ export const capsuleGeometry: Lesson = makeGeometryLesson({
     { key: 'radialSegments', label: 'radialSegments', min: 3, max: 64, step: 1, value: 32, desc: '圆周分段', precision: 0 },
   ],
   cameraPos: [0, 0, 6],
+    viewTabs: true,
 });
