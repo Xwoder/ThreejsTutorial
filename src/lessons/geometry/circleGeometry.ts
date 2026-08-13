@@ -12,6 +12,7 @@ const circleDescription = `
   thetaLength   // 扫过角度（2π 为整圆）
 )</code></pre>
   <p>本例使用 <code>CircleGeometry(1.5, 64)</code>。把 <code>thetaLength</code> 调小即可得到扇形（如披萨切片）。</p>
+  <p>左上角提供 3 个选项卡：<b>几何体</b>（原始面片）、<b>边缘</b>（<code>EdgesGeometry</code>）、<b>框线</b>（<code>WireframeGeometry</code>）。圆盘是平面，所有三角面共面、夹角为 0，因此 <code>EdgesGeometry</code> 默认阈值下<strong>不会画出任何棱线</strong>（平面没有硬边）；而 <code>WireframeGeometry</code> 会把全部三角边画出，正好看清圆盘的细分结构。把 <code>segments</code> 调大或把 <code>thetaLength</code> 调成扇形，网格变化一目了然。</p>
 `;
 
 export const circleGeometry: Lesson = makeGeometryLesson({
@@ -32,4 +33,5 @@ export const circleGeometry: Lesson = makeGeometryLesson({
   ],
   cameraPos: [0, 0, 5],
   side: THREE.DoubleSide,
+    viewTabs: true,
 });
