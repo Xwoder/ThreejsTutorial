@@ -28,49 +28,77 @@ renderer.shadowMap.enabled = true;</code></pre>
         ctx.renderer.shadowMap.enabled = true;
         ctx.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-        const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
-        camera.position.set(6, 4, 8);
+        const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 100);
+        camera.position.set(5.5, 7, 8);
         camera.lookAt(0, 0.5, 0);
         ctx.onResize((w, h) => {
             camera.aspect = w / h;
             camera.updateProjectionMatrix();
         });
 
-        // 地面：接收阴影
+        // 地面：接收阴影（尺寸与颜色和 ambient-light 一致）
         const floor = new THREE.Mesh(
-            new THREE.PlaneGeometry(14, 14),
-            new THREE.MeshStandardMaterial({color: 0x1e293b, roughness: 0.9}),
+            new THREE.PlaneGeometry(12, 12),
+            new THREE.MeshStandardMaterial({color: 0x8899aa, roughness: 0.9}),
         );
         floor.rotation.x = -Math.PI / 2;
         floor.receiveShadow = true;
         ctx.scene.add(floor);
 
-        // 若干几何体：投射阴影
-        const meshes = [
+        // 与 ambient-light 一致：9 个不同形状 / 颜色的物体，按 3×3 网格排列
+        const shapes = [
             {
-                geo: new THREE.SphereGeometry(1, 48, 24),
-                mat: new THREE.MeshStandardMaterial({color: 0x7dd3fc, roughness: 0.35}),
-                pos: new THREE.Vector3(-3, 1.05, 1),
+                geo: new THREE.SphereGeometry(0.9, 48, 32),
+                mat: new THREE.MeshStandardMaterial({color: 0x60a5fa, roughness: 0.3}),
+                h: 0.9
             },
             {
-                geo: new THREE.BoxGeometry(1.6, 1.6, 1.6),
+                geo: new THREE.BoxGeometry(1.5, 1.5, 1.5),
                 mat: new THREE.MeshStandardMaterial({color: 0xfbbf24, roughness: 0.5}),
-                pos: new THREE.Vector3(0, 0.85, -1.5),
+                h: 0.75
             },
             {
-                geo: new THREE.CylinderGeometry(0.7, 0.7, 2, 32),
+                geo: new THREE.CylinderGeometry(0.6, 0.6, 2.2, 32),
+                mat: new THREE.MeshStandardMaterial({color: 0x34d399, roughness: 0.4, metalness: 0.2}),
+                h: 1.1
+            },
+            {
+                geo: new THREE.TorusKnotGeometry(0.7, 0.25, 100, 16),
+                mat: new THREE.MeshStandardMaterial({color: 0xfb7185, roughness: 0.5}),
+                h: 1.2
+            },
+            {
+                geo: new THREE.TorusGeometry(0.7, 0.28, 32, 64),
                 mat: new THREE.MeshStandardMaterial({color: 0xa78bfa, roughness: 0.4}),
-                pos: new THREE.Vector3(3, 1.05, 1),
+                h: 1.3
             },
             {
-                geo: new THREE.TorusKnotGeometry(0.6, 0.22, 100, 16),
-                mat: new THREE.MeshStandardMaterial({color: 0xfb7185, roughness: 0.6}),
-                pos: new THREE.Vector3(-1.5, 1.3, 2.2),
+                geo: new THREE.ConeGeometry(0.8, 1.8, 32),
+                mat: new THREE.MeshStandardMaterial({color: 0xfbbf24, roughness: 0.5}),
+                h: 0.9
+            },
+            {
+                geo: new THREE.DodecahedronGeometry(0.9),
+                mat: new THREE.MeshStandardMaterial({color: 0xffffff, roughness: 0.6}),
+                h: 1.0
+            },
+            {
+                geo: new THREE.OctahedronGeometry(0.9),
+                mat: new THREE.MeshStandardMaterial({color: 0xfb923c, roughness: 0.5}),
+                h: 0.9
+            },
+            {
+                geo: new THREE.IcosahedronGeometry(0.9),
+                mat: new THREE.MeshStandardMaterial({color: 0x2dd4bf, roughness: 0.4}),
+                h: 0.9
             },
         ];
-        meshes.forEach(({geo, mat, pos}) => {
+        const SPACING = 3.2;
+        shapes.forEach(({geo, mat, h}, i) => {
             const mesh = new THREE.Mesh(geo, mat);
-            mesh.position.copy(pos);
+            const row = Math.floor(i / 3);
+            const col = i % 3;
+            mesh.position.set((col - 1) * SPACING, h, (row - 1) * SPACING);
             mesh.castShadow = true;
             ctx.scene.add(mesh);
         });
@@ -195,6 +223,10 @@ renderer.shadowMap.enabled = true;</code></pre>
         return makeCleanup(ctx, () => {
             cancelAnimationFrame(raf);
             controls.dispose();
+            shapes.forEach(({geo, mat}) => {
+                geo.dispose();
+                mat.dispose();
+            });
             panel.remove();
         });
     },
