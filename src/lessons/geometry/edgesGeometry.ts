@@ -6,7 +6,7 @@ import type {ParamSlider} from '../../utils/paramPanel.ts';
 import type { Lesson } from '../types';
 
 /** 源几何体类型 */
-type ShapeType = 'box' | 'sphere' | 'cylinder' | 'torusKnot';
+type ShapeType = 'sphere' | 'cylinder' | 'torusKnot';
 
 const shapeMeta: Record<ShapeType, {
   label: string;
@@ -15,11 +15,6 @@ const shapeMeta: Record<ShapeType, {
   /** 该源几何体的构建参数说明 */
   note: string;
 }> = {
-  box: {
-    label: 'BoxGeometry',
-    signature: 'new THREE.BoxGeometry(width, height, depth)',
-    note: '立方体六个面都是平面，相邻面几乎总是垂直，所以 EdgesGeometry 会保留全部 12 条棱——无论阈值多大。',
-  },
   sphere: {
     label: 'SphereGeometry',
     signature: 'new THREE.SphereGeometry(radius, widthSeg, heightSeg)',
@@ -41,8 +36,6 @@ function buildSource(type: ShapeType): THREE.BufferGeometry {
   const seg = 24;
   const size = 1.4;
   switch (type) {
-    case 'box':
-      return new THREE.BoxGeometry(size * 1.4, size * 1.4, size * 1.4);
     case 'sphere':
       return new THREE.SphereGeometry(size, seg, seg);
     case 'cylinder':
@@ -177,7 +170,7 @@ const overviewDescription = `
   geometry,       // 源几何体
   thresholdAngle  // 夹角阈值（度），默认 1
 )</code></pre>
-  <p>下面分 4 个子章节，分别演示 <code>EdgesGeometry</code> 作用于 Box / Sphere / Cylinder / TorusKnot 四种源几何体时的效果差异。源曲面越平滑，默认阈值下抽出的棱越少；调大 <code>thresholdAngle</code> 只留硬边，调小则画出全部三角棱。</p>
+  <p>下面分 3 个子章节，分别演示 <code>EdgesGeometry</code> 作用于 Sphere / Cylinder / TorusKnot 三种源几何体时的效果差异（立方体的边缘效果已在 <a href="#/geometry/box-geometry">BoxGeometry 立方体</a> 的「边缘」选项卡中演示）。源曲面越平滑，默认阈值下抽出的棱越少；调大 <code>thresholdAngle</code> 只留硬边，调小则画出全部三角棱。</p>
 `;
 
 export const edgesGeometry: Lesson = {
@@ -185,7 +178,6 @@ export const edgesGeometry: Lesson = {
   title: 'EdgesGeometry 边缘线',
   description: overviewDescription,
   children: [
-    makeShapeLesson('box'),
     makeShapeLesson('sphere'),
     makeShapeLesson('cylinder'),
     makeShapeLesson('torusKnot'),

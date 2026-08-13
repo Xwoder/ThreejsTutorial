@@ -5,7 +5,7 @@ import {createParamPanel} from '../../utils/paramPanel.ts';
 import type { Lesson } from '../types';
 
 /** 源几何体类型 */
-type ShapeType = 'box' | 'sphere' | 'cylinder' | 'torusKnot';
+type ShapeType = 'sphere' | 'cylinder' | 'torusKnot';
 
 const shapeMeta: Record<ShapeType, {
   label: string;
@@ -14,11 +14,6 @@ const shapeMeta: Record<ShapeType, {
   /** 该源几何体的构建参数说明 */
   note: string;
 }> = {
-  box: {
-    label: 'BoxGeometry',
-    signature: 'new THREE.BoxGeometry(width, height, depth)',
-    note: '立方体每个面被分成两个三角面，WireframeGeometry 不区分硬边软边，会把每个面的对角线也画出来——所以你能看到 12 条棱 + 6 条面对角线。',
-  },
   sphere: {
     label: 'SphereGeometry',
     signature: 'new THREE.SphereGeometry(radius, widthSeg, heightSeg)',
@@ -40,8 +35,6 @@ function buildSource(type: ShapeType): THREE.BufferGeometry {
   const seg = 24;
   const size = 1.4;
   switch (type) {
-    case 'box':
-      return new THREE.BoxGeometry(size * 1.4, size * 1.4, size * 1.4);
     case 'sphere':
       return new THREE.SphereGeometry(size, seg, seg);
     case 'cylinder':
@@ -166,7 +159,7 @@ const overviewDescription = `
   <h2>WireframeGeometry 线框</h2>
   <p>同样不是“从零生成”的几何体，而是<strong>包裹另一个几何体</strong>，把它的<strong>所有三角面边</strong>都抽成一份用 <code>LineSegments</code> 绘制的数据。与 <code>EdgesGeometry</code> 的区别：它不区分硬边/软边，会把网格的每一根三角棱都画出来，因此能看到完整的细分结构。</p>
   <pre><code>new THREE.WireframeGeometry(geometry)</code></pre>
-  <p>下面分 4 个子章节，分别演示 <code>WireframeGeometry</code> 作用于 Box / Sphere / Cylinder / TorusKnot 四种源几何体时的效果差异。它不像 <code>EdgesGeometry</code> 那样有阈值参数，所以无论源曲面是否平滑，全部三角棱都会被画出。</p>
+  <p>下面分 3 个子章节，分别演示 <code>WireframeGeometry</code> 作用于 Sphere / Cylinder / TorusKnot 三种源几何体时的效果差异（立方体的框线效果已在 <a href="#/geometry/box-geometry">BoxGeometry 立方体</a> 的「框线」选项卡中演示）。它不像 <code>EdgesGeometry</code> 那样有阈值参数，所以无论源曲面是否平滑，全部三角棱都会被画出。</p>
 `;
 
 export const wireframeGeometry: Lesson = {
@@ -174,7 +167,6 @@ export const wireframeGeometry: Lesson = {
   title: 'WireframeGeometry 线框',
   description: overviewDescription,
   children: [
-    makeShapeLesson('box'),
     makeShapeLesson('sphere'),
     makeShapeLesson('cylinder'),
     makeShapeLesson('torusKnot'),

@@ -507,3 +507,41 @@ body {
 .camera-controls::-webkit-scrollbar-corner {
   background: transparent;
 }
+
+/* 左上角视图选项卡（几何体 / 边缘 / 框线） */
+.view-tabs {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 20;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: rgba(30, 41, 59, 0.92);
+  border: 1px solid #334155;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.view-tabs button {
+  padding: 7px 16px;
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-tabs button:hover {
+  color: #e2e8f0;
+  background: rgba(51, 65, 85, 0.4);
+}
+
+.view-tabs button.active {
+  background: #38bdf8;
+  color: #0f172a;
+  border-color: #38bdf8;
+}
