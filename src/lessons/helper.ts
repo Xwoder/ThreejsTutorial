@@ -11,31 +11,41 @@ import * as THREE from 'three';
  */
 /**
  * 加载纹理资源，支持自定义颜色空间、Y 轴翻转和各项异性过滤。
+ * 课程切换后加载才完成时（alive() 返回 false），自动释放已下载的纹理，避免显存泄漏。
  * @param url - 纹理图片的 URL 地址
  * @param onLoad - 纹理加载成功后的回调，接收加载完成的 Texture 对象
  * @param onError - 可选，纹理加载失败时的回调
  * @param options - 可选配置项
  * @param options.colorSpace - 可选，纹理的颜色空间（如 SRGBColorSpace）
  * @param options.flipY - 可选，是否翻转纹理的 Y 轴
+ * @param options.alive - 可选，判断课程是否仍存活；返回 false 时丢弃结果并释放纹理
  */
 export function loadTexture(
   url: string,
   onLoad: (tex: THREE.Texture) => void,
   onError?: (err: unknown) => void,
-  options: { colorSpace?: THREE.ColorSpace; flipY?: boolean } = {},
+  options: { colorSpace?: THREE.ColorSpace; flipY?: boolean; alive?: () => boolean } = {},
 ): void {
   const loader = new THREE.TextureLoader();
   loader.setCrossOrigin('anonymous');
+  const isAlive = options.alive ?? (() => true);
   loader.load(
     url,
     (t) => {
+      if (!isAlive()) {
+        t.dispose();
+        return;
+      }
       if (options.colorSpace) t.colorSpace = options.colorSpace;
       if (options.flipY !== undefined) t.flipY = options.flipY;
       t.anisotropy = 8;
       onLoad(t);
     },
     undefined,
-    onError,
+      (err) => {
+        // 课程已切换时静默丢弃，避免操作已移除的 DOM / 失效对象
+        if (isAlive()) onError?.(err);
+      },
   );
 }
 
@@ -45,6 +55,8 @@ export interface SceneContext {
   /** 画布容器尺寸变化时自动更新 */
   onResize: (cb: (width: number, height: number) => void) => void;
   getSize: () => { width: number; height: number };
+  /** 释放内部资源（ResizeObserver 等），由 makeCleanup 自动调用 */
+  dispose: () => void;
 }
 
 /** 创建渲染器并处理容器尺寸变化，返回清理函数由调用方组合 */
@@ -79,16 +91,91 @@ export function createContext(container: HTMLElement): SceneContext {
     scene,
     onResize: (cb) => resizeCallbacks.push(cb),
     getSize,
+    dispose: () => {
+      observer.disconnect();
+      resizeCallbacks.length = 0;
+    },
   };
 }
 
-/** 通用清理：停止动画循环并销毁渲染器 */
+/** 材质上可能持有纹理的全部标准属性名（含 newer PBR 扩展贴图） */
+const MATERIAL_TEXTURE_PROPS = [
+  'map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap',
+  'displacementMap', 'bumpMap', 'alphaMap', 'emissiveMap', 'envMap',
+  'lightMap', 'specularMap', 'gradientMap', 'matcap',
+  'sheenColorMap', 'sheenRoughnessMap', 'clearcoatMap',
+  'clearcoatRoughnessMap', 'clearcoatNormalMap', 'iridescenceMap',
+  'iridescenceThicknessMap', 'specularIntensityMap', 'specularColorMap',
+  'transmissionMap', 'thicknessMap', 'anisotropyMap',
+] as const;
+
+/** 释放单个材质及其引用的全部纹理（含自定义 ShaderMaterial uniforms 中的纹理） */
+export function disposeMaterial(material: THREE.Material): void {
+  const target = material as unknown as Record<string, unknown>;
+  for (const key of MATERIAL_TEXTURE_PROPS) {
+    const tex = target[key];
+    if (tex instanceof THREE.Texture) tex.dispose();
+  }
+  // ShaderMaterial / RawShaderMaterial uniforms 中的纹理
+  const uniforms = (material as THREE.ShaderMaterial).uniforms;
+  if (uniforms) {
+    for (const name in uniforms) {
+      const value = uniforms[name]?.value;
+      if (value instanceof THREE.Texture) {
+        value.dispose();
+      } else if (Array.isArray(value)) {
+        for (const item of value) {
+          if (item instanceof THREE.Texture) item.dispose();
+        }
+      }
+    }
+  }
+  material.dispose();
+}
+
+/** 递归释放 Object3D 树上的几何体、材质及其纹理（dispose 幂等，可安全重复调用） */
+export function disposeObject3D(root: THREE.Object3D): void {
+  root.traverse((obj) => {
+    const sprite = obj as THREE.Sprite;
+    // Sprite 使用模块级共享几何体，不释放
+    if (!sprite.isSprite) {
+      const mesh = obj as THREE.Mesh;
+      if (mesh.geometry) mesh.geometry.dispose();
+      // InstancedMesh 的实例数据单独持有，需显式释放
+      const instanced = obj as THREE.InstancedMesh;
+      if (instanced.isInstancedMesh) {
+        instanced.instanceMatrix?.dispose();
+        instanced.instanceColor?.dispose();
+      }
+    }
+    // 材质（单个或材质数组）
+    const material = (obj as THREE.Mesh).material;
+    if (material) {
+      const materials = Array.isArray(material) ? material : [material];
+      for (const m of materials) {
+        if (m) disposeMaterial(m);
+      }
+    }
+  });
+}
+
+/**
+ * 通用清理：停止动画循环、释放场景内全部 GPU 资源并销毁渲染器。
+ * 课程自定义清理（取消 rAF、销毁控件、移除 DOM）通过 extra 传入，先于资源释放执行。
+ */
 export function makeCleanup(
   ctx: SceneContext,
   extra?: () => void,
 ): () => void {
   return () => {
     extra?.();
+    // 断开 ResizeObserver，停止对容器尺寸变化的监听
+    ctx.dispose();
+    // 释放场景中的几何体、材质与纹理
+    disposeObject3D(ctx.scene);
+    // 释放场景级资源（背景 / 环境贴图）
+    if (ctx.scene.background instanceof THREE.Texture) ctx.scene.background.dispose();
+    if (ctx.scene.environment instanceof THREE.Texture) ctx.scene.environment.dispose();
     ctx.renderer.dispose();
     ctx.renderer.domElement.remove();
   };

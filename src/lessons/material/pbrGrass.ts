@@ -42,6 +42,10 @@ export const pbrGrass: Lesson = {
         const ctx = createContext(container);
         ctx.scene.background = new THREE.Color(0x111827);
 
+        // 课程切换后置为 true：此后加载完成的贴图会被立即释放，而非应用到已销毁的材质
+        let disposed = false;
+        const alive = () => !disposed;
+
         // 程序化环境贴图，为 PBR 材质提供基于图像的照明
         const pmrem = new THREE.PMREMGenerator(ctx.renderer);
         const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
@@ -124,32 +128,32 @@ export const pbrGrass: Lesson = {
             t.anisotropy = 8;
             tex.albedo = t;
             tryApply();
-        });
+        }, undefined, {alive});
         loadTexture(normalUrl, (t) => {
             t.colorSpace = THREE.NoColorSpace;
             tex.normal = t;
             tryApply();
-        });
+        }, undefined, {alive});
         loadTexture(roughnessUrl, (t) => {
             t.colorSpace = THREE.NoColorSpace;
             tex.roughness = t;
             tryApply();
-        });
+        }, undefined, {alive});
         loadTexture(metallicUrl, (t) => {
             t.colorSpace = THREE.NoColorSpace;
             tex.metallic = t;
             tryApply();
-        });
+        }, undefined, {alive});
         loadTexture(aoUrl, (t) => {
             t.colorSpace = THREE.NoColorSpace;
             tex.ao = t;
             tryApply();
-        });
+        }, undefined, {alive});
         loadTexture(heightUrl, (t) => {
             t.colorSpace = THREE.NoColorSpace;
             tex.height = t;
             tryApply();
-        });
+        }, undefined, {alive});
 
         // 加载提示
         const tip = document.createElement('div');
@@ -258,6 +262,7 @@ export const pbrGrass: Lesson = {
         loop();
 
         return makeCleanup(ctx, () => {
+            disposed = true;
             cancelAnimationFrame(raf);
             controls.dispose();
             pmrem.dispose();

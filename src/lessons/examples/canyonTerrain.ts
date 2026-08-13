@@ -50,6 +50,10 @@ const mat = new THREE.MeshStandardMaterial({
     const ctx = createContext(container);
     ctx.scene.background = new THREE.Color(0x1b1f24);
 
+    // 课程切换后置为 true：此后加载完成的贴图会被立即释放，而非应用到已销毁的材质
+    let disposed = false;
+    const alive = () => !disposed;
+
     // 环境贴图：为岩石表面的 PBR 材质提供基于图像的照明
     const pmrem = new THREE.PMREMGenerator(ctx.renderer);
     ctx.scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
@@ -124,6 +128,7 @@ const mat = new THREE.MeshStandardMaterial({
         console.error('Heightmap 加载失败', e);
         loadingTip.textContent = '高度图加载失败，请检查网络';
       },
+        {alive},
     );
 
     // 漫反射贴图：sRGB 颜色
@@ -138,6 +143,7 @@ const mat = new THREE.MeshStandardMaterial({
       (e) => {
         console.error('Diffuse 加载失败', e);
       },
+        {alive},
     );
 
     // 法线贴图：线性空间
@@ -152,6 +158,7 @@ const mat = new THREE.MeshStandardMaterial({
       (e) => {
         console.error('NormalMap 加载失败', e);
       },
+        {alive},
     );
 
     ctx.onResize((w, h) => {
@@ -168,6 +175,7 @@ const mat = new THREE.MeshStandardMaterial({
     loop();
 
     return makeCleanup(ctx, () => {
+      disposed = true;
       cancelAnimationFrame(raf);
       controls.dispose();
       pmrem.dispose();

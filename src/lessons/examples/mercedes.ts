@@ -3,7 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { Lesson } from '../types';
-import { createContext, makeCleanup } from '../helper';
+import {createContext, disposeObject3D, makeCleanup} from '../helper';
 
 import modelUrl from '../../assets/model/1996_mercedes-benz_e50_amg_w210.glb?url';
 
@@ -45,6 +45,9 @@ loader.load(url, (gltf) => {
     const controls = new OrbitControls(camera, ctx.renderer.domElement);
     controls.enableDamping = true;
 
+      // 课程切换后置为 true：已下载的模型会被立即释放，而非加入已销毁的场景
+      let disposed = false;
+
     const loader = new GLTFLoader();
     let model: THREE.Object3D | null = null;
     const loadingTip = document.createElement('div');
@@ -56,6 +59,11 @@ loader.load(url, (gltf) => {
     loader.load(
       modelUrl,
       (gltf) => {
+          if (disposed) {
+              // 课程已切换：释放刚下载的模型资源，避免显存泄漏
+              disposeObject3D(gltf.scene);
+              return;
+          }
         model = gltf.scene;
         const box = new THREE.Box3().setFromObject(model);
         const size = box.getSize(new THREE.Vector3());
@@ -71,6 +79,7 @@ loader.load(url, (gltf) => {
       },
       undefined,
       (err) => {
+          if (disposed) return;
         loadingTip.textContent = '模型加载失败';
         console.error('GLB 加载失败', err);
       },
@@ -85,6 +94,7 @@ loader.load(url, (gltf) => {
     loop();
 
     return makeCleanup(ctx, () => {
+        disposed = true;
       cancelAnimationFrame(raf);
       controls.dispose();
       pmrem.dispose();
