@@ -29,7 +29,7 @@ cube.position.y = Math.sin(t * 2);  // 每秒 2 弧度，与帧率无关</code><
     ctx.scene.background = new THREE.Color(0x111827);
 
     const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
-    camera.position.set(0, 2.5, 6);
+    camera.position.set(3.2, 2.5, 6);
     camera.lookAt(0, 1, 0);
     ctx.onResize((w, h) => {
       camera.aspect = w / h;
