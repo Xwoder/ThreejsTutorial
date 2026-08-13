@@ -3,24 +3,32 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
 
-export const textures: Lesson = {
-  id: 'material/textures',
-  title: '纹理贴图',
+export const textureProcedural: Lesson = {
+  id: 'material/textures/procedural',
+  title: '程序化生成纹理',
   description: `
     <h2>Texture</h2>
-    <p>纹理是把图片"贴"到几何体表面的技术，让物体拥有细节。用 <code>TextureLoader</code> 加载图片：</p>
-    <pre><code>const texture = new THREE.TextureLoader().load('/texture.jpg');
+    <p>纹理是把图片"贴"到几何体表面的技术，让物体拥有细节。本例用 <code>CanvasTexture</code> 程序化生成棋盘格纹理（无需外部图片），代码即实际运行的实现：</p>
+    <pre><code>const cv = document.createElement('canvas');
+cv.width = cv.height = 256;
+const g = cv.getContext('2d')!;
+// 绘制 8×8 棋盘格
+const cell = 32;
+for (let y = 0; y &lt; 8; y++) {
+  for (let x = 0; x &lt; 8; x++) {
+    g.fillStyle = (x + y) % 2 ? '#38bdf8' : '#0f172a';
+    g.fillRect(x * cell, y * cell, cell, cell);
+  }
+}
+const texture = new THREE.CanvasTexture(cv);
 texture.colorSpace = THREE.SRGBColorSpace; // 颜色贴图要声明色彩空间
 
 const material = new THREE.MeshStandardMaterial({ map: texture });</code></pre>
     <h3>UV 坐标</h3>
     <p>几何体的每个顶点带有 UV 坐标（0~1），告诉 GPU 该点对应图片上的哪个位置。内置几何体自带 UV，自定义几何体需要手动提供。</p>
-    <h3>本例说明</h3>
-    <p>画布中用 <code>CanvasTexture</code> 程序化生成了一张棋盘格纹理（无需外部图片），分别贴在立方体、球体和平面上：</p>
-    <pre><code>const canvas = document.createElement('canvas');
-// ... 在 canvas 上绘制图案
-const texture = new THREE.CanvasTexture(canvas);</code></pre>
-    <p>实际项目中你也可以换成任何图片 URL。</p>
+    <h3>加载外部图片</h3>
+    <p>实际项目中若有图片文件，用 <code>TextureLoader</code> 即可，其余用法相同：</p>
+    <pre><code>const texture = new THREE.TextureLoader().load('/texture.jpg');</code></pre>
   `,
   create(container) {
     const ctx = createContext(container);

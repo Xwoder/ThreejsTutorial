@@ -9,7 +9,8 @@ import { cubeCamera } from './camera/cubeCamera';
 import { builtinGeometries } from './geometry/builtinGeometries';
 import { customGeometry } from './geometry/customGeometry';
 import { materialTypes } from './material/materialTypes';
-import { textures } from './material/textures';
+import {textures} from './material/texturesGroup';
+import {pbrGrass} from './material/pbrGrass';
 import {ambientLight} from './light/ambientLight';
 import {pointLight} from './light/pointLight';
 import {spotLight} from './light/spotLight';
@@ -37,7 +38,6 @@ import {arrowHelper} from './uncategorized/arrowHelper';
 import {axesHelper} from './uncategorized/axesHelper';
 import {cameraHelper} from './uncategorized/cameraHelper';
 import {gridHelper} from './uncategorized/gridHelper';
-import {pbrGrass} from './uncategorized/pbrGrass';
 
 export const chapters: Chapter[] = [
   {
@@ -83,6 +83,6 @@ export const chapters: Chapter[] = [
   {
     id: 'uncategorized',
     title: '未分类',
-    lessons: [arrowHelper, axesHelper, cameraHelper, gridHelper, pbrGrass],
+    lessons: [arrowHelper, axesHelper, cameraHelper, gridHelper],
   },
 ];

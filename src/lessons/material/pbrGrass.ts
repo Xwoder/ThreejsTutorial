@@ -5,19 +5,19 @@ import type {Lesson} from '../types';
 import {createContext, loadTexture, makeCleanup} from '../helper';
 import {createParamPanel} from '../../utils/paramPanel.ts';
 
-import albedoUrl from '../../assets/PBR/leafy-grass2-bl/leafy-grass2-albedo.png?url';
-import normalUrl from '../../assets/PBR/leafy-grass2-bl/leafy-grass2-normal-ogl.png?url';
-import roughnessUrl from '../../assets/PBR/leafy-grass2-bl/leafy-grass2-roughness.png?url';
-import metallicUrl from '../../assets/PBR/leafy-grass2-bl/leafy-grass2-metallic.png?url';
-import aoUrl from '../../assets/PBR/leafy-grass2-bl/leafy-grass2-ao.png?url';
-import heightUrl from '../../assets/PBR/leafy-grass2-bl/leafy-grass2-height.png?url';
+import albedoUrl from '../../assets/PbrTexture/leafy-grass2-bl/leafy-grass2-albedo.png?url';
+import normalUrl from '../../assets/PbrTexture/leafy-grass2-bl/leafy-grass2-normal-ogl.png?url';
+import roughnessUrl from '../../assets/PbrTexture/leafy-grass2-bl/leafy-grass2-roughness.png?url';
+import metallicUrl from '../../assets/PbrTexture/leafy-grass2-bl/leafy-grass2-metallic.png?url';
+import aoUrl from '../../assets/PbrTexture/leafy-grass2-bl/leafy-grass2-ao.png?url';
+import heightUrl from '../../assets/PbrTexture/leafy-grass2-bl/leafy-grass2-height.png?url';
 
 export const pbrGrass: Lesson = {
-    id: 'uncategorized/pbr-grass',
+    id: 'material/textures/pbr-grass',
     title: 'PBR 草地材质（平面）',
     description: `
     <h2>PBR 贴图链演示：leafy-grass2</h2>
-    <p>用一张<strong>平面</strong>演示一套完整的 PBR 材质贴图（<code>src/assets/PBR/leafy-grass2-bl/</code>）。草叶材质最常用的贴图有：</p>
+    <p>用一张<strong>平面</strong>演示一套完整的 PBR 材质贴图（<code>src/assets/PbrTexture/leafy-grass2-bl/</code>）。草叶材质最常用的贴图有：</p>
     <ul>
       <li><b>albedo（漫反射）</b>：决定颜色，需声明 <code>SRGBColorSpace</code>。</li>
       <li><b>normal（法线）</b>：模拟草叶表面的微小凹凸与光照细节。</li>
