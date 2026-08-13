@@ -28,8 +28,8 @@ function makeBlobTexture(base: string, blob: string, count: number, size = 512):
 }
 
 export const solarSystem: Lesson = {
-    id: 'examples/example-solar-system',
-    title: '太阳系',
+    id: 'examples/example-sun-earth-moon',
+    title: '太阳地球与月亮',
     description: `
     <h2>太阳系</h2>
     <p>用三个球体构建一个迷你太阳系：太阳居中，地球绕太阳公转，月亮绕地球公转。每个天体都用球体表示，公转通过父级 <code>Group</code> 的旋转实现。</p>
