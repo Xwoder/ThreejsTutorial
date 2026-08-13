@@ -14,8 +14,6 @@ import { polyhedron } from './polyhedronLesson';
 import { ringGeometry } from './ringGeometry';
 import { shapeGeometry } from './shapeGeometry';
 import { tubeGeometry } from './tubeGeometry';
-import { edgesGeometry } from './edgesGeometry';
-import { wireframeGeometry } from './wireframeGeometry';
 
 export const builtinGeometries: Lesson[] = [
   boxGeometry,
@@ -33,6 +31,4 @@ export const builtinGeometries: Lesson[] = [
   ringGeometry,
   shapeGeometry,
   tubeGeometry,
-  edgesGeometry,
-  wireframeGeometry,
 ];
