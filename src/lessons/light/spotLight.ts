@@ -29,72 +29,79 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
   `,
     create(container) {
         const ctx = createContext(container);
-        ctx.scene.background = new THREE.Color(0x0b1120);
+        ctx.scene.background = new THREE.Color(0x0d1b2a);
 
-        const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
-        camera.position.set(0, 3.5, 7);
+        const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 100);
+        camera.position.set(5.5, 7, 8);
         camera.lookAt(0, 0.5, 0);
         ctx.onResize((w, h) => {
             camera.aspect = w / h;
             camera.updateProjectionMatrix();
         });
 
-        const floorMat = new THREE.MeshStandardMaterial({color: 0x94a3b8, roughness: 0.9});
-        const floor = new THREE.Mesh(new THREE.PlaneGeometry(14, 14), floorMat);
+        // 地板
+        const floorMat = new THREE.MeshStandardMaterial({color: 0x8899aa, roughness: 0.9});
+        const floor = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), floorMat);
         floor.rotation.x = -Math.PI / 2;
         ctx.scene.add(floor);
 
-        // 立体场景：立方体分布在空间不同位置、不同高度层
-        const props: { geo: THREE.BufferGeometry; mat: THREE.MeshStandardMaterial; pos: THREE.Vector3 }[] = [
-            // 低层（贴地）
+        // 与 ambient-light 一致：9 个不同形状 / 颜色的物体，按 3×3 网格排列
+        const shapes = [
             {
-                geo: new THREE.BoxGeometry(1.0, 1.0, 1.0),
-                mat: new THREE.MeshStandardMaterial({color: 0x60a5fa, roughness: 0.6}),
-                pos: new THREE.Vector3(3.5, 0.5, 2.5)
+                geo: new THREE.SphereGeometry(0.9, 48, 32),
+                mat: new THREE.MeshStandardMaterial({color: 0x60a5fa, roughness: 0.3}),
+                h: 0.9
             },
             {
-                geo: new THREE.BoxGeometry(0.9, 0.9, 0.9),
+                geo: new THREE.BoxGeometry(1.5, 1.5, 1.5),
                 mat: new THREE.MeshStandardMaterial({color: 0xfbbf24, roughness: 0.5}),
-                pos: new THREE.Vector3(-3.5, 0.45, 3.0)
-            },
-            // 中层（悬浮约 1.5~2）
-            {
-                geo: new THREE.BoxGeometry(1.2, 1.2, 1.2),
-                mat: new THREE.MeshStandardMaterial({color: 0x34d399, roughness: 0.4}),
-                pos: new THREE.Vector3(2.0, 1.6, -3.0)
+                h: 0.75
             },
             {
-                geo: new THREE.BoxGeometry(0.8, 0.8, 0.8),
+                geo: new THREE.CylinderGeometry(0.6, 0.6, 2.2, 32),
+                mat: new THREE.MeshStandardMaterial({color: 0x34d399, roughness: 0.4, metalness: 0.2}),
+                h: 1.1
+            },
+            {
+                geo: new THREE.TorusKnotGeometry(0.7, 0.25, 100, 16),
                 mat: new THREE.MeshStandardMaterial({color: 0xfb7185, roughness: 0.5}),
-                pos: new THREE.Vector3(-2.5, 1.9, -2.0)
+                h: 1.2
             },
             {
-                geo: new THREE.BoxGeometry(1.4, 1.4, 1.4),
-                mat: new THREE.MeshStandardMaterial({color: 0xa78bfa, roughness: 0.5}),
-                pos: new THREE.Vector3(1.0, 1.7, 3.5)
-            },
-            // 高层（悬浮约 3~4）
-            {
-                geo: new THREE.BoxGeometry(0.7, 0.7, 0.7),
-                mat: new THREE.MeshStandardMaterial({color: 0x7dd3fc, roughness: 0.3}),
-                pos: new THREE.Vector3(-1.5, 3.2, -3.5)
+                geo: new THREE.TorusGeometry(0.7, 0.28, 32, 64),
+                mat: new THREE.MeshStandardMaterial({color: 0xa78bfa, roughness: 0.4}),
+                h: 1.3
             },
             {
-                geo: new THREE.BoxGeometry(1.0, 1.0, 1.0),
-                mat: new THREE.MeshStandardMaterial({color: 0xf472b6, roughness: 0.5}),
-                pos: new THREE.Vector3(3.0, 3.4, -1.5)
+                geo: new THREE.ConeGeometry(0.8, 1.8, 32),
+                mat: new THREE.MeshStandardMaterial({color: 0xfbbf24, roughness: 0.5}),
+                h: 0.9
             },
             {
-                geo: new THREE.BoxGeometry(0.9, 0.9, 0.9),
-                mat: new THREE.MeshStandardMaterial({color: 0x38bdf8, roughness: 0.4}),
-                pos: new THREE.Vector3(-2.0, 4.2, 1.8)
+                geo: new THREE.DodecahedronGeometry(0.9),
+                mat: new THREE.MeshStandardMaterial({color: 0xffffff, roughness: 0.6}),
+                h: 1.0
+            },
+            {
+                geo: new THREE.OctahedronGeometry(0.9),
+                mat: new THREE.MeshStandardMaterial({color: 0xfb923c, roughness: 0.5}),
+                h: 0.9
+            },
+            {
+                geo: new THREE.IcosahedronGeometry(0.9),
+                mat: new THREE.MeshStandardMaterial({color: 0x2dd4bf, roughness: 0.4}),
+                h: 0.9
             },
         ];
-        const meshes = props.map(({geo, mat, pos}) => {
+        const meshes: THREE.Mesh[] = [];
+        const SPACING = 3.2;
+        shapes.forEach(({geo, mat, h}, i) => {
             const mesh = new THREE.Mesh(geo, mat);
-            mesh.position.copy(pos);
+            const row = Math.floor(i / 3);
+            const col = i % 3;
+            mesh.position.set((col - 1) * SPACING, h, (row - 1) * SPACING);
             ctx.scene.add(mesh);
-            return mesh;
+            meshes.push(mesh);
         });
 
         // 比较暗的环境光：照亮背光面，同时保留聚光灯的明暗对比
@@ -275,6 +282,7 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
 
         const controls = new OrbitControls(camera, ctx.renderer.domElement);
         controls.enableDamping = true;
+        controls.target.set(0, 0.5, 0);
 
         let raf = 0;
         const loop = () => {
