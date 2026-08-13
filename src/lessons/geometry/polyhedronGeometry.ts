@@ -12,6 +12,7 @@ const polyhedronDescription = `
   detail     // 细分级别（细分后再投影到球面）
 )</code></pre>
   <p>本例用 4 个顶点定义一颗正四面体演示。<code>PolyhedronGeometry</code> 是其余柏拉图立体的底层实现，掌握它就能拼出任意凸多面体。</p>
+  <p>左上角提供 3 个选项卡：<b>几何体</b>（原始面片）、<b>边缘</b>（<code>EdgesGeometry</code> 提取硬边棱线）、<b>框线</b>（<code>WireframeGeometry</code> 画出全部三角棱）。</p>
 `;
 
 // 不规则六面体的 8 个顶点
@@ -76,4 +77,5 @@ export const polyhedronGeometry: Lesson = makeGeometryLesson({
     { key: 'detail', label: 'detail', min: 0, max: 4, step: 1, value: 0, desc: '细分级别（细分后投影到球面）', precision: 0 },
   ],
   cameraPos: [0, 0, 5],
+  viewTabs: true,
 });

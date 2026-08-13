@@ -10,6 +10,7 @@ const icosahedronDescription = `
   detail   // 细分级别（0 为原始 20 面，越大越平滑）
 )</code></pre>
   <p>本例使用 <code>IcosahedronGeometry(1.5, 0)</code>。提高 <code>detail</code> 会把每个三角形细分，逐渐趋近球体。</p>
+  <p>左上角提供 3 个选项卡：<b>几何体</b>（原始面片）、<b>边缘</b>（<code>EdgesGeometry</code> 提取硬边棱线）、<b>框线</b>（<code>WireframeGeometry</code> 画出全部三角棱）。</p>
 `;
 
 export const icosahedronGeometry: Lesson = makeGeometryLesson({
@@ -27,4 +28,5 @@ export const icosahedronGeometry: Lesson = makeGeometryLesson({
     { key: 'detail', label: 'detail', min: 0, max: 4, step: 1, value: 0, desc: '细分级别（越大越平滑，趋近球体）', precision: 0 },
   ],
   cameraPos: [0, 0, 5],
+  viewTabs: true,
 });
