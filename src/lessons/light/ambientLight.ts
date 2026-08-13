@@ -44,54 +44,67 @@ export const ambientLight: Lesson = {
         floor.rotation.x = -Math.PI / 2;
         ctx.scene.add(floor);
 
-        // 若干不同形状 / 颜色的物体
-        const items = [
+        // 9 个不同形状 / 颜色的物体，按 3×3 网格排列
+        const shapes = [
             {
                 geo: new THREE.SphereGeometry(0.9, 48, 32),
                 mat: new THREE.MeshStandardMaterial({color: 0x60a5fa, roughness: 0.3}),
-                pos: new THREE.Vector3(-3.4, 0.9, 1.4)
+                h: 0.9
             },
             {
                 geo: new THREE.BoxGeometry(1.5, 1.5, 1.5),
                 mat: new THREE.MeshStandardMaterial({color: 0xfbbf24, roughness: 0.5}),
-                pos: new THREE.Vector3(0.4, 0.75, -1.8)
+                h: 0.75
             },
             {
                 geo: new THREE.CylinderGeometry(0.6, 0.6, 2.2, 32),
                 mat: new THREE.MeshStandardMaterial({color: 0x34d399, roughness: 0.4, metalness: 0.2}),
-                pos: new THREE.Vector3(3.4, 1.1, 1.2)
+                h: 1.1
             },
             {
                 geo: new THREE.TorusKnotGeometry(0.7, 0.25, 100, 16),
                 mat: new THREE.MeshStandardMaterial({color: 0xfb7185, roughness: 0.5}),
-                pos: new THREE.Vector3(2.2, 1.2, 3.0)
+                h: 1.2
             },
             {
                 geo: new THREE.TorusGeometry(0.7, 0.28, 32, 64),
                 mat: new THREE.MeshStandardMaterial({color: 0xa78bfa, roughness: 0.4}),
-                pos: new THREE.Vector3(-3.4, 1.3, -2.4)
+                h: 1.3
             },
             {
                 geo: new THREE.ConeGeometry(0.8, 1.8, 32),
                 mat: new THREE.MeshStandardMaterial({color: 0xfbbf24, roughness: 0.5}),
-                pos: new THREE.Vector3(3.6, 0.9, -2.4)
+                h: 0.9
             },
             {
                 geo: new THREE.DodecahedronGeometry(0.9),
                 mat: new THREE.MeshStandardMaterial({color: 0xffffff, roughness: 0.6}),
-                pos: new THREE.Vector3(-0.9, 1.0, 2.6)
+                h: 1.0
+            },
+            {
+                geo: new THREE.OctahedronGeometry(0.9),
+                mat: new THREE.MeshStandardMaterial({color: 0xfb923c, roughness: 0.5}),
+                h: 0.9
+            },
+            {
+                geo: new THREE.IcosahedronGeometry(0.9),
+                mat: new THREE.MeshStandardMaterial({color: 0x2dd4bf, roughness: 0.4}),
+                h: 0.9
             },
         ];
         const meshes: THREE.Mesh[] = [];
-        items.forEach(({geo, mat, pos}) => {
+        const SPACING = 3.2;
+        shapes.forEach(({geo, mat, h}, i) => {
             const mesh = new THREE.Mesh(geo, mat);
-            mesh.position.copy(pos);
+            const row = Math.floor(i / 3);
+            const col = i % 3;
+            mesh.position.set((col - 1) * SPACING, h, (row - 1) * SPACING);
             ctx.scene.add(mesh);
             meshes.push(mesh);
         });
 
         // 环境光：均匀照亮所有物体
-        const ambient = new THREE.AmbientLight(0xffffff, 3);
+        const ambient = new THREE.AmbientLight(0xffffff, 2.5);
         ctx.scene.add(ambient);
 
         // 可选的方向光，用于对比（默认关闭）
@@ -110,7 +123,7 @@ export const ambientLight: Lesson = {
                     min: 0,
                     max: 5,
                     step: 0.05,
-                    value: 3,
+                    value: 2.5,
                     precision: 2,
                     desc: '环境光整体亮度，调为 0 时画面全黑'
                 },
@@ -135,7 +148,7 @@ export const ambientLight: Lesson = {
                     desc: '开灯后物体出现明暗面，直观对比环境光与方向光的区别'
                 },
             ],
-            defaults: {intensity: 3, color: 0xffffff, addDir: 0},
+            defaults: {intensity: 2.5, color: 0xffffff, addDir: 0},
             onChange(key, value) {
                 switch (key) {
                     case 'intensity':
@@ -164,7 +177,7 @@ export const ambientLight: Lesson = {
             controls.dispose();
             floor.geometry.dispose();
             (floor.material as THREE.Material).dispose();
-            items.forEach(({geo, mat}) => {
+            shapes.forEach(({geo, mat}) => {
                 geo.dispose();
                 mat.dispose();
             });
