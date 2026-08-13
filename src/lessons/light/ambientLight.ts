@@ -25,7 +25,7 @@ export const ambientLight: Lesson = {
         ctx.scene.background = new THREE.Color(0x0d1b2a);
 
         const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 100);
-        camera.position.set(4, 3.5, 6);
+        camera.position.set(5.5, 7, 8);
         camera.lookAt(0, 0.5, 0);
         ctx.onResize((w, h) => {
             camera.aspect = w / h;
