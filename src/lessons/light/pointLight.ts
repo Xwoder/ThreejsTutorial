@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
+import {DragControls} from 'three/examples/jsm/controls/DragControls.js';
 import type {Lesson} from '../types';
 import {createContext, makeCleanup} from '../helper';
 import {createParamPanel} from '../../utils/paramPanel.ts';
@@ -21,7 +22,7 @@ light.position.set(0, 2, 0);</code></pre>
       <li><code>decay</code> 衰减系数（默认 2，即平方反比衰减）</li>
     </ul>
     <h3>观察要点</h3>
-    <p>白色小球即光源本体（也可用 <code>PointLightHelper</code> 标示）。拖动「强度 / 衰减距离」观察光斑范围变化，或把「强度」调大让整片地面都亮起来。</p>
+    <p>白色小球即光源本体，<b>直接用鼠标拖动小球</b>即可在空间中移动光源位置。拖动「强度 / 衰减距离」观察光斑范围变化，或把「强度」调大让整片地面都亮起来。</p>
   `,
     create(container) {
         const ctx = createContext(container);
@@ -106,10 +107,15 @@ light.position.set(0, 2, 0);</code></pre>
         const point = new THREE.PointLight(0xffffff, 30, 20);
         point.position.set(0, 4, 0);
         ctx.scene.add(point);
-        const pointHelper = new THREE.PointLightHelper(point, 0.25);
-        ctx.scene.add(pointHelper);
 
-        const state = {height: 4};
+        // 可拖拽的光源小球：拖动它即可在空间中移动光源位置
+        const lightBall = new THREE.Mesh(
+            new THREE.SphereGeometry(0.25, 24, 24),
+            new THREE.MeshBasicMaterial({color: 0xffffff}),
+        );
+        lightBall.position.copy(point.position);
+        ctx.scene.add(lightBall);
+
         const controls = new OrbitControls(camera, ctx.renderer.domElement);
         controls.enableDamping = true;
         controls.target.set(0, 0.5, 0);
@@ -155,27 +161,47 @@ light.position.set(0, 2, 0);</code></pre>
                     desc: '光的颜色'
                 },
                 {
-                    key: 'height',
-                    label: '高度 Y position.y',
-                    min: 0.5,
+                    key: 'posX',
+                    label: '位置 X position.x',
+                    min: -5.5,
+                    max: 5.5,
+                    step: 0.1,
+                    value: 0,
+                    desc: '光源的 X 坐标',
+                    precision: 1
+                },
+                {
+                    key: 'posY',
+                    label: '位置 Y position.y',
+                    min: 0.1,
                     max: 6,
                     step: 0.1,
                     value: 4,
-                    desc: '光源距离地面的高度',
+                    desc: '光源的 Y 坐标（高度）',
+                    precision: 1
+                },
+                {
+                    key: 'posZ',
+                    label: '位置 Z position.z',
+                    min: -5.5,
+                    max: 5.5,
+                    step: 0.1,
+                    value: 0,
+                    desc: '光源的 Z 坐标',
                     precision: 1
                 },
                 {
                     key: 'showHelper',
-                    label: '显示 PointLightHelper',
+                    label: '显示光源小球',
                     type: 'checkbox',
                     min: 0,
                     max: 1,
                     step: 1,
                     value: 1,
-                    desc: '是否显示标示光源位置的小球辅助线'
+                    desc: '是否显示可拖拽的光源小球'
                 },
             ],
-            defaults: {intensity: 30, distance: 20, color: 0xffffff, height: 4, showHelper: 1},
+            defaults: {intensity: 30, distance: 20, color: 0xffffff, posX: 0, posY: 4, posZ: 0, showHelper: 1},
             onChange: (key, value) => {
                 switch (key) {
                     case 'intensity':
@@ -187,15 +213,42 @@ light.position.set(0, 2, 0);</code></pre>
                     case 'color':
                         point.color.setHex(value);
                         break;
-                    case 'height':
-                        state.height = value;
+                    case 'posX':
+                        point.position.x = value;
+                        lightBall.position.x = value;
+                        break;
+                    case 'posY':
                         point.position.y = value;
+                        lightBall.position.y = value;
+                        break;
+                    case 'posZ':
+                        point.position.z = value;
+                        lightBall.position.z = value;
                         break;
                     case 'showHelper':
-                        pointHelper.visible = value >= 0.5;
+                        lightBall.visible = value >= 0.5;
                         break;
                 }
             },
+        });
+
+        // 鼠标拖动光源小球 → 移动光源位置（拖动时暂停相机旋转，避免冲突）
+        const dragControls = new DragControls([lightBall], camera, ctx.renderer.domElement);
+        dragControls.addEventListener('dragstart', () => {
+            controls.enabled = false;
+        });
+        dragControls.addEventListener('drag', () => {
+            // 限制在 12×12 地板范围内，且不低于地面
+            lightBall.position.x = THREE.MathUtils.clamp(lightBall.position.x, -5.5, 5.5);
+            lightBall.position.y = Math.max(lightBall.position.y, 0.1);
+            lightBall.position.z = THREE.MathUtils.clamp(lightBall.position.z, -5.5, 5.5);
+            point.position.copy(lightBall.position);
+            panel.setDisplay('posX', lightBall.position.x);
+            panel.setDisplay('posY', lightBall.position.y);
+            panel.setDisplay('posZ', lightBall.position.z);
+        });
+        dragControls.addEventListener('dragend', () => {
+            controls.enabled = true;
         });
 
         loop();
@@ -203,6 +256,9 @@ light.position.set(0, 2, 0);</code></pre>
         return makeCleanup(ctx, () => {
             cancelAnimationFrame(raf);
             controls.dispose();
+            dragControls.dispose();
+            lightBall.geometry.dispose();
+            (lightBall.material as THREE.Material).dispose();
             floor.geometry.dispose();
             (floor.material as THREE.Material).dispose();
             shapes.forEach(({geo, mat}) => {
