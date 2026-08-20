@@ -44,10 +44,33 @@ scene.add(light);</code></pre>
         // 地板
         const floor = new THREE.Mesh(
             new THREE.PlaneGeometry(12, 12),
-            new THREE.MeshStandardMaterial({color: 0x8899aa, roughness: 0.85, metalness: 0.1}),
+            new THREE.MeshStandardMaterial({color: 0x8899aa, roughness: 0.85, metalness: 0.1, side: THREE.DoubleSide}),
         );
         floor.rotation.x = -Math.PI / 2;
         ctx.scene.add(floor);
+
+        // 四面墙：围成半开放的小盒子（顶部留空，光从上方射入）
+        const wallGeo = new THREE.PlaneGeometry(12, 3);
+        const wallMat = new THREE.MeshStandardMaterial({
+            color: 0x6b7f99,
+            roughness: 0.9,
+            metalness: 0.05,
+            side: THREE.DoubleSide, // 从盒子外部也能看到墙面
+        });
+        const walls: THREE.Mesh[] = [];
+        const wallPlacements = [
+            {x: 0, z: -6, rotY: 0},       // 北墙（-Z）
+            {x: 0, z: 6, rotY: 0},        // 南墙（+Z）
+            {x: -6, z: 0, rotY: Math.PI / 2}, // 西墙（-X）
+            {x: 6, z: 0, rotY: Math.PI / 2},  // 东墙（+X）
+        ];
+        wallPlacements.forEach(({x, z, rotY}) => {
+            const wall = new THREE.Mesh(wallGeo, wallMat);
+            wall.position.set(x, 1.5, z);
+            wall.rotation.y = rotY;
+            ctx.scene.add(wall);
+            walls.push(wall);
+        });
 
         // 物体（RectAreaLight 只支持 Standard / Physical 材质）
         const items = [
@@ -299,7 +322,7 @@ scene.add(light);</code></pre>
         // 点击场景拾取：点击地板 / 物体，让面板照向点击位置
         const raycaster = new THREE.Raycaster();
         const pointerNdc = new THREE.Vector2();
-        const clickableObjects = [floor, ...meshes];
+        const clickableObjects = [floor, ...walls, ...meshes];
         let pointerDownPos: { x: number; y: number } | null = null;
 
         const onPointerDown = (e: PointerEvent) => {
@@ -347,6 +370,8 @@ scene.add(light);</code></pre>
             ctx.renderer.domElement.removeEventListener('click', onClick);
             floor.geometry.dispose();
             (floor.material as THREE.Material).dispose();
+            wallGeo.dispose();
+            wallMat.dispose();
             items.forEach(({geo, mat}) => {
                 geo.dispose();
                 mat.dispose();
