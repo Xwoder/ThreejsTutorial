@@ -122,7 +122,7 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
 
         // 可拖拽的光源小球：拖动它即可在空间中移动聚光灯位置（保留 SpotLightHelper）
         const lightBall = new THREE.Mesh(
-            new THREE.SphereGeometry(0.18, 24, 24),
+            new THREE.SphereGeometry(0.12, 24, 24),
             new THREE.MeshBasicMaterial({color: 0xffffff}),
         );
         lightBall.position.copy(spot.position);
@@ -331,7 +331,7 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
             },
         });
 
-        // 点击立方体 → 聚光灯自动瞄准该立方体（拖动小球时跳过）
+        // 点击地板任意位置 → 聚光灯照向该位置（拖动小球时跳过）
         let isDragging = false;
         const raycaster = new THREE.Raycaster();
         const pointer = new THREE.Vector2();
@@ -341,10 +341,10 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
             pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
             pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
             raycaster.setFromCamera(pointer, camera);
-            const hit = raycaster.intersectObjects(meshes, false)[0];
+            const hit = raycaster.intersectObject(floor, false)[0];
             if (!hit) return;
-            // 将聚光灯照射目标移动到被点击的立方体中心
-            target.position.copy(hit.object.position);
+            // 聚光灯照向地板上的被点击位置
+            target.position.copy(hit.point);
             spotHelper.update();
             // 同步参数面板的 X/Y/Z 滑块显示
             panel.setDisplay('targetX', target.position.x);
