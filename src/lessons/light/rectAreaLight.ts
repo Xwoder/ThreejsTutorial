@@ -16,7 +16,7 @@ light.position.set(0, 4.5, 0);
 light.lookAt(0, 0, 0);
 scene.add(light);</code></pre>
     <h3>注意</h3>
-    <ul>
+    <ul>    
       <li>只对 <code>MeshStandardMaterial</code> / <code>MeshPhysicalMaterial</code> 生效，<b>不支持</b> Phong / Lambert / Basic 材质</li>
       <li>使用 <code>lookAt</code> 指定面板的照射方向（默认朝向 -Z）</li>
       <li>没有内置 Helper，需引入 <code>RectAreaLightHelper</code> 辅助显示面板</li>
@@ -83,8 +83,14 @@ scene.add(light);</code></pre>
         // 矩形区域光：默认面板 4x4，悬于场景上方照向原点
         const rectLight = new THREE.RectAreaLight(0xffffff, 3, 4, 4);
         rectLight.position.set(0, 4.5, 0);
-        rectLight.lookAt(0, 0, 0);
         ctx.scene.add(rectLight);
+
+        // 照射目标点：lookAt 决定面板朝向（发光面正对目标）
+        const target = {x: 0, y: 0, z: 0};
+        const updateLightLookAt = () => {
+            rectLight.lookAt(target.x, target.y, target.z);
+        };
+        updateLightLookAt();
 
         let showHelperVisible = true;
         let helper = new RectAreaLightHelper(rectLight);
@@ -180,6 +186,39 @@ scene.add(light);</code></pre>
                     desc: '面板在世界空间中的 Z 位置'
                 },
                 {
+                    key: 'targetX',
+                    label: '目标 X target.x',
+                    type: 'range',
+                    min: -6,
+                    max: 6,
+                    step: 0.1,
+                    value: 0,
+                    precision: 1,
+                    desc: '面板发光面正对的 X 位置'
+                },
+                {
+                    key: 'targetY',
+                    label: '目标 Y target.y',
+                    type: 'range',
+                    min: 0,
+                    max: 8,
+                    step: 0.1,
+                    value: 0,
+                    precision: 1,
+                    desc: '面板发光面正对的 Y 位置'
+                },
+                {
+                    key: 'targetZ',
+                    label: '目标 Z target.z',
+                    type: 'range',
+                    min: -6,
+                    max: 6,
+                    step: 0.1,
+                    value: 0,
+                    precision: 1,
+                    desc: '面板发光面正对的 Z 位置'
+                },
+                {
                     key: 'showHelper',
                     label: '显示 RectAreaLightHelper',
                     type: 'checkbox',
@@ -190,7 +229,19 @@ scene.add(light);</code></pre>
                     desc: '是否显示半透明的矩形发光面板'
                 },
             ],
-            defaults: {intensity: 3, color: 0xffffff, width: 4, height: 4, posX: 0, posY: 4.5, posZ: 0, showHelper: 1},
+            defaults: {
+                intensity: 3,
+                color: 0xffffff,
+                width: 4,
+                height: 4,
+                posX: 0,
+                posY: 4.5,
+                posZ: 0,
+                targetX: 0,
+                targetY: 0,
+                targetZ: 0,
+                showHelper: 1
+            },
             onChange(key, value) {
                 switch (key) {
                     case 'intensity':
@@ -209,17 +260,32 @@ scene.add(light);</code></pre>
                         break;
                     case 'posX':
                         rectLight.position.x = value;
-                        rectLight.lookAt(0, 0, 0);
+                        updateLightLookAt();
                         rebuildHelper();
                         break;
                     case 'posY':
                         rectLight.position.y = value;
-                        rectLight.lookAt(0, 0, 0);
+                        updateLightLookAt();
                         rebuildHelper();
                         break;
                     case 'posZ':
                         rectLight.position.z = value;
-                        rectLight.lookAt(0, 0, 0);
+                        updateLightLookAt();
+                        rebuildHelper();
+                        break;
+                    case 'targetX':
+                        target.x = value;
+                        updateLightLookAt();
+                        rebuildHelper();
+                        break;
+                    case 'targetY':
+                        target.y = value;
+                        updateLightLookAt();
+                        rebuildHelper();
+                        break;
+                    case 'targetZ':
+                        target.z = value;
+                        updateLightLookAt();
                         rebuildHelper();
                         break;
                     case 'showHelper':
@@ -229,6 +295,42 @@ scene.add(light);</code></pre>
                 }
             },
         });
+
+        // 点击场景拾取：点击地板 / 物体，让面板照向点击位置
+        const raycaster = new THREE.Raycaster();
+        const pointerNdc = new THREE.Vector2();
+        const clickableObjects = [floor, ...meshes];
+        let pointerDownPos: { x: number; y: number } | null = null;
+
+        const onPointerDown = (e: PointerEvent) => {
+            pointerDownPos = {x: e.clientX, y: e.clientY};
+        };
+        const onClick = (e: MouseEvent) => {
+            // 拖拽相机松手也会触发 click，位移过大时忽略
+            if (
+                pointerDownPos &&
+                (Math.abs(e.clientX - pointerDownPos.x) > 5 || Math.abs(e.clientY - pointerDownPos.y) > 5)
+            ) {
+                return;
+            }
+            const rect = ctx.renderer.domElement.getBoundingClientRect();
+            pointerNdc.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+            pointerNdc.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+            raycaster.setFromCamera(pointerNdc, camera);
+            const hits = raycaster.intersectObjects(clickableObjects, false);
+            if (hits.length === 0) return;
+            const p = hits[0].point;
+            target.x = p.x;
+            target.y = p.y;
+            target.z = p.z;
+            updateLightLookAt();
+            rebuildHelper();
+            panel.setDisplay('targetX', target.x);
+            panel.setDisplay('targetY', target.y);
+            panel.setDisplay('targetZ', target.z);
+        };
+        ctx.renderer.domElement.addEventListener('pointerdown', onPointerDown);
+        ctx.renderer.domElement.addEventListener('click', onClick);
 
         let raf = 0;
         const loop = () => {
@@ -241,6 +343,8 @@ scene.add(light);</code></pre>
         return makeCleanup(ctx, () => {
             cancelAnimationFrame(raf);
             controls.dispose();
+            ctx.renderer.domElement.removeEventListener('pointerdown', onPointerDown);
+            ctx.renderer.domElement.removeEventListener('click', onClick);
             floor.geometry.dispose();
             (floor.material as THREE.Material).dispose();
             items.forEach(({geo, mat}) => {
