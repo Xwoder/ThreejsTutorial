@@ -21,7 +21,7 @@ light.position.set(0, 2, 0);</code></pre>
       <li><code>decay</code> 衰减系数（默认 2，即平方反比衰减）</li>
     </ul>
     <h3>观察要点</h3>
-    <p>白色小球即光源本体（也可用 <code>PointLightHelper</code> 标示）。拖动「强度 / 衰减距离」观察光斑范围变化，或把「强度」调大让整片地面都亮起来。开启「自动环绕」可看到光随位置移动。</p>
+    <p>白色小球即光源本体（也可用 <code>PointLightHelper</code> 标示）。拖动「强度 / 衰减距离」观察光斑范围变化，或把「强度」调大让整片地面都亮起来。</p>
   `,
     create(container) {
         const ctx = createContext(container);
@@ -109,8 +109,7 @@ light.position.set(0, 2, 0);</code></pre>
         const pointHelper = new THREE.PointLightHelper(point, 0.25);
         ctx.scene.add(pointHelper);
 
-        const state = {orbit: true, height: 4};
-        const clock = new THREE.Clock();
+        const state = {height: 4};
         const controls = new OrbitControls(camera, ctx.renderer.domElement);
         controls.enableDamping = true;
         controls.target.set(0, 0.5, 0);
@@ -118,10 +117,6 @@ light.position.set(0, 2, 0);</code></pre>
         let raf = 0;
         const loop = () => {
             raf = requestAnimationFrame(loop);
-            const t = clock.getElapsedTime();
-            if (state.orbit) {
-                point.position.set(Math.cos(t) * 3, state.height, Math.sin(t) * 3);
-            }
             controls.update();
             ctx.renderer.render(ctx.scene, camera);
         };
@@ -131,7 +126,7 @@ light.position.set(0, 2, 0);</code></pre>
             controls: [
                 {
                     key: 'intensity',
-                    label: '光照强度',
+                    label: '光照强度 intensity',
                     min: 0,
                     max: 100,
                     step: 1,
@@ -141,7 +136,7 @@ light.position.set(0, 2, 0);</code></pre>
                 },
                 {
                     key: 'distance',
-                    label: '衰减距离',
+                    label: '衰减距离 distance',
                     min: 0,
                     max: 30,
                     step: 0.5,
@@ -151,7 +146,7 @@ light.position.set(0, 2, 0);</code></pre>
                 },
                 {
                     key: 'color',
-                    label: '颜色',
+                    label: '颜色 color',
                     type: 'color',
                     min: 0,
                     max: 0xffffff,
@@ -161,23 +156,13 @@ light.position.set(0, 2, 0);</code></pre>
                 },
                 {
                     key: 'height',
-                    label: '高度 Y',
+                    label: '高度 Y position.y',
                     min: 0.5,
                     max: 6,
                     step: 0.1,
                     value: 4,
                     desc: '光源距离地面的高度',
                     precision: 1
-                },
-                {
-                    key: 'orbit',
-                    label: '自动环绕',
-                    type: 'checkbox',
-                    min: 0,
-                    max: 1,
-                    step: 1,
-                    value: 1,
-                    desc: '光源绕场景中心旋转，观察光照随位置变化'
                 },
                 {
                     key: 'showHelper',
@@ -190,7 +175,7 @@ light.position.set(0, 2, 0);</code></pre>
                     desc: '是否显示标示光源位置的小球辅助线'
                 },
             ],
-            defaults: {intensity: 30, distance: 20, color: 0xffffff, height: 4, orbit: 1, showHelper: 1},
+            defaults: {intensity: 30, distance: 20, color: 0xffffff, height: 4, showHelper: 1},
             onChange: (key, value) => {
                 switch (key) {
                     case 'intensity':
@@ -205,9 +190,6 @@ light.position.set(0, 2, 0);</code></pre>
                     case 'height':
                         state.height = value;
                         point.position.y = value;
-                        break;
-                    case 'orbit':
-                        state.orbit = value >= 0.5;
                         break;
                     case 'showHelper':
                         pointHelper.visible = value >= 0.5;
