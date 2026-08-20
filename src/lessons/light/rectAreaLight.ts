@@ -105,7 +105,7 @@ scene.add(light);</code></pre>
             controls: [
                 {
                     key: 'intensity',
-                    label: '强度',
+                    label: '强度 intensity',
                     type: 'range',
                     min: 0,
                     max: 10,
@@ -126,7 +126,7 @@ scene.add(light);</code></pre>
                 },
                 {
                     key: 'width',
-                    label: '宽度',
+                    label: '宽度 width',
                     type: 'range',
                     min: 0.5,
                     max: 8,
@@ -137,7 +137,7 @@ scene.add(light);</code></pre>
                 },
                 {
                     key: 'height',
-                    label: '高度',
+                    label: '高度 height',
                     type: 'range',
                     min: 0.5,
                     max: 8,
@@ -148,7 +148,7 @@ scene.add(light);</code></pre>
                 },
                 {
                     key: 'posX',
-                    label: '位置 X',
+                    label: '位置 X position.x',
                     type: 'range',
                     min: -6,
                     max: 6,
@@ -159,7 +159,7 @@ scene.add(light);</code></pre>
                 },
                 {
                     key: 'posY',
-                    label: '高度 Y',
+                    label: '位置 Y position.y',
                     type: 'range',
                     min: 0.5,
                     max: 8,
@@ -170,7 +170,7 @@ scene.add(light);</code></pre>
                 },
                 {
                     key: 'posZ',
-                    label: '位置 Z',
+                    label: '位置 Z position.z',
                     type: 'range',
                     min: -6,
                     max: 6,
