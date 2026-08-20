@@ -331,12 +331,22 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
             },
         });
 
-        // 点击地板任意位置 → 聚光灯照向该位置（拖动小球时跳过）
+        // 点击地板任意位置 → 聚光灯照向该位置（拖动小球、拖动视角时跳过）
         let isDragging = false;
+        let pointerDownPos: { x: number; y: number } | null = null;
         const raycaster = new THREE.Raycaster();
         const pointer = new THREE.Vector2();
+        const onPointerDown = (e: PointerEvent) => {
+            pointerDownPos = {x: e.clientX, y: e.clientY};
+        };
         const onClick = (e: MouseEvent) => {
             if (isDragging) return;
+            // 按下与松开位置相差超过阈值 → 视为拖动视角，不触发瞄准
+            if (pointerDownPos) {
+                const dx = e.clientX - pointerDownPos.x;
+                const dy = e.clientY - pointerDownPos.y;
+                if (dx * dx + dy * dy > 4) return; // 2px 阈值
+            }
             const rect = ctx.renderer.domElement.getBoundingClientRect();
             pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
             pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -351,6 +361,7 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
             panel.setDisplay('targetY', target.position.y);
             panel.setDisplay('targetZ', target.position.z);
         };
+        ctx.renderer.domElement.addEventListener('pointerdown', onPointerDown);
         ctx.renderer.domElement.addEventListener('click', onClick);
 
         // 鼠标拖动光源小球 → 移动聚光灯位置（拖动时暂停相机旋转，避免冲突）
@@ -392,6 +403,7 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
             cancelAnimationFrame(raf);
             controls.dispose();
             dragControls.dispose();
+            ctx.renderer.domElement.removeEventListener('pointerdown', onPointerDown);
             ctx.renderer.domElement.removeEventListener('click', onClick);
             spotHelper.dispose();
             lightBall.geometry.dispose();
