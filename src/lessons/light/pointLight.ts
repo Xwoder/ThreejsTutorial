@@ -110,7 +110,7 @@ light.position.set(0, 2, 0);</code></pre>
 
         // 可拖拽的光源小球：拖动它即可在空间中移动光源位置
         const lightBall = new THREE.Mesh(
-            new THREE.SphereGeometry(0.25, 24, 24),
+            new THREE.SphereGeometry(0.18, 24, 24),
             new THREE.MeshBasicMaterial({color: 0xffffff}),
         );
         lightBall.position.copy(point.position);

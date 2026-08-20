@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
+import {DragControls} from 'three/examples/jsm/controls/DragControls.js';
 import type {Lesson} from '../types';
 import {createContext, makeCleanup} from '../helper';
 import {createParamPanel} from '../../utils/paramPanel.ts';
@@ -119,6 +120,14 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
         const spotHelper = new THREE.SpotLightHelper(spot);
         ctx.scene.add(spotHelper);
 
+        // 可拖拽的光源小球：拖动它即可在空间中移动聚光灯位置（保留 SpotLightHelper）
+        const lightBall = new THREE.Mesh(
+            new THREE.SphereGeometry(0.18, 24, 24),
+            new THREE.MeshBasicMaterial({color: 0xffffff}),
+        );
+        lightBall.position.copy(spot.position);
+        ctx.scene.add(lightBall);
+
         const panel = createParamPanel({
             container,
             controls: [
@@ -173,6 +182,36 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
                     desc: '光的颜色'
                 },
                 {
+                    key: 'posX',
+                    label: '位置 X',
+                    min: -6,
+                    max: 6,
+                    step: 0.1,
+                    value: 0,
+                    desc: '聚光灯在 X 方向的位置',
+                    precision: 1
+                },
+                {
+                    key: 'posY',
+                    label: '位置 Y',
+                    min: 0,
+                    max: 12,
+                    step: 0.1,
+                    value: 6,
+                    desc: '聚光灯高度（悬于场景上方）',
+                    precision: 1
+                },
+                {
+                    key: 'posZ',
+                    label: '位置 Z',
+                    min: -6,
+                    max: 6,
+                    step: 0.1,
+                    value: 0,
+                    desc: '聚光灯在 Z 方向的位置',
+                    precision: 1
+                },
+                {
                     key: 'targetX',
                     label: '目标 X',
                     min: -6,
@@ -212,6 +251,16 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
                     value: 1,
                     desc: '是否显示半透明的聚光灯锥体辅助线'
                 },
+                {
+                    key: 'showBall',
+                    label: '显示光源小球',
+                    type: 'checkbox',
+                    min: 0,
+                    max: 1,
+                    step: 1,
+                    value: 1,
+                    desc: '是否显示可拖拽的光源小球'
+                },
             ],
             defaults: {
                 intensity: 120,
@@ -219,10 +268,14 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
                 penumbra: 0.35,
                 distance: 0,
                 color: 0xffffff,
+                posX: 0,
+                posY: 6,
+                posZ: 0,
                 targetX: 3,
                 targetY: 0,
                 targetZ: 2,
-                showHelper: 1
+                showHelper: 1,
+                showBall: 1
             },
             onChange: (key, value) => {
                 switch (key) {
@@ -241,6 +294,21 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
                     case 'color':
                         spot.color.setHex(value);
                         break;
+                    case 'posX':
+                        spot.position.x = value;
+                        lightBall.position.x = value;
+                        spotHelper.update();
+                        break;
+                    case 'posY':
+                        spot.position.y = value;
+                        lightBall.position.y = value;
+                        spotHelper.update();
+                        break;
+                    case 'posZ':
+                        spot.position.z = value;
+                        lightBall.position.z = value;
+                        spotHelper.update();
+                        break;
                     case 'targetX':
                         target.position.x = value;
                         spotHelper.update();
@@ -256,14 +324,19 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
                     case 'showHelper':
                         spotHelper.visible = value >= 0.5;
                         break;
+                    case 'showBall':
+                        lightBall.visible = value >= 0.5;
+                        break;
                 }
             },
         });
 
-        // 点击立方体 → 聚光灯自动瞄准该立方体
+        // 点击立方体 → 聚光灯自动瞄准该立方体（拖动小球时跳过）
+        let isDragging = false;
         const raycaster = new THREE.Raycaster();
         const pointer = new THREE.Vector2();
         const onClick = (e: MouseEvent) => {
+            if (isDragging) return;
             const rect = ctx.renderer.domElement.getBoundingClientRect();
             pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
             pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -279,6 +352,28 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
             panel.setDisplay('targetZ', target.position.z);
         };
         ctx.renderer.domElement.addEventListener('click', onClick);
+
+        // 鼠标拖动光源小球 → 移动聚光灯位置（拖动时暂停相机旋转，避免冲突）
+        const dragControls = new DragControls([lightBall], camera, ctx.renderer.domElement);
+        dragControls.addEventListener('dragstart', () => {
+            isDragging = true;
+            controls.enabled = false;
+        });
+        dragControls.addEventListener('drag', () => {
+            // 限制在 12×12 地板范围内，且不低于地面
+            lightBall.position.x = THREE.MathUtils.clamp(lightBall.position.x, -6, 6);
+            lightBall.position.y = Math.max(lightBall.position.y, 0.1);
+            lightBall.position.z = THREE.MathUtils.clamp(lightBall.position.z, -6, 6);
+            spot.position.copy(lightBall.position);
+            spotHelper.update();
+            panel.setDisplay('posX', lightBall.position.x);
+            panel.setDisplay('posY', lightBall.position.y);
+            panel.setDisplay('posZ', lightBall.position.z);
+        });
+        dragControls.addEventListener('dragend', () => {
+            isDragging = false;
+            controls.enabled = true;
+        });
 
         const controls = new OrbitControls(camera, ctx.renderer.domElement);
         controls.enableDamping = true;
@@ -296,8 +391,11 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
         return makeCleanup(ctx, () => {
             cancelAnimationFrame(raf);
             controls.dispose();
+            dragControls.dispose();
             ctx.renderer.domElement.removeEventListener('click', onClick);
             spotHelper.dispose();
+            lightBall.geometry.dispose();
+            (lightBall.material as THREE.Material).dispose();
             meshes.forEach((m) => {
                 m.geometry.dispose();
                 (m.material as THREE.Material).dispose();
