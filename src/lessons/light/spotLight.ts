@@ -124,7 +124,7 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
             controls: [
                 {
                     key: 'intensity',
-                    label: '光照强度',
+                    label: '光照强度 intensity',
                     min: 0,
                     max: 300,
                     step: 5,
@@ -134,7 +134,7 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
                 },
                 {
                     key: 'angle',
-                    label: '光锥半角（°）',
+                    label: '光锥半角 angle',
                     min: 5,
                     max: 60,
                     step: 1,
@@ -144,7 +144,7 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
                 },
                 {
                     key: 'penumbra',
-                    label: '边缘柔化',
+                    label: '边缘柔化 penumbra',
                     min: 0,
                     max: 1,
                     step: 0.01,
@@ -154,7 +154,7 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
                 },
                 {
                     key: 'distance',
-                    label: '照射距离',
+                    label: '照射距离 distance',
                     min: 0,
                     max: 30,
                     step: 0.5,
