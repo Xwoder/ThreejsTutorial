@@ -77,22 +77,22 @@ scene.add(light);</code></pre>
             {
                 geo: new THREE.SphereGeometry(0.9, 48, 32),
                 mat: new THREE.MeshStandardMaterial({color: 0x60a5fa, roughness: 0.25, metalness: 0.4}),
-                pos: new THREE.Vector3(-2.4, 0.9, 0.8)
+                pos: new THREE.Vector3(-2.4, 1.0, 0.8)
             },
             {
                 geo: new THREE.BoxGeometry(1.4, 1.4, 1.4),
                 mat: new THREE.MeshPhysicalMaterial({color: 0xeeeeee, roughness: 0.15, metalness: 0.9}),
-                pos: new THREE.Vector3(2.4, 0.9, 1.4)
+                pos: new THREE.Vector3(2.4, 1.0, 1.4)
             },
             {
                 geo: new THREE.TorusKnotGeometry(0.7, 0.25, 100, 16),
                 mat: new THREE.MeshStandardMaterial({color: 0xfb7185, roughness: 0.4}),
-                pos: new THREE.Vector3(0.2, 1.2, -1.6)
+                pos: new THREE.Vector3(0.2, 1.3, -1.6)
             },
             {
                 geo: new THREE.CylinderGeometry(0.6, 0.6, 1.8, 32),
                 mat: new THREE.MeshStandardMaterial({color: 0x34d399, roughness: 0.5}),
-                pos: new THREE.Vector3(-2.6, 0.9, -1.6)
+                pos: new THREE.Vector3(-2.6, 1.0, -1.6)
             },
         ];
         const meshes: THREE.Mesh[] = [];
