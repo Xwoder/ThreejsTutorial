@@ -25,8 +25,6 @@ renderer.shadowMap.enabled = true;</code></pre>
     create(container) {
         const ctx = createContext(container);
         ctx.scene.background = new THREE.Color(0x0b1120);
-        ctx.renderer.shadowMap.enabled = true;
-        ctx.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
         const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 100);
         camera.position.set(5.5, 7, 8);
@@ -39,10 +37,9 @@ renderer.shadowMap.enabled = true;</code></pre>
         // 地面：接收阴影（尺寸与颜色和 ambient-light 一致）
         const floor = new THREE.Mesh(
             new THREE.PlaneGeometry(12, 12),
-            new THREE.MeshStandardMaterial({color: 0x8899aa, roughness: 0.9}),
+            new THREE.MeshStandardMaterial({color: 0x8899aa, roughness: 0.9, side: THREE.DoubleSide}),
         );
         floor.rotation.x = -Math.PI / 2;
-        floor.receiveShadow = true;
         ctx.scene.add(floor);
 
         // 与 ambient-light 一致：9 个不同形状 / 颜色的物体，按 3×3 网格排列
@@ -98,8 +95,7 @@ renderer.shadowMap.enabled = true;</code></pre>
             const mesh = new THREE.Mesh(geo, mat);
             const row = Math.floor(i / 3);
             const col = i % 3;
-            mesh.position.set((col - 1) * SPACING, h, (row - 1) * SPACING);
-            mesh.castShadow = true;
+            mesh.position.set((col - 1) * SPACING, h + 0.1, (row - 1) * SPACING);
             ctx.scene.add(mesh);
         });
 
@@ -108,14 +104,6 @@ renderer.shadowMap.enabled = true;</code></pre>
 
         // 平行光：方向 = position → target（默认原点）
         const dirLight = new THREE.DirectionalLight(0xffffff, 5);
-        dirLight.castShadow = true;
-        dirLight.shadow.mapSize.set(1024, 1024);
-        dirLight.shadow.camera.left = -7;
-        dirLight.shadow.camera.right = 7;
-        dirLight.shadow.camera.top = 7;
-        dirLight.shadow.camera.bottom = -7;
-        dirLight.shadow.camera.near = 0.5;
-        dirLight.shadow.camera.far = 30;
         ctx.scene.add(dirLight);
 
         const helper = new THREE.DirectionalLightHelper(dirLight, 2, 0xfacc15);
@@ -170,16 +158,6 @@ renderer.shadowMap.enabled = true;</code></pre>
                     precision: 0
                 },
                 {
-                    key: 'castShadow',
-                    label: '投射阴影',
-                    type: 'checkbox',
-                    min: 0,
-                    max: 1,
-                    step: 1,
-                    value: 1,
-                    desc: '开启后物体在地面投射清晰的阴影'
-                },
-                {
                     key: 'showHelper',
                     label: '显示 DirectionalLightHelper',
                     type: 'checkbox',
@@ -190,7 +168,7 @@ renderer.shadowMap.enabled = true;</code></pre>
                     desc: '黄色箭头标示平行光的照射方向'
                 },
             ],
-            defaults: {intensity: 5, azimuth: 45, elevation: 40, castShadow: 1, showHelper: 1},
+            defaults: {intensity: 5, azimuth: 45, elevation: 40, showHelper: 1},
             onChange: (key, value) => {
                 if (key === 'intensity') {
                     dirLight.intensity = value;
@@ -200,8 +178,6 @@ renderer.shadowMap.enabled = true;</code></pre>
                 } else if (key === 'elevation') {
                     state.elevation = value;
                     applyDirection();
-                } else if (key === 'castShadow') {
-                    dirLight.castShadow = value >= 0.5;
                 } else if (key === 'showHelper') {
                     helper.visible = value >= 0.5;
                 }
