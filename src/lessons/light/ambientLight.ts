@@ -39,7 +39,7 @@ export const ambientLight: Lesson = {
         // 地板
         const floor = new THREE.Mesh(
             new THREE.PlaneGeometry(12, 12),
-            new THREE.MeshStandardMaterial({color: 0x8899aa, roughness: 0.9}),
+            new THREE.MeshStandardMaterial({color: 0x8899aa, roughness: 0.9, side: THREE.DoubleSide}),
         );
         floor.rotation.x = -Math.PI / 2;
         ctx.scene.add(floor);
@@ -98,7 +98,7 @@ export const ambientLight: Lesson = {
             const mesh = new THREE.Mesh(geo, mat);
             const row = Math.floor(i / 3);
             const col = i % 3;
-            mesh.position.set((col - 1) * SPACING, h, (row - 1) * SPACING);
+            mesh.position.set((col - 1) * SPACING, h + 0.1, (row - 1) * SPACING);
             ctx.scene.add(mesh);
             meshes.push(mesh);
         });
