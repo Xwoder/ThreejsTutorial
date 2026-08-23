@@ -1,8 +1,6 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {createContext, makeCleanup} from '../helper';
-import {createParamPanel} from '../../utils/paramPanel.ts';
-import type {ParamSlider} from '../../utils/paramPanel.ts';
 import type {Lesson} from '../types';
 import type RAPIER from '@dimforge/rapier3d-compat';
 
@@ -66,7 +64,7 @@ export const rapierPhysics: Lesson = {
         let raf = 0;
         // 在 `create` 返回之后全局可见，供清理逻辑判断资源归属
         let world: RAPIER.World | null = null;
-      let panel: ReturnType<typeof createParamPanel> | null = null;
+        let infoPanel: HTMLDivElement | null = null;
         const dynamicObjs: { body: RAPIER.RigidBody; mesh: THREE.Mesh }[] = [];
 
         const run = async () => {
@@ -77,23 +75,16 @@ export const rapierPhysics: Lesson = {
             const w = new R.World({x: 0, y: -9.81, z: 0});
             world = w;
 
-          // 右上角参数面板：实时显示并调节重力向量 (gx, gy, gz)
-          const gravitySliders: ParamSlider[] = [
-            {key: 'gx', label: '重力 X', min: -20, max: 0, step: 0.1, value: w.gravity.x},
-            {key: 'gy', label: '重力 Y', min: -20, max: 0, step: 0.1, value: w.gravity.y},
-            {key: 'gz', label: '重力 Z', min: -20, max: 0, step: 0.1, value: w.gravity.z},
-          ];
-          panel = createParamPanel({
-            container,
-            controls: gravitySliders,
-            defaults: {gx: w.gravity.x, gy: w.gravity.y, gz: w.gravity.z},
-            onChange: (key, value) => {
-              const g = w.gravity;
-              if (key === 'gx') w.gravity = {x: value, y: g.y, z: g.z};
-              else if (key === 'gy') w.gravity = {x: g.x, y: value, z: g.z};
-              else if (key === 'gz') w.gravity = {x: g.x, y: g.y, z: value};
-            },
-          });
+            // 右上角只读面板：固定显示重力向量 (gx, gy, gz)，不可修改
+            const gravity = w.gravity;
+            infoPanel = document.createElement('div');
+            infoPanel.className = 'gravity-info';
+            infoPanel.innerHTML =
+                `<div class="gravity-info__title">重力</div>` +
+                `<div class="gravity-info__row">X: ${gravity.x.toFixed(2)}</div>` +
+                `<div class="gravity-info__row">Y: ${gravity.y.toFixed(2)}</div>` +
+                `<div class="gravity-info__row">Z: ${gravity.z.toFixed(2)}</div>`;
+            container.appendChild(infoPanel);
 
             // 地面：固定刚体 + 立方体碰撞体
             const groundBody = w.createRigidBody(R.RigidBodyDesc.fixed().setTranslation(0, -0.25, 0));
@@ -145,7 +136,7 @@ export const rapierPhysics: Lesson = {
           replayBtn.style.marginTop = '8px';
           replayBtn.textContent = '重放';
           replayBtn.addEventListener('click', reSpawn);
-          panel?.el.appendChild(replayBtn);
+            infoPanel.appendChild(replayBtn);
 
             const clock = new THREE.Clock();
             const loop = () => {
@@ -171,7 +162,7 @@ export const rapierPhysics: Lesson = {
         return makeCleanup(ctx, () => {
             cancelAnimationFrame(raf);
             orbit.dispose();
-          panel?.remove();
+            infoPanel?.remove();
             world?.free();
             for (const {mesh} of dynamicObjs) {
                 ctx.scene.remove(mesh);
