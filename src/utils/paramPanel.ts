@@ -7,8 +7,8 @@ import {
 export interface ParamSlider {
   key: string;
   label: string;
-  /** 控件类型：'range' 为滑块（默认），'checkbox' 为勾选框，'color' 为颜色选择器（value 为 0xRRGGBB） */
-  type?: 'range' | 'checkbox' | 'color';
+  /** 控件类型：'range' 为滑块（默认），'checkbox' 为勾选框，'color' 为颜色选择器（value 为 0xRRGGBB），'display' 为只读数值（不渲染滑块） */
+  type?: 'range' | 'checkbox' | 'color' | 'display';
   min: number;
   max: number;
   step: number;
@@ -64,6 +64,7 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
   controls.forEach((c) => {
     const isCheckbox = c.type === 'checkbox';
     const isColor = c.type === 'color';
+    const isDisplay = c.type === 'display';
 
     const row = document.createElement('div');
     row.className = 'camera-control-row';
@@ -119,8 +120,8 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
 
     row.appendChild(header);
 
-    // 滑块类型的名称显示在滑动条上方，因此滑动条放在 header 之后
-    if (!isCheckbox && !isColor) {
+    // 除勾选框、颜色选择器、只读数值外，其余类型（滑块）放在 header 之后
+    if (!isCheckbox && !isColor && !isDisplay) {
       row.appendChild(input);
     }
 
@@ -154,11 +155,14 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
       } else if (c.type === 'color') {
         row.input.value = hexStr(def);
         row.value.textContent = hexStr(def).toUpperCase();
+      } else if (c.type === 'display') {
+        row.value.textContent = Number(def).toFixed(c.precision ?? 2);
+        onChange?.(c.key, def);
       } else {
         row.input.value = String(def);
         row.value.textContent = Number(def).toFixed(c.precision ?? 2);
+        onChange?.(c.key, def);
       }
-      onChange?.(c.key, def);
     });
   });
   el.appendChild(resetBtn);
@@ -177,6 +181,8 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
       } else if (c?.type === 'color') {
         row.input.value = hexStr(value);
         row.value.textContent = hexStr(value).toUpperCase();
+      } else if (c?.type === 'display') {
+        row.value.textContent = Number(value).toFixed(precision);
       } else {
         row.input.value = String(value);
         row.value.textContent = Number(value).toFixed(precision);

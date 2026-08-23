@@ -3,6 +3,7 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {createContext, makeCleanup} from '../helper';
 import type {Lesson} from '../types';
 import {LabeledAxesHelper} from '../../utils/LabeledAxesHelper.ts';
+import {createParamPanel} from '../../utils/paramPanel.ts';
 import type RAPIER from '@dimforge/rapier3d-compat';
 
 const rapierDescription = `
@@ -65,7 +66,7 @@ export const rapierPhysics: Lesson = {
         let raf = 0;
         // 在 `create` 返回之后全局可见，供清理逻辑判断资源归属
         let world: RAPIER.World | null = null;
-        let infoPanel: HTMLDivElement | null = null;
+        let paramPanel: ReturnType<typeof createParamPanel> | null = null;
         let axes: LabeledAxesHelper | null = null;
         const dynamicObjs: { body: RAPIER.RigidBody; mesh: THREE.Mesh }[] = [];
 
@@ -82,29 +83,6 @@ export const rapierPhysics: Lesson = {
 
             const w = new R.World({x: 0, y: -9.81, z: 0});
             world = w;
-
-            // 右上角只读面板：固定显示重力向量 (gx, gy, gz)，不可修改
-            const gravity = w.gravity;
-            infoPanel = document.createElement('div');
-            infoPanel.className = 'gravity-info';
-            infoPanel.innerHTML =
-                `<div class="gravity-info__title">重力向量</div>` +
-                `<div class="gravity-info__row">` +
-                `<span class="gravity-info__dot gravity-info__dot--x"></span>` +
-                `<span class="gravity-info__axis">X</span>` +
-                `<span class="gravity-info__value">${gravity.x.toFixed(2)}</span>` +
-                `<span class="gravity-info__unit">m/s²</span></div>` +
-                `<div class="gravity-info__row">` +
-                `<span class="gravity-info__dot gravity-info__dot--y"></span>` +
-                `<span class="gravity-info__axis">Y</span>` +
-                `<span class="gravity-info__value">${gravity.y.toFixed(2)}</span>` +
-                `<span class="gravity-info__unit">m/s²</span></div>` +
-                `<div class="gravity-info__row">` +
-                `<span class="gravity-info__dot gravity-info__dot--z"></span>` +
-                `<span class="gravity-info__axis">Z</span>` +
-                `<span class="gravity-info__value">${gravity.z.toFixed(2)}</span>` +
-                `<span class="gravity-info__unit">m/s²</span></div>`;
-            container.appendChild(infoPanel);
 
             // 地面：固定刚体 + 立方体碰撞体
             const groundBody = w.createRigidBody(R.RigidBodyDesc.fixed().setTranslation(0, -0.25, 0));
@@ -147,16 +125,60 @@ export const rapierPhysics: Lesson = {
                 spawn(7);
             };
 
-            spawn(7);
+            // 参数面板：标题「参数 CONTROLS」，固定显示重力向量 (gx, gy, gz)，不可修改
+            const gravity = w.gravity;
+            paramPanel = createParamPanel({
+                container,
+                controls: [
+                    {
+                        type: 'display',
+                        key: 'gx',
+                        label: 'X',
+                        min: gravity.x,
+                        max: gravity.x,
+                        step: 0.01,
+                        value: gravity.x
+                    },
+                    {
+                        type: 'display',
+                        key: 'gy',
+                        label: 'Y',
+                        min: gravity.y,
+                        max: gravity.y,
+                        step: 0.01,
+                        value: gravity.y
+                    },
+                    {
+                        type: 'display',
+                        key: 'gz',
+                        label: 'Z',
+                        min: gravity.z,
+                        max: gravity.z,
+                        step: 0.01,
+                        value: gravity.z
+                    },
+                ],
+                defaults: {gx: gravity.x, gy: gravity.y, gz: gravity.z},
+            });
+            // 在标题与 XYZ 行之间插入「重力向量」文字标签
+            const gLabel = document.createElement('div');
+            gLabel.className = 'control-group-title';
+            gLabel.style.marginTop = '6px';
+            gLabel.textContent = '重力向量';
+            paramPanel.el.insertBefore(gLabel, paramPanel.el.children[1]);
+            // 底部重放按钮
+            paramPanel.addControlGroup({
+                title: '',
+                items: [
+                    {
+                        label: '重放',
+                        active: () => false,
+                        onClick: () => reSpawn(),
+                    },
+                ],
+            });
 
-          // 在参数面板的「重置参数」按钮下方新增「重放」按钮，功能等同于原重置按钮
-          const replayBtn = document.createElement('button');
-          replayBtn.type = 'button';
-          replayBtn.className = 'camera-control-reset';
-          replayBtn.style.marginTop = '8px';
-          replayBtn.textContent = '重放';
-          replayBtn.addEventListener('click', reSpawn);
-            infoPanel.appendChild(replayBtn);
+            spawn(7);
 
             const clock = new THREE.Clock();
             const loop = () => {
@@ -182,7 +204,7 @@ export const rapierPhysics: Lesson = {
         return makeCleanup(ctx, () => {
             cancelAnimationFrame(raf);
             orbit.dispose();
-            infoPanel?.remove();
+            paramPanel?.remove();
             world?.free();
             if (axes) {
                 ctx.scene.remove(axes);
