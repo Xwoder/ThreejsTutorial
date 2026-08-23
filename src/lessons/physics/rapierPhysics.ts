@@ -129,6 +129,7 @@ export const rapierPhysics: Lesson = {
             const gravity = w.gravity;
             paramPanel = createParamPanel({
                 container,
+                resettable: false,
                 controls: [
                     {type: 'group-title', label: '重力向量'},
                     {

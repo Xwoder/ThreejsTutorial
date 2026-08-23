@@ -55,6 +55,8 @@ export interface ParamPanelOptions {
   footer?: HTMLElement;
   /** 自定义重置逻辑；提供后「重置参数」按钮将只调用它，不再执行默认重置 */
   onReset?: () => void;
+  /** 是否显示「重置参数」按钮（默认 true）；纯只读面板可设为 false */
+  resettable?: boolean;
 }
 
 export interface ParamPanel {
@@ -78,7 +80,7 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
   el.className = 'camera-controls';
   el.innerHTML = `<div class="camera-controls-title">参数 <span>CONTROLS</span></div>`;
 
-  const rows = new Map<string, { input: HTMLInputElement; value: HTMLElement }>();
+  const rows = new Map<string, { input?: HTMLInputElement; value: HTMLElement }>();
 
   const hexStr = (n: number) => '#' + (n & 0xffffff).toString(16).padStart(6, '0');
 
@@ -111,7 +113,7 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
       header.append(label, valueEl);
       row.appendChild(header);
       el.appendChild(row);
-      rows.set(c.key, {input: document.createElement('input'), value: valueEl});
+      rows.set(c.key, {value: valueEl});
       return;
     }
 
@@ -187,35 +189,37 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
 
   if (footer) el.appendChild(footer);
 
-  const resetBtn = document.createElement('button');
-  resetBtn.className = 'camera-control-reset';
-  resetBtn.textContent = '重置参数';
-  resetBtn.addEventListener('click', () => {
-    if (onReset) {
-      onReset();
-      return;
-    }
-    controls.forEach((c) => {
-      if (c.type === 'group-title') return;
-      const def = defaults[c.key];
-      if (def === undefined) return;
-      const row = rows.get(c.key)!;
-      if (c.type === 'checkbox') {
-        row.input.checked = def >= 0.5;
-      } else if (c.type === 'color') {
-        row.input.value = hexStr(def);
-        row.value.textContent = hexStr(def).toUpperCase();
-      } else if (c.type === 'readonly') {
-        row.value.textContent = Number(def).toFixed(c.precision ?? 2);
-        onChange?.(c.key, def);
-      } else {
-        row.input.value = String(def);
-        row.value.textContent = Number(def).toFixed(c.precision ?? 2);
-        onChange?.(c.key, def);
+  if (opts.resettable !== false) {
+    const resetBtn = document.createElement('button');
+    resetBtn.className = 'camera-control-reset';
+    resetBtn.textContent = '重置参数';
+    resetBtn.addEventListener('click', () => {
+      if (onReset) {
+        onReset();
+        return;
       }
+      controls.forEach((c) => {
+        if (c.type === 'group-title') return;
+        const def = defaults[c.key];
+        if (def === undefined) return;
+        const row = rows.get(c.key)!;
+        if (c.type === 'checkbox') {
+          row.input!.checked = def >= 0.5;
+        } else if (c.type === 'color') {
+          row.input!.value = hexStr(def);
+          row.value.textContent = hexStr(def).toUpperCase();
+        } else if (c.type === 'readonly') {
+          row.value.textContent = Number(def).toFixed(c.precision ?? 2);
+          onChange?.(c.key, def);
+        } else {
+          row.input!.value = String(def);
+          row.value.textContent = Number(def).toFixed(c.precision ?? 2);
+          onChange?.(c.key, def);
+        }
+      });
     });
-  });
-  el.appendChild(resetBtn);
+    el.appendChild(resetBtn);
+  }
 
   container.appendChild(el);
 
@@ -227,14 +231,14 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
       const c = controls.find((x): x is ParamSlider | ParamReadonly => x.type !== 'group-title' && x.key === key);
       const precision = c?.precision ?? 2;
       if (c?.type === 'checkbox') {
-        row.input.checked = value >= 0.5;
+        row.input!.checked = value >= 0.5;
       } else if (c?.type === 'color') {
-        row.input.value = hexStr(value);
+        row.input!.value = hexStr(value);
         row.value.textContent = hexStr(value).toUpperCase();
       } else if (c?.type === 'readonly') {
         row.value.textContent = Number(value).toFixed(precision);
       } else {
-        row.input.value = String(value);
+        row.input!.value = String(value);
         row.value.textContent = Number(value).toFixed(precision);
       }
     },
