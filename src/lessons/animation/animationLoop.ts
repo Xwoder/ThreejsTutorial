@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
-import {AxesWithLabels} from '../../utils/AxesWithLabels.ts';
+import {LabeledAxesHelper} from '../../utils/LabeledAxesHelper.ts';
 
 export const animationLoop: Lesson = {
   id: 'animation/animation-loop',
@@ -37,7 +37,7 @@ cube.position.y = Math.sin(t * 2);  // 每秒 2 弧度，与帧率无关</code><
     });
 
     ctx.scene.add(new THREE.GridHelper(10, 10, 0x475569, 0x1e293b));
-    ctx.scene.add(new AxesWithLabels(3));
+    ctx.scene.add(new LabeledAxesHelper(3));
     const cube = new THREE.Mesh(
       new THREE.BoxGeometry(1, 1, 1),
       new THREE.MeshStandardMaterial({ color: 0x34d399, roughness: 0.3 }),

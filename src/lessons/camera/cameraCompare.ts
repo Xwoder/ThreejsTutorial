@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import type {Lesson} from '../types';
-import {AxesWithLabels} from '../../utils/AxesWithLabels.ts';
+import {LabeledAxesHelper} from '../../utils/LabeledAxesHelper.ts';
 
 const PERSP_FOV = 55;
 const CAMERA_POSITION = new THREE.Vector3(20, 14, 20);
@@ -74,7 +74,7 @@ new THREE.OrthographicCamera(left, right, top, bottom, near, far)</code></pre>
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x111827);
         scene.add(new THREE.GridHelper(40, 20, 0x475569, 0x1e293b));
-        scene.add(new AxesWithLabels(6));
+        scene.add(new LabeledAxesHelper(6));
 
         // 立方体阵列：透视 vs 正交差异一目了然
         const material = new THREE.MeshNormalMaterial();

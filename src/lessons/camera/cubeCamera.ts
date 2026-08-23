@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import type { Lesson } from '../types';
 import {createContext, makeCleanup} from '../helper';
-import {AxesWithLabels} from '../../utils/AxesWithLabels.ts';
+import {LabeledAxesHelper} from '../../utils/LabeledAxesHelper.ts';
 import {createParamPanel, type ParamSlider} from '../../utils/paramPanel.ts';
 
 const DEFAULT_RES = 256;
@@ -42,7 +42,7 @@ renderer.render(scene, camera);</code></pre>
     camera.position.set(0, 5, 18);
 
     ctx.scene.add(new THREE.GridHelper(40, 40, 0x334155, 0x1e293b));
-      ctx.scene.add(new AxesWithLabels(6));
+      ctx.scene.add(new LabeledAxesHelper(6));
 
     // 反射球（被 CubeCamera 实时捕获为环境）
     const sphereMat = new THREE.MeshStandardMaterial({

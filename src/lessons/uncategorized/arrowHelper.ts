@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import type {Lesson} from '../types';
 import {createContext, makeCleanup} from '../helper';
-import {AxesWithLabels} from '../../utils/AxesWithLabels.ts';
+import {LabeledAxesHelper} from '../../utils/LabeledAxesHelper.ts';
 import {createParamPanel} from '../../utils/paramPanel.ts';
 
 export const arrowHelper: Lesson = {
@@ -43,7 +43,7 @@ export const arrowHelper: Lesson = {
         const controls = new OrbitControls(camera, ctx.renderer.domElement);
         controls.enableDamping = true;
 
-        ctx.scene.add(new AxesWithLabels(3));
+        ctx.scene.add(new LabeledAxesHelper(3));
         ctx.scene.add(new THREE.GridHelper(10, 10, 0x475569, 0x1e293b));
 
         // 可动态修改的主箭头：方向随参数变化

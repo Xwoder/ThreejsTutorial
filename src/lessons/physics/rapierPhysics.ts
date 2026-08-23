@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {createContext, makeCleanup} from '../helper';
 import type {Lesson} from '../types';
-import {AxesWithLabels} from '../../utils/AxesWithLabels.ts';
+import {LabeledAxesHelper} from '../../utils/LabeledAxesHelper.ts';
 import type RAPIER from '@dimforge/rapier3d-compat';
 
 const rapierDescription = `
@@ -66,11 +66,11 @@ export const rapierPhysics: Lesson = {
         // 在 `create` 返回之后全局可见，供清理逻辑判断资源归属
         let world: RAPIER.World | null = null;
         let infoPanel: HTMLDivElement | null = null;
-        let axes: AxesWithLabels | null = null;
+        let axes: LabeledAxesHelper | null = null;
         const dynamicObjs: { body: RAPIER.RigidBody; mesh: THREE.Mesh }[] = [];
 
         // 带文字标签的坐标轴辅助器：红=X, 绿=Y, 蓝=Z，便于对照重力面板的轴方向
-        axes = new AxesWithLabels(3);
+        axes = new LabeledAxesHelper(3);
         // 抬高一点点，避免 X/Z 轴与地面顶面共面而被遮挡（否则低角度看会缺一段）
         axes.position.y = 0.05;
         ctx.scene.add(axes);

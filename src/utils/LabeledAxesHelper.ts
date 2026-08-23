@@ -47,13 +47,13 @@ function makeAxisLine(to: THREE.Vector3, color: string, width: number): Line2 {
  *
  * 用法：
  * ```ts
- * const axes = new AxesWithLabels(6);
+ * const axes = new LabeledAxesHelper(6);
  * scene.add(axes);
  * ```
  *
  * @param size 坐标轴长度
  */
-export class AxesWithLabels extends THREE.Group {
+export class LabeledAxesHelper extends THREE.Group {
     constructor(size = 6) {
         super();
 

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import type { Lesson } from '../types';
 import {createContext, makeCleanup} from '../helper';
-import {AxesWithLabels} from '../../utils/AxesWithLabels.ts';
+import {LabeledAxesHelper} from '../../utils/LabeledAxesHelper.ts';
 
 export const coordinates: Lesson = {
   id: 'basics/coordinates',
@@ -37,7 +37,7 @@ scene.add(new THREE.GridHelper(10, 10)); // 地面网格</code></pre>
       camera.updateProjectionMatrix();
     });
 
-    ctx.scene.add(new AxesWithLabels(2));
+      ctx.scene.add(new LabeledAxesHelper(2));
     ctx.scene.add(new THREE.GridHelper(10, 10, 0x475569, 0x1e293b));
 
     const box = new THREE.Mesh(
