@@ -77,7 +77,7 @@ export const solarSystem: Lesson = {
                 metalness: 0,
             }),
         );
-        earth.position.set(12, 0, 0);
+        earth.position.set(18, 0, 0);
 
         /* 月亮天体 */
         const moon = new THREE.Mesh(
