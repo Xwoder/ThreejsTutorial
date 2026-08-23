@@ -241,6 +241,8 @@ body {
   font-weight: 700;
   color: #38bdf8;
   margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.25);
   letter-spacing: 0.5px;
 }
 
