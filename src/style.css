@@ -546,25 +546,3 @@ body {
   border-color: #38bdf8;
 }
 
-/* 物理示例：右上角重置按钮 */
-.view-reset-btn {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 20;
-  padding: 7px 16px;
-  background: rgba(30, 41, 59, 0.92);
-  color: #94a3b8;
-  border: 1px solid #334155;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.view-reset-btn:hover {
-  color: #e2e8f0;
-  background: rgba(51, 65, 85, 0.6);
-  border-color: #475569;
-}
