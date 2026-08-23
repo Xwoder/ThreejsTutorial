@@ -54,7 +54,7 @@ export const solarSystem: Lesson = {
         camera.position.set(0, 18, 30);
 
         /* 太阳光，点光源 */
-        const sunLight = new THREE.PointLight(0xffffff, 6, 0, 0.5);
+        const sunLight = new THREE.PointLight(0xffffff, 14, 0, 0.5);
         ctx.scene.add(sunLight); // 放在太阳（原点）处，照亮地球与月亮
 
         /* 轨道控制器 */
@@ -64,7 +64,7 @@ export const solarSystem: Lesson = {
         /* 太阳天体 */
         const sun = new THREE.Mesh(
             new THREE.SphereGeometry(3, 48, 48),
-            new THREE.MeshBasicMaterial({map: makeBlobTexture('#ff6a00', '#ff8c1a', 90)}),
+            new THREE.MeshBasicMaterial({map: makeBlobTexture('#ff8c1a', '#ffb347', 90)}),
         );
         ctx.scene.add(sun);
 
