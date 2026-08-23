@@ -130,42 +130,31 @@ export const rapierPhysics: Lesson = {
             paramPanel = createParamPanel({
                 container,
                 controls: [
+                    {type: 'group-title', label: '重力向量'},
                     {
-                        type: 'display',
+                        type: 'readonly',
                         key: 'gx',
                         label: 'X',
-                        min: gravity.x,
-                        max: gravity.x,
-                        step: 0.01,
-                        value: gravity.x
+                        value: gravity.x,
+                        labelColor: '#ff5d5d'
                     },
                     {
-                        type: 'display',
+                        type: 'readonly',
                         key: 'gy',
                         label: 'Y',
-                        min: gravity.y,
-                        max: gravity.y,
-                        step: 0.01,
-                        value: gravity.y
+                        value: gravity.y,
+                        labelColor: '#5dff8f'
                     },
                     {
-                        type: 'display',
+                        type: 'readonly',
                         key: 'gz',
                         label: 'Z',
-                        min: gravity.z,
-                        max: gravity.z,
-                        step: 0.01,
-                        value: gravity.z
+                        value: gravity.z,
+                        labelColor: '#5dc8ff'
                     },
                 ],
                 defaults: {gx: gravity.x, gy: gravity.y, gz: gravity.z},
             });
-            // 在标题与 XYZ 行之间插入「重力向量」文字标签
-            const gLabel = document.createElement('div');
-            gLabel.className = 'control-group-title';
-            gLabel.style.marginTop = '6px';
-            gLabel.textContent = '重力向量';
-            paramPanel.el.insertBefore(gLabel, paramPanel.el.children[1]);
             // 底部重放按钮
             paramPanel.addControlGroup({
                 title: '',

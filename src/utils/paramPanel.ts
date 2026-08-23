@@ -7,8 +7,8 @@ import {
 export interface ParamSlider {
   key: string;
   label: string;
-  /** 控件类型：'range' 为滑块（默认），'checkbox' 为勾选框，'color' 为颜色选择器（value 为 0xRRGGBB），'display' 为只读数值（不渲染滑块） */
-  type?: 'range' | 'checkbox' | 'color' | 'display';
+  /** 控件类型：'range' 为滑块（默认），'checkbox' 为勾选框，'color' 为颜色选择器（value 为 0xRRGGBB），'group-title' 为分组标题（不渲染控件） */
+  type?: 'range' | 'checkbox' | 'color' | 'group-title';
   min: number;
   max: number;
   step: number;
@@ -21,11 +21,32 @@ export interface ParamSlider {
   disabled?: boolean;
 }
 
+export interface ParamReadonly {
+  /** 只读数值控件：仅展示 label + value，不渲染滑块 */
+  type: 'readonly';
+  key: string;
+  label: string;
+  value: number;
+  /** 数值显示小数位数（默认 2） */
+  precision?: number;
+  /** 标签文字颜色（CSS 颜色值，如 '#ff5d5d'），用于按轴向等区分 */
+  labelColor?: string;
+}
+
+export interface ParamGroupTitle {
+  /** 分组标题（如 '重力向量'），用于在不引入独立样式的前提下对参数进行分组 */
+  type: 'group-title';
+  /** 标题文字 */
+  label: string;
+}
+
+export type ParamControl = ParamSlider | ParamReadonly | ParamGroupTitle;
+
 export interface ParamPanelOptions {
   /** 面板挂载容器 */
   container: HTMLElement;
-  /** 滑块定义列表，由页面自行定义与控制 */
-  controls: ParamSlider[];
+  /** 控件定义列表，由页面自行定义与控制（支持滑块、只读数值、分组标题等） */
+  controls: ParamControl[];
   /** 默认值，用于「重置参数」按钮 */
   defaults: Record<string, number>;
   /** 滑块数值变化回调（用户拖动或重置时触发） */
@@ -62,9 +83,37 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
   const hexStr = (n: number) => '#' + (n & 0xffffff).toString(16).padStart(6, '0');
 
   controls.forEach((c) => {
+    // 分组标题：仅渲染一个标题元素，不参与滑块逻辑、不进入 rows 映射
+    if (c.type === 'group-title') {
+      const titleEl = document.createElement('div');
+      titleEl.className = 'camera-control-group-title';
+      titleEl.textContent = c.label;
+      el.appendChild(titleEl);
+      return;
+    }
+
     const isCheckbox = c.type === 'checkbox';
     const isColor = c.type === 'color';
-    const isDisplay = c.type === 'display';
+
+    // 只读数值：仅渲染 label + value，不创建 input
+    if (c.type === 'readonly') {
+      const row = document.createElement('div');
+      row.className = 'camera-control-row';
+      row.dataset.key = c.key;
+      const header = document.createElement('div');
+      header.className = 'camera-control-header';
+      const label = document.createElement('span');
+      label.textContent = c.label;
+      if (c.labelColor) label.style.color = c.labelColor;
+      const valueEl = document.createElement('span');
+      valueEl.className = 'camera-control-value';
+      valueEl.textContent = Number(c.value).toFixed(c.precision ?? 2);
+      header.append(label, valueEl);
+      row.appendChild(header);
+      el.appendChild(row);
+      rows.set(c.key, {input: document.createElement('input'), value: valueEl});
+      return;
+    }
 
     const row = document.createElement('div');
     row.className = 'camera-control-row';
@@ -120,8 +169,8 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
 
     row.appendChild(header);
 
-    // 除勾选框、颜色选择器、只读数值外，其余类型（滑块）放在 header 之后
-    if (!isCheckbox && !isColor && !isDisplay) {
+    // 勾选框与颜色选择器已放进 header，其余类型（滑块）放在 header 之后
+    if (!isCheckbox && !isColor) {
       row.appendChild(input);
     }
 
@@ -147,6 +196,7 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
       return;
     }
     controls.forEach((c) => {
+      if (c.type === 'group-title') return;
       const def = defaults[c.key];
       if (def === undefined) return;
       const row = rows.get(c.key)!;
@@ -155,7 +205,7 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
       } else if (c.type === 'color') {
         row.input.value = hexStr(def);
         row.value.textContent = hexStr(def).toUpperCase();
-      } else if (c.type === 'display') {
+      } else if (c.type === 'readonly') {
         row.value.textContent = Number(def).toFixed(c.precision ?? 2);
         onChange?.(c.key, def);
       } else {
@@ -174,14 +224,14 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
     setDisplay(key, value) {
       const row = rows.get(key);
       if (!row) return;
-      const c = controls.find((x) => x.key === key);
+      const c = controls.find((x): x is ParamSlider | ParamReadonly => x.type !== 'group-title' && x.key === key);
       const precision = c?.precision ?? 2;
       if (c?.type === 'checkbox') {
         row.input.checked = value >= 0.5;
       } else if (c?.type === 'color') {
         row.input.value = hexStr(value);
         row.value.textContent = hexStr(value).toUpperCase();
-      } else if (c?.type === 'display') {
+      } else if (c?.type === 'readonly') {
         row.value.textContent = Number(value).toFixed(precision);
       } else {
         row.input.value = String(value);

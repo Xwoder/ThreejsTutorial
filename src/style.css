@@ -266,6 +266,14 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+.camera-control-group-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #38bdf8;
+  margin: 4px 0 10px;
+  letter-spacing: 0.5px;
+}
+
 .camera-control-row input[type='range'] {
   width: 100%;
   accent-color: #38bdf8;
