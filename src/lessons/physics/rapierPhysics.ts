@@ -80,10 +80,22 @@ export const rapierPhysics: Lesson = {
             infoPanel = document.createElement('div');
             infoPanel.className = 'gravity-info';
             infoPanel.innerHTML =
-                `<div class="gravity-info__title">重力</div>` +
-                `<div class="gravity-info__row">X: ${gravity.x.toFixed(2)}</div>` +
-                `<div class="gravity-info__row">Y: ${gravity.y.toFixed(2)}</div>` +
-                `<div class="gravity-info__row">Z: ${gravity.z.toFixed(2)}</div>`;
+                `<div class="gravity-info__title">重力向量 (固定)</div>` +
+                `<div class="gravity-info__row">` +
+                `<span class="gravity-info__dot gravity-info__dot--x"></span>` +
+                `<span class="gravity-info__axis">X</span>` +
+                `<span class="gravity-info__value">${gravity.x.toFixed(2)}</span>` +
+                `<span class="gravity-info__unit">m/s²</span></div>` +
+                `<div class="gravity-info__row">` +
+                `<span class="gravity-info__dot gravity-info__dot--y"></span>` +
+                `<span class="gravity-info__axis">Y</span>` +
+                `<span class="gravity-info__value">${gravity.y.toFixed(2)}</span>` +
+                `<span class="gravity-info__unit">m/s²</span></div>` +
+                `<div class="gravity-info__row">` +
+                `<span class="gravity-info__dot gravity-info__dot--z"></span>` +
+                `<span class="gravity-info__axis">Z</span>` +
+                `<span class="gravity-info__value">${gravity.z.toFixed(2)}</span>` +
+                `<span class="gravity-info__unit">m/s²</span></div>`;
             container.appendChild(infoPanel);
 
             // 地面：固定刚体 + 立方体碰撞体
