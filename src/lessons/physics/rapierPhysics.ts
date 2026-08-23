@@ -57,7 +57,7 @@ export const rapierPhysics: Lesson = {
         syncLightToCamera();
 
         // 地面网格（仅用于显示）
-        const groundGeo = new THREE.BoxGeometry(12, 0.5, 12);
+      const groundGeo = new THREE.BoxGeometry(20, 0.5, 20);
         const groundMat = new THREE.MeshStandardMaterial({color: 0x999999, roughness: 0.9});
         const groundMesh = new THREE.Mesh(groundGeo, groundMat);
         groundMesh.position.y = -0.25;
@@ -97,7 +97,7 @@ export const rapierPhysics: Lesson = {
 
             // 地面：固定刚体 + 立方体碰撞体
             const groundBody = w.createRigidBody(R.RigidBodyDesc.fixed().setTranslation(0, -0.25, 0));
-            w.createCollider(R.ColliderDesc.cuboid(6, 0.25, 6), groundBody);
+          w.createCollider(R.ColliderDesc.cuboid(10, 0.25, 10), groundBody);
 
             const colors = [0xff5d5d, 0xffb84d, 0xffe65d, 0x5dff8f, 0x5dc8ff, 0xb45dff, 0xff5dd6];
             const spawn = (count: number) => {
