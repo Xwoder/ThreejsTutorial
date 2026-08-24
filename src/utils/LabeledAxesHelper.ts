@@ -33,11 +33,13 @@ function makeAxisLabel(text: string, color: string): THREE.Sprite {
 function makeAxisLine(to: THREE.Vector3, color: string, width: number): Line2 {
     const geometry = new LineGeometry();
     geometry.setPositions([0, 0, 0, to.x, to.y, to.z]);
-    const material = new LineMaterial({color, linewidth: width, worldUnits: true});
+    const material = new LineMaterial({color, linewidth: width, worldUnits: true, depthTest: false});
     const line = new Line2(geometry, material);
     line.computeLineDistances();
     // 避免短线段因包围球计算被错误裁剪
     line.frustumCulled = false;
+    // 与标签一致：关闭深度测试，使轴线在任何视角（含从底部翻转）都能显示在最前
+    line.renderOrder = 998;
     return line;
 }
 
