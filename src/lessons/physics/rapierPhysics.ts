@@ -131,27 +131,32 @@ export const rapierPhysics: Lesson = {
                 container,
                 resettable: false,
                 controls: [
-                    {type: 'group-title', label: '重力向量'},
                     {
-                        type: 'readonly',
-                        key: 'gx',
-                        label: 'X',
-                        value: gravity.x,
-                        labelColor: '#ff5d5d'
-                    },
-                    {
-                        type: 'readonly',
-                        key: 'gy',
-                        label: 'Y',
-                        value: gravity.y,
-                        labelColor: '#5dff8f'
-                    },
-                    {
-                        type: 'readonly',
-                        key: 'gz',
-                        label: 'Z',
-                        value: gravity.z,
-                        labelColor: '#5dc8ff'
+                        type: 'group',
+                        label: '重力向量',
+                        children: [
+                            {
+                                type: 'readonly',
+                                key: 'gx',
+                                label: 'X',
+                                value: gravity.x,
+                                labelColor: '#ff5d5d'
+                            },
+                            {
+                                type: 'readonly',
+                                key: 'gy',
+                                label: 'Y',
+                                value: gravity.y,
+                                labelColor: '#5dff8f'
+                            },
+                            {
+                                type: 'readonly',
+                                key: 'gz',
+                                label: 'Z',
+                                value: gravity.z,
+                                labelColor: '#5dc8ff'
+                            },
+                        ],
                     },
                 ],
                 defaults: {gx: gravity.x, gy: gravity.y, gz: gravity.z},

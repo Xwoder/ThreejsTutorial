@@ -7,8 +7,8 @@ import {
 export interface ParamSlider {
   key: string;
   label: string;
-  /** 控件类型：'range' 为滑块（默认），'checkbox' 为勾选框，'color' 为颜色选择器（value 为 0xRRGGBB），'group-title' 为分组标题（不渲染控件） */
-  type?: 'range' | 'checkbox' | 'color' | 'group-title';
+  /** 控件类型：'range' 为滑块（默认），'checkbox' 为勾选框，'color' 为颜色选择器（value 为 0xRRGGBB）；分组统一用 type:'group' 包裹 */
+  type?: 'range' | 'checkbox' | 'color';
   min: number;
   max: number;
   step: number;
@@ -33,14 +33,16 @@ export interface ParamReadonly {
   labelColor?: string;
 }
 
-export interface ParamGroupTitle {
-  /** 分组标题（如 '重力向量'），用于在不引入独立样式的前提下对参数进行分组 */
-  type: 'group-title';
-  /** 标题文字 */
+export interface ParamGroup {
+  /** 分组：自带圆角矩形包围框，并把 children 内的控件显式收纳进该框内部 */
+  type: 'group';
+  /** 分组标题文字（如 '波 2'） */
   label: string;
+  /** 归属于该分组的控件列表，渲染时会被放入同一个包围框内 */
+  children: ParamControl[];
 }
 
-export type ParamControl = ParamSlider | ParamReadonly | ParamGroupTitle;
+export type ParamControl = ParamSlider | ParamReadonly | ParamGroup;
 
 export interface ParamPanelOptions {
   /** 面板挂载容器 */
@@ -84,19 +86,18 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
 
   const hexStr = (n: number) => '#' + (n & 0xffffff).toString(16).padStart(6, '0');
 
-  // 当前分组容器：遇到 group-title 时新建圆角矩形包围框，后续控件归入其中
-  let currentGroup: HTMLElement | null = null;
-
-  controls.forEach((c) => {
-    // 分组标题：创建带圆角边框的容器，标题作为边框内的分组名
-    if (c.type === 'group-title') {
-      currentGroup = document.createElement('div');
-      currentGroup.className = 'camera-control-group';
+  // 将单个控件渲染并挂载到 parent 下（group 的 children 也通过它递归挂载到框内）
+  const appendControl = (parent: HTMLElement, c: ParamControl) => {
+    // 分组：自身就是一个圆角包围框对象，children 显式收纳进该框内部
+    if (c.type === 'group') {
+      const box = document.createElement('div');
+      box.className = 'camera-control-group';
       const titleEl = document.createElement('div');
       titleEl.className = 'camera-control-group-title';
       titleEl.textContent = c.label;
-      currentGroup.appendChild(titleEl);
-      el.appendChild(currentGroup);
+      box.appendChild(titleEl);
+      c.children.forEach((child) => appendControl(box, child));
+      parent.appendChild(box);
       return;
     }
 
@@ -118,7 +119,7 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
       valueEl.textContent = Number(c.value).toFixed(c.precision ?? 2);
       header.append(label, valueEl);
       row.appendChild(header);
-      (currentGroup ?? el).appendChild(row);
+      parent.appendChild(row);
       rows.set(c.key, {value: valueEl});
       return;
     }
@@ -189,9 +190,11 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
       row.appendChild(desc);
     }
 
-    (currentGroup ?? el).appendChild(row);
+    parent.appendChild(row);
     rows.set(c.key, { input, value: valueEl });
-  });
+  };
+
+  controls.forEach((c) => appendControl(el, c));
 
   if (footer) el.appendChild(footer);
 
@@ -204,8 +207,11 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
         onReset();
         return;
       }
-      controls.forEach((c) => {
-        if (c.type === 'group-title') return;
+      const resetControl = (c: ParamControl) => {
+        if (c.type === 'group') {
+          c.children.forEach(resetControl);
+          return;
+        }
         const def = defaults[c.key];
         if (def === undefined) return;
         const row = rows.get(c.key)!;
@@ -222,7 +228,8 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
           row.value.textContent = Number(def).toFixed(c.precision ?? 2);
           onChange?.(c.key, def);
         }
-      });
+      };
+      controls.forEach(resetControl);
     });
     el.appendChild(resetBtn);
   }
@@ -234,7 +241,18 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
     setDisplay(key, value) {
       const row = rows.get(key);
       if (!row) return;
-      const c = controls.find((x): x is ParamSlider | ParamReadonly => x.type !== 'group-title' && x.key === key);
+      const findControl = (list: ParamControl[]): ParamSlider | ParamReadonly | undefined => {
+        for (const item of list) {
+          if (item.type === 'group') {
+            const found = findControl(item.children);
+            if (found) return found;
+          } else if (item.key === key) {
+            return item;
+          }
+        }
+        return undefined;
+      };
+      const c = findControl(controls);
       const precision = c?.precision ?? 2;
       if (c?.type === 'checkbox') {
         row.input!.checked = value >= 0.5;
