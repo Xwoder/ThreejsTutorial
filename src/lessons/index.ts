@@ -88,7 +88,7 @@ export const chapters: Chapter[] = [
   },
   {
     id: 'physics',
-    title: '物理引擎',
+    title: 'Rapier 物理引擎',
     lessons: [rapierPhysics],
   },
 ];

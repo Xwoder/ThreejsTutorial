@@ -21,8 +21,8 @@ const rapierDescription = `
 `;
 
 export const rapierPhysics: Lesson = {
-    id: 'physics/rapier',
-    title: 'Rapier 物理引擎',
+    id: 'physics/cube-drop',
+    title: '立方体落体',
     description: rapierDescription,
     create(container) {
         const ctx = createContext(container);
