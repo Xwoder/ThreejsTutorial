@@ -84,13 +84,19 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
 
   const hexStr = (n: number) => '#' + (n & 0xffffff).toString(16).padStart(6, '0');
 
+  // 当前分组容器：遇到 group-title 时新建圆角矩形包围框，后续控件归入其中
+  let currentGroup: HTMLElement | null = null;
+
   controls.forEach((c) => {
-    // 分组标题：仅渲染一个标题元素，不参与滑块逻辑、不进入 rows 映射
+    // 分组标题：创建带圆角边框的容器，标题作为边框内的分组名
     if (c.type === 'group-title') {
+      currentGroup = document.createElement('div');
+      currentGroup.className = 'camera-control-group';
       const titleEl = document.createElement('div');
       titleEl.className = 'camera-control-group-title';
       titleEl.textContent = c.label;
-      el.appendChild(titleEl);
+      currentGroup.appendChild(titleEl);
+      el.appendChild(currentGroup);
       return;
     }
 
@@ -112,7 +118,7 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
       valueEl.textContent = Number(c.value).toFixed(c.precision ?? 2);
       header.append(label, valueEl);
       row.appendChild(header);
-      el.appendChild(row);
+      (currentGroup ?? el).appendChild(row);
       rows.set(c.key, {value: valueEl});
       return;
     }
@@ -183,7 +189,7 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
       row.appendChild(desc);
     }
 
-    el.appendChild(row);
+    (currentGroup ?? el).appendChild(row);
     rows.set(c.key, { input, value: valueEl });
   });
 

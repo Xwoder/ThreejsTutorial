@@ -276,6 +276,14 @@ body {
   letter-spacing: 0.5px;
 }
 
+.camera-control-group {
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 14px 14px 6px;
+  margin-bottom: 14px;
+  background: rgba(15, 23, 42, 0.4);
+}
+
 .camera-control-row input[type='range'] {
   width: 100%;
   accent-color: #38bdf8;
