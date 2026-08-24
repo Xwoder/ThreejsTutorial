@@ -164,6 +164,8 @@ export const rapierPhysics: Lesson = {
                         label: '重放',
                         active: () => false,
                         onClick: () => reSpawn(),
+                        color: '#ff5d5d',
+                        activeColor: '#ff5d5d',
                     },
                 ],
             });

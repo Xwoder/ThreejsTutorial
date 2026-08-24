@@ -19,6 +19,10 @@ export interface ControlPanelButtonItem {
   onClick: () => void;
   /** 是否处于选中（高亮）状态 */
   active: () => boolean;
+  /** 普通态配色（CSS 颜色值，如 '#ff5d5d'）。不传则使用 CSS 默认样式 */
+  color?: string;
+  /** 高亮（active）态配色（CSS 颜色值）。不传则使用 CSS 默认样式 */
+  activeColor?: string;
 }
 
 export interface ControlPanelGroup {
@@ -49,6 +53,10 @@ export function createControlPanelGroup(
   const buttons = options.items.map((item) => {
     const btn = document.createElement('button');
     btn.textContent = item.label;
+    if (item.color) {
+      btn.style.color = item.color;
+      btn.style.borderColor = item.color;
+    }
     btn.addEventListener('click', item.onClick);
     row.appendChild(btn);
     return btn;
@@ -57,7 +65,14 @@ export function createControlPanelGroup(
 
   const sync = () => {
     buttons.forEach((btn, i) => {
-      btn.classList.toggle('active', options.items[i].active());
+      const item = options.items[i];
+      const isActive = item.active();
+      btn.classList.toggle('active', isActive);
+      // activeColor 优先：高亮时覆盖文字/边框色，否则恢复普通态配色
+      if (item.activeColor) {
+        btn.style.color = isActive ? item.activeColor : (item.color ?? '');
+        btn.style.borderColor = isActive ? item.activeColor : (item.color ?? '');
+      }
     });
   };
 
