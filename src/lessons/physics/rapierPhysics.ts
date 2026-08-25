@@ -122,8 +122,8 @@ export const rapierPhysics: Lesson = {
             }
 
             const colors = [0xff5d5d, 0xffb84d, 0xffe65d, 0x5dff8f, 0x5dc8ff, 0xb45dff, 0xff5dd6];
-            // 当前碰撞体形状：cube | ball | capsule | cylinder | cone
-            const shapes = ['cube', 'ball', 'capsule', 'cylinder', 'cone'] as const;
+            // 当前碰撞体形状：cube | ball | capsule | cylinder | cone | ico(二十面体体)
+            const shapes = ['cube', 'ball', 'capsule', 'cylinder', 'cone', 'ico'] as const;
             type Shape = (typeof shapes)[number];
             let currentShape: Shape = 'cube';
 
@@ -163,6 +163,18 @@ export const rapierPhysics: Lesson = {
                     default: {
                         geo = new THREE.BoxGeometry(size, size, size);
                         collider = R.ColliderDesc.cuboid(size / 2, size / 2, size / 2);
+                        break;
+                    }
+                    case 'ico': {
+                        const r = size / 2;
+                        const ico = new THREE.IcosahedronGeometry(r, 0);
+                        geo = ico;
+                        // 用几何体顶点构建凸包碰撞体，保证物理与外观一致
+                        const pos = ico.getAttribute('position');
+                        const verts = new Float32Array(pos.array.length);
+                        verts.set(pos.array as Float32Array);
+                        const hull = R.ColliderDesc.convexHull(verts);
+                        collider = hull ?? R.ColliderDesc.ball(r);
                         break;
                     }
                 }
@@ -263,6 +275,7 @@ export const rapierPhysics: Lesson = {
                         capsule: '胶囊体',
                         cylinder: '圆柱体',
                         cone: '圆锥',
+                        ico: '二十面体体',
                     };
                     return {
                         label: labels[s],
