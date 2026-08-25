@@ -1,9 +1,11 @@
 import type { Lesson } from '../types';
-import { dodecahedronGeometry } from './dodecahedronGeometry';
-import { icosahedronGeometry } from './icosahedronGeometry';
-import { octahedronGeometry } from './octahedronGeometry';
 import { polyhedronGeometry } from './polyhedronGeometry';
-import { tetrahedronGeometry } from './tetrahedronGeometry';
+import {
+  dodecahedronGeometry,
+  icosahedronGeometry,
+  octahedronGeometry,
+  tetrahedronGeometry,
+} from './polyhedron';
 
 const overviewDescription = `
   <h2>多面体 Polyhedron</h2>
