@@ -1,8 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { createContext, makeCleanup } from '../helper';
-import {createParamPanel} from '../../utils/paramPanel.ts';
-import type {ParamSlider} from '../../utils/paramPanel.ts';
+import {createParamPanel, type ParamSlider} from '../../utils/paramPanel.ts';
 import type { Lesson } from '../types';
 
 export interface GeometryLessonOptions {
