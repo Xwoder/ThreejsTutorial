@@ -3,7 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 import type { Lesson } from '../types';
 import { createContext, makeCleanup } from '../helper';
-import { createControlPanelGroup } from '../controlPanel';
+import {createControlPanelGroup} from '../../utils/controlPanel';
 
 export const transformControls: Lesson = {
   id: 'controls/transform-controls',
