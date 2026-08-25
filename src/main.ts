@@ -6,10 +6,14 @@ const app = document.querySelector<HTMLDivElement>('#app')!;
 
 app.innerHTML = `
   <div class="layout">
-    <aside class="sidebar">
-      <div class="sidebar-header">Three.js 教程</div>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">Three.js 教程</span>
+        <button class="sidebar-collapse" id="sidebar-collapse" title="收起教程栏" aria-label="收起教程栏">⟨</button>
+      </div>
       <nav id="toc"></nav>
     </aside>
+    <button class="sidebar-expand" id="sidebar-expand" title="展开教程栏" aria-label="展开教程栏">☰</button>
     <main class="viewport" id="viewport">
       <div class="empty-tip">从左侧选择一节课开始学习</div>
     </main>
@@ -96,6 +100,19 @@ function renderLesson(lesson: Lesson, parent: HTMLElement, depth: number) {
 }
 
 buildToc();
+
+const layout = document.querySelector<HTMLElement>('.layout')!;
+const sidebarCollapse = document.querySelector<HTMLButtonElement>('#sidebar-collapse')!;
+const sidebarExpand = document.querySelector<HTMLButtonElement>('#sidebar-expand')!;
+
+/** 收起/展开教程栏 */
+function setSidebar(collapsed: boolean) {
+  layout.classList.toggle('sidebar-collapsed', collapsed);
+  sidebarExpand.classList.toggle('visible', collapsed);
+}
+
+sidebarCollapse.addEventListener('click', () => setSidebar(true));
+sidebarExpand.addEventListener('click', () => setSidebar(false));
 
 /** 收集所有可打开的叶子课时（忽略仅作为标题分组的父课时） */
 function collectLeaves(): Lesson[] {

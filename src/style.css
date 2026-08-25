@@ -25,6 +25,12 @@ body {
   display: grid;
   grid-template-columns: 230px 1fr 300px;
   height: 100vh;
+  transition: grid-template-columns 0.25s ease;
+}
+
+/* 收起教程栏时，侧栏宽度塌缩为 0 */
+.layout.sidebar-collapsed {
+  grid-template-columns: 0 1fr 300px;
 }
 
 /* 左侧目录 */
@@ -32,6 +38,7 @@ body {
   background: var(--panel);
   border-right: 1px solid var(--border);
   overflow-y: auto;
+  min-width: 0;
 }
 
 .sidebar-header {
@@ -40,6 +47,71 @@ body {
   font-weight: 700;
   border-bottom: 1px solid var(--border);
   color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 侧栏内的折叠按钮：靠右对齐 */
+.sidebar-collapse {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.sidebar-collapse:hover {
+  background: var(--panel-light);
+  border-color: var(--accent);
+}
+
+/* 收起后左上角的展开按钮：默认隐藏，折叠时可见 */
+.sidebar-expand {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 30;
+  width: 32px;
+  height: 32px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.sidebar-expand:hover {
+  background: var(--panel-light);
+  border-color: var(--accent);
+}
+
+.layout.sidebar-collapsed .sidebar-expand {
+  display: inline-flex;
 }
 
 .chapter-header {
