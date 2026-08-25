@@ -197,13 +197,13 @@ export const worldToLocal: Lesson = {
         };
 
         const labelA = makeBoxLabel();
-        labelA.sprite.position.set(0, -0.62, 0);
+        labelA.sprite.position.set(0, -0.38, 0);
         boxA.add(labelA.sprite);
         const labelB = makeBoxLabel();
-        labelB.sprite.position.set(0, -0.52, 0);
+        labelB.sprite.position.set(0, -0.34, 0);
         boxB.add(labelB.sprite);
         const labelC = makeBoxLabel();
-        labelC.sprite.position.set(0, -0.52, 0);
+        labelC.sprite.position.set(0, -0.34, 0);
         boxC.add(labelC.sprite);
 
         // 状态：A 点位置(原点基准) 与 B、C 各自的本地坐标偏移（B、C 初始随机）
@@ -258,11 +258,15 @@ export const worldToLocal: Lesson = {
             const localInA = A.worldToLocal(cWorld.clone());
 
             readout.innerHTML =
-                `C 的世界坐标: (${cWorld.x.toFixed(2)}, ${cWorld.y.toFixed(2)}, ${cWorld.z.toFixed(2)})<br>` +
-                `A 点(原点) position: (${A.position.x.toFixed(2)}, ${A.position.y.toFixed(2)}, ${A.position.z.toFixed(2)})<br>` +
-                `B 本地坐标(相对A): (${B.position.x.toFixed(2)}, ${B.position.y.toFixed(2)}, ${B.position.z.toFixed(2)})<br>` +
-                `C 本地坐标(相对B): (${C.position.x.toFixed(2)}, ${C.position.y.toFixed(2)}, ${C.position.z.toFixed(2)})<br>` +
-                `<strong style="color:#f472b6">C 相对A原点(A.worldToLocal): (${localInA.x.toFixed(2)}, ${localInA.y.toFixed(2)}, ${localInA.z.toFixed(2)})</strong>`;
+                `<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><span style="display:inline-block;width:16px;height:16px;background-color:#facc15;border-radius:2px;border:1px solid rgba(255,255,255,.3);"></span><strong>方块A</strong></div>` +
+                `局部坐标: (${A.position.x.toFixed(2)}, ${A.position.y.toFixed(2)}, ${A.position.z.toFixed(2)})<br>` +
+                `世界坐标: (${aWorld.x.toFixed(2)}, ${aWorld.y.toFixed(2)}, ${aWorld.z.toFixed(2)})<br><br>` +
+                `<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><span style="display:inline-block;width:16px;height:16px;background-color:#38bdf8;border-radius:2px;border:1px solid rgba(255,255,255,.3);"></span><strong>方块B</strong></div>` +
+                `局部坐标: (${B.position.x.toFixed(2)}, ${B.position.y.toFixed(2)}, ${B.position.z.toFixed(2)})<br>` +
+                `世界坐标: (${bWorld.x.toFixed(2)}, ${bWorld.y.toFixed(2)}, ${bWorld.z.toFixed(2)})<br><br>` +
+                `<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><span style="display:inline-block;width:16px;height:16px;background-color:#f472b6;border-radius:2px;border:1px solid rgba(255,255,255,.3);"></span><strong>方块C</strong></div>` +
+                `局部坐标: (${C.position.x.toFixed(2)}, ${C.position.y.toFixed(2)}, ${C.position.z.toFixed(2)})<br>` +
+                `世界坐标: (${cWorld.x.toFixed(2)}, ${cWorld.y.toFixed(2)}, ${cWorld.z.toFixed(2)})`;
         };
         applyAndShow();
 
