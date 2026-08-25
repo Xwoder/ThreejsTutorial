@@ -70,9 +70,9 @@ export const worldToLocal: Lesson = {
         const ctx = createContext(container);
         ctx.scene.background = new THREE.Color(0x111827);
 
-        const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 100);
-        camera.position.set(7, 6, 9);
-        camera.lookAt(0, 0, 0);
+        const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+        camera.position.set(8.5, 8.5, 10.5);
+        camera.lookAt(2, 2, -1); // 默认注视方块 B（其初始世界坐标）
         ctx.onResize((w, h) => {
             camera.aspect = w / h;
             camera.updateProjectionMatrix();
@@ -184,8 +184,8 @@ export const worldToLocal: Lesson = {
                 c.textAlign = 'center';
                 c.textBaseline = 'middle';
                 c.font = '34px sans-serif';
-                c.fillText(`世界坐标: (${world.x.toFixed(2)}, ${world.y.toFixed(2)}, ${world.z.toFixed(2)})`, canvas.width / 2, 132);
-                c.fillText(`局部坐标: (${local.x.toFixed(2)}, ${local.y.toFixed(2)}, ${local.z.toFixed(2)})`, canvas.width / 2, 216);
+                c.fillText(`局部坐标: (${local.x.toFixed(2)}, ${local.y.toFixed(2)}, ${local.z.toFixed(2)})`, canvas.width / 2, 132);
+                c.fillText(`世界坐标: (${world.x.toFixed(2)}, ${world.y.toFixed(2)}, ${world.z.toFixed(2)})`, canvas.width / 2, 216);
                 tex.needsUpdate = true;
             };
             return {sprite, tex, setText};
@@ -202,17 +202,19 @@ export const worldToLocal: Lesson = {
         boxC.add(labelC.sprite);
 
         // 状态：A 点位置(原点基准) 与 B、C 各自的本地坐标偏移（B、C 初始随机）
-        const state = {
+        // 初始位置（供重置按钮恢复）
+        const initialState = {
             aX: 0,
             aY: 0,
             aZ: 0,
-            bX: 1,
+            bX: 2,
             bY: 2,
-            bZ: 3,
-            cX: 1,
-            cY: 1,
-            cZ: 1,
+            bZ: -1,
+            cX: 2,
+            cY: -1,
+            cZ: 2,
         };
+        const state = {...initialState};
 
         // 显示转换结果文字
         const readout = document.createElement('div');
@@ -259,148 +261,21 @@ export const worldToLocal: Lesson = {
         };
         applyAndShow();
 
+        // 参数面板：不含滑块，仅保留一个「重置参数」按钮
         const panel = createParamPanel({
             container,
-            controls: [
-                {
-                    key: 'aX',
-                    label: 'A 点 X（原点）',
-                    type: 'range',
-                    min: -4,
-                    max: 4,
-                    step: 0.1,
-                    value: state.aX,
-                    precision: 1,
-                    desc: 'A 点(原点) 的世界 X',
-                },
-                {
-                    key: 'aY',
-                    label: 'A 点 Y（原点）',
-                    type: 'range',
-                    min: -4,
-                    max: 4,
-                    step: 0.1,
-                    value: state.aY,
-                    precision: 1,
-                    desc: 'A 点(原点) 的世界 Y',
-                },
-                {
-                    key: 'aZ',
-                    label: 'A 点 Z（原点）',
-                    type: 'range',
-                    min: -4,
-                    max: 4,
-                    step: 0.1,
-                    value: state.aZ,
-                    precision: 1,
-                    desc: 'A 点(原点) 的世界 Z',
-                },
-                {
-                    key: 'bX',
-                    label: 'B 本地 X',
-                    type: 'range',
-                    min: -4,
-                    max: 4,
-                    step: 0.1,
-                    value: state.bX,
-                    precision: 1,
-                    desc: 'B 相对 A 的本地坐标 X',
-                },
-                {
-                    key: 'bY',
-                    label: 'B 本地 Y',
-                    type: 'range',
-                    min: -4,
-                    max: 4,
-                    step: 0.1,
-                    value: state.bY,
-                    precision: 1,
-                    desc: 'B 相对 A 的本地坐标 Y',
-                },
-                {
-                    key: 'bZ',
-                    label: 'B 本地 Z',
-                    type: 'range',
-                    min: -4,
-                    max: 4,
-                    step: 0.1,
-                    value: state.bZ,
-                    precision: 1,
-                    desc: 'B 相对 A 的本地坐标 Z',
-                },
-                {
-                    key: 'cX',
-                    label: 'C 本地 X',
-                    type: 'range',
-                    min: -4,
-                    max: 4,
-                    step: 0.1,
-                    value: state.cX,
-                    precision: 1,
-                    desc: 'C 相对 B 的本地坐标 X',
-                },
-                {
-                    key: 'cY',
-                    label: 'C 本地 Y',
-                    type: 'range',
-                    min: -4,
-                    max: 4,
-                    step: 0.1,
-                    value: state.cY,
-                    precision: 1,
-                    desc: 'C 相对 B 的本地坐标 Y',
-                },
-                {
-                    key: 'cZ',
-                    label: 'C 本地 Z',
-                    type: 'range',
-                    min: -4,
-                    max: 4,
-                    step: 0.1,
-                    value: state.cZ,
-                    precision: 1,
-                    desc: 'C 相对 B 的本地坐标 Z',
-                },
-            ],
-            defaults: {
-                aX: state.aX,
-                aY: state.aY,
-                aZ: state.aZ,
-                bX: state.bX,
-                bY: state.bY,
-                bZ: state.bZ,
-                cX: state.cX,
-                cY: state.cY,
-                cZ: state.cZ,
-            },
-            onChange(key, value) {
-                switch (key) {
-                    case 'aX':
-                    case 'aY':
-                    case 'aZ':
-                    case 'bX':
-                    case 'bY':
-                    case 'bZ':
-                    case 'cX':
-                    case 'cY':
-                    case 'cZ':
-                        state[key] = value;
-                        break;
-                }
+            controls: [],
+            defaults: {},
+            onReset() {
+                Object.assign(state, initialState);
                 applyAndShow();
             },
         });
 
-        // 把 state 同步到参数面板的滑块显示
+        // 同步 state 到面板显示（当前面板无滑块，调用为空操作）
         const syncPanel = () => {
             panel.setDisplay('aX', state.aX);
-            panel.setDisplay('aY', state.aY);
-            panel.setDisplay('aZ', state.aZ);
-            panel.setDisplay('bX', state.bX);
             panel.setDisplay('bY', state.bY);
-            panel.setDisplay('bZ', state.bZ);
-            panel.setDisplay('cX', state.cX);
-            panel.setDisplay('cY', state.cY);
             panel.setDisplay('cZ', state.cZ);
         };
 
