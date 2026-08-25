@@ -29,7 +29,7 @@ export const rapierPhysics: Lesson = {
         ctx.scene.background = new THREE.Color(0x0f172a);
 
         const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
-        camera.position.set(7, 6, 9);
+        camera.position.set(11, 9, 14);
         ctx.onResize((w, h) => {
             camera.aspect = w / h;
             camera.updateProjectionMatrix();
