@@ -33,41 +33,71 @@ scene.add(helper)</code></pre>
         controls.enableDamping = true;
         controls.target.set(0, 0.5, 0);
 
-        // 地面
+        // 地面（与 ambient-light 一致：12×12、粗糙度 0.9、双面）
         const floor = new THREE.Mesh(
             new THREE.PlaneGeometry(12, 12),
-            new THREE.MeshStandardMaterial({color: 0x8899aa, roughness: 0.9}),
+            new THREE.MeshStandardMaterial({color: 0x8899aa, roughness: 0.9, side: THREE.DoubleSide}),
         );
         floor.rotation.x = -Math.PI / 2;
         ctx.scene.add(floor);
 
-        // 若干材质各异的物体，便于观察上下半球的颜色倾向（全部离开地面一定距离）
-        const meshes = [
+        // 9 个不同形状 / 颜色的物体，按 3×3 网格排列（与 ambient-light 一致）
+        const shapes = [
             {
                 geo: new THREE.SphereGeometry(0.9, 48, 32),
-                mat: new THREE.MeshStandardMaterial({color: 0xffffff, roughness: 0.2, metalness: 0.1}),
-                pos: new THREE.Vector3(-2.2, 1.4, 0.8)
+                mat: new THREE.MeshStandardMaterial({color: 0x60a5fa, roughness: 0.3}),
+                h: 0.9
             },
             {
                 geo: new THREE.BoxGeometry(1.5, 1.5, 1.5),
-                mat: new THREE.MeshStandardMaterial({color: 0xffffff, roughness: 0.6}),
-                pos: new THREE.Vector3(0, 1.25, -1)
+                mat: new THREE.MeshStandardMaterial({color: 0xfbbf24, roughness: 0.5}),
+                h: 0.75
             },
             {
                 geo: new THREE.CylinderGeometry(0.6, 0.6, 2.2, 32),
-                mat: new THREE.MeshStandardMaterial({color: 0xffffff, roughness: 0.35, metalness: 0.4}),
-                pos: new THREE.Vector3(2.4, 1.6, 1)
+                mat: new THREE.MeshStandardMaterial({color: 0x34d399, roughness: 0.4, metalness: 0.2}),
+                h: 1.1
             },
             {
-                geo: new THREE.TorusKnotGeometry(0.55, 0.2, 100, 16),
-                mat: new THREE.MeshStandardMaterial({color: 0xffffff, roughness: 0.3, metalness: 0.5}),
-                pos: new THREE.Vector3(-1.2, 1.3, -1.6)
+                geo: new THREE.TorusKnotGeometry(0.7, 0.25, 100, 16),
+                mat: new THREE.MeshStandardMaterial({color: 0xfb7185, roughness: 0.5}),
+                h: 1.2
+            },
+            {
+                geo: new THREE.TorusGeometry(0.7, 0.28, 32, 64),
+                mat: new THREE.MeshStandardMaterial({color: 0xa78bfa, roughness: 0.4}),
+                h: 1.3
+            },
+            {
+                geo: new THREE.ConeGeometry(0.8, 1.8, 32),
+                mat: new THREE.MeshStandardMaterial({color: 0xfbbf24, roughness: 0.5}),
+                h: 0.9
+            },
+            {
+                geo: new THREE.DodecahedronGeometry(0.9),
+                mat: new THREE.MeshStandardMaterial({color: 0xffffff, roughness: 0.6}),
+                h: 1.0
+            },
+            {
+                geo: new THREE.OctahedronGeometry(0.9),
+                mat: new THREE.MeshStandardMaterial({color: 0xfb923c, roughness: 0.5}),
+                h: 0.9
+            },
+            {
+                geo: new THREE.IcosahedronGeometry(0.9),
+                mat: new THREE.MeshStandardMaterial({color: 0x2dd4bf, roughness: 0.4}),
+                h: 0.9
             },
         ];
-        meshes.forEach(({geo, mat, pos}) => {
+        const meshes: THREE.Mesh[] = [];
+        const SPACING = 3.2;
+        shapes.forEach(({geo, mat, h}, i) => {
             const mesh = new THREE.Mesh(geo, mat);
-            mesh.position.copy(pos);
+            const row = Math.floor(i / 3);
+            const col = i % 3;
+            mesh.position.set((col - 1) * SPACING, h + 0.1, (row - 1) * SPACING);
             ctx.scene.add(mesh);
+            meshes.push(mesh);
         });
 
         // 半球光：天空色 / 地面色 / 强度
@@ -173,9 +203,9 @@ scene.add(helper)</code></pre>
             controls.dispose();
             floor.geometry.dispose();
             (floor.material as THREE.Material).dispose();
-            meshes.forEach(({geo, mat}) => {
-                geo.dispose();
-                mat.dispose();
+            meshes.forEach((m) => {
+                m.geometry.dispose();
+                (m.material as THREE.Material).dispose();
             });
             panel.remove();
         });
