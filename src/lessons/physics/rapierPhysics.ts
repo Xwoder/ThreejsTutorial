@@ -106,7 +106,7 @@ export const rapierPhysics: Lesson = {
             // 地面：固定刚体 + 立方体碰撞体
             const groundBody = w.createRigidBody(R.RigidBodyDesc.fixed().setTranslation(0, -0.25, 0));
             w.createCollider(
-                R.ColliderDesc.cuboid(floorSize / 2, 0.25, floorSize / 2).setRestitution(0.2),
+                R.ColliderDesc.cuboid(floorSize / 2, 0.25, floorSize / 2).setRestitution(0.2).setFriction(0.8),
                 groundBody,
             );
 
@@ -116,7 +116,7 @@ export const rapierPhysics: Lesson = {
                     R.RigidBodyDesc.fixed().setTranslation(pos[0], pos[1], pos[2]),
                 );
                 w.createCollider(
-                    R.ColliderDesc.cuboid(size[0] / 2, size[1] / 2, size[2] / 2).setRestitution(0.2),
+                    R.ColliderDesc.cuboid(size[0] / 2, size[1] / 2, size[2] / 2).setRestitution(0.2).setFriction(0.8),
                     wallBody,
                 );
             }
@@ -167,8 +167,10 @@ export const rapierPhysics: Lesson = {
                     }
                 }
                 // 恢复系数（弹性）：球体弹得明显，其余形状偏「落地即停」
-                const restitution = currentShape === 'ball' ? 0.5 : 0.1;
+                const restitution = currentShape === 'ball' ? 0.3 : 0.1;
                 collider.setRestitution(restitution);
+                // 摩擦系数：让球体滚动一段距离后停下（地面也需有摩擦才有效）
+                collider.setFriction(currentShape === 'ball' ? 0.8 : 0.6);
                 return {geo, collider};
             };
 
@@ -188,8 +190,15 @@ export const rapierPhysics: Lesson = {
                     const mesh = new THREE.Mesh(geo, mat);
                     ctx.scene.add(mesh);
 
+                    // 角阻尼抑制滚动/旋转，让球体落地后较快停下
+                    const angularDamping = currentShape === 'ball' ? 1.5 : 0.6;
+                    const linearDamping = currentShape === 'ball' ? 0.3 : 0.1;
                     const body = w.createRigidBody(
-                        R.RigidBodyDesc.dynamic().setTranslation(x, y, z).setRotation(randomQuat()),
+                        R.RigidBodyDesc.dynamic()
+                            .setTranslation(x, y, z)
+                            .setRotation(randomQuat())
+                            .setAngularDamping(angularDamping)
+                            .setLinearDamping(linearDamping),
                     );
                     w.createCollider(collider, body);
 
