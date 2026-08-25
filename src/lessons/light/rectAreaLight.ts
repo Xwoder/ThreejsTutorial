@@ -182,59 +182,71 @@ scene.add(light);</code></pre>
                     desc: '面板发光的颜色'
                 },
                 {
-                    key: 'width',
-                    label: '宽度 width',
-                    type: 'range',
-                    min: 0.5,
-                    max: 8,
-                    step: 0.1,
-                    value: 4,
-                    precision: 1,
-                    desc: '面板的宽度'
+                    type: 'group',
+                    label: '尺寸',
+                    children: [
+                        {
+                            key: 'width',
+                            label: '宽度 width',
+                            type: 'range',
+                            min: 0.5,
+                            max: 8,
+                            step: 0.1,
+                            value: 4,
+                            precision: 1,
+                            desc: '面板的宽度'
+                        },
+                        {
+                            key: 'height',
+                            label: '高度 height',
+                            type: 'range',
+                            min: 0.5,
+                            max: 8,
+                            step: 0.1,
+                            value: 4,
+                            precision: 1,
+                            desc: '面板的高度'
+                        },
+                    ],
                 },
                 {
-                    key: 'height',
-                    label: '高度 height',
-                    type: 'range',
-                    min: 0.5,
-                    max: 8,
-                    step: 0.1,
-                    value: 4,
-                    precision: 1,
-                    desc: '面板的高度'
-                },
-                {
-                    key: 'posX',
-                    label: '位置 X position.x',
-                    type: 'range',
-                    min: -6,
-                    max: 6,
-                    step: 0.1,
-                    value: 0,
-                    precision: 1,
-                    desc: '面板在世界空间中的 X 位置'
-                },
-                {
-                    key: 'posY',
-                    label: '位置 Y position.y',
-                    type: 'range',
-                    min: 0.5,
-                    max: 8,
-                    step: 0.1,
-                    value: 4.5,
-                    precision: 1,
-                    desc: '面板离地高度'
-                },
-                {
-                    key: 'posZ',
-                    label: '位置 Z position.z',
-                    type: 'range',
-                    min: -6,
-                    max: 6,
-                    step: 0.1,
-                    value: 0,
-                    precision: 1,
-                    desc: '面板在世界空间中的 Z 位置'
+                    type: 'group',
+                    label: '位置',
+                    children: [
+                        {
+                            key: 'posX',
+                            label: '位置 X position.x',
+                            type: 'range',
+                            min: -6,
+                            max: 6,
+                            step: 0.1,
+                            value: 0,
+                            precision: 1,
+                            desc: '面板在世界空间中的 X 位置'
+                        },
+                        {
+                            key: 'posY',
+                            label: '位置 Y position.y',
+                            type: 'range',
+                            min: 0.5,
+                            max: 8,
+                            step: 0.1,
+                            value: 4.5,
+                            precision: 1,
+                            desc: '面板离地高度'
+                        },
+                        {
+                            key: 'posZ',
+                            label: '位置 Z position.z',
+                            type: 'range',
+                            min: -6,
+                            max: 6,
+                            step: 0.1,
+                            value: 0,
+                            precision: 1,
+                            desc: '面板在世界空间中的 Z 位置'
+                        },
+                    ],
                 },
                 {
                     type: 'group',
