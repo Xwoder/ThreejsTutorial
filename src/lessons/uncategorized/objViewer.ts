@@ -19,7 +19,6 @@ export const objViewer: Lesson = {
     </ul>
     <h3>技术要点</h3>
     <ul>
-      <li>.obj 本身不含单位，若模型过大/过小，可用右侧「缩放」滑块整体调节。</li>
       <li>若 OBJ 没有附带材质，会统一套用浅色 <code>MeshStandardMaterial</code>，便于观察明暗。</li>
       <li>鼠标拖动环绕、滚轮缩放、右键平移。</li>
     </ul>
@@ -37,11 +36,6 @@ export const objViewer: Lesson = {
         sun.position.set(1, 1.5, 1);
         ctx.scene.add(sun);
         ctx.scene.add(new THREE.HemisphereLight(0xbcd4ff, 0x2a2438, 0.5));
-
-        // 地面网格参考
-        const grid = new THREE.GridHelper(10, 10, 0x334155, 0x1e293b);
-        grid.visible = false;
-        ctx.scene.add(grid);
 
         const controls = new TrackballControls(camera, ctx.renderer.domElement);
         controls.rotateSpeed = 3.0;
@@ -64,9 +58,7 @@ export const objViewer: Lesson = {
         });
 
         const state = {
-            scale: 1,
             autoRotate: 0,
-            showGrid: 0,
         };
 
         // 把模型居中并缩放，使相机能框定全部内容
@@ -97,12 +89,7 @@ export const objViewer: Lesson = {
             }
             model = root;
             modelHolder.add(model);
-            applyScale();
             frameModel(model);
-        };
-
-        const applyScale = () => {
-            modelHolder.scale.setScalar(state.scale);
         };
 
         // 递归释放（避免与 helper.disposeObject3D 重复引入，这里内联实现）
@@ -221,17 +208,6 @@ export const objViewer: Lesson = {
             container,
             controls: [
                 {
-                    key: 'scale',
-                    label: '整体缩放',
-                    type: 'range',
-                    min: 0.01,
-                    max: 50,
-                    step: 0.01,
-                    value: state.scale,
-                    precision: 2,
-                    desc: '模型过大或过小时整体缩放',
-                },
-                {
                     key: 'autoRotate',
                     label: '自动旋转',
                     type: 'checkbox',
@@ -241,32 +217,14 @@ export const objViewer: Lesson = {
                     value: state.autoRotate,
                     desc: '绕 Y 轴缓慢自转',
                 },
-                {
-                    key: 'showGrid',
-                    label: '显示地面网格',
-                    type: 'checkbox',
-                    min: 0,
-                    max: 1,
-                    step: 1,
-                    value: state.showGrid,
-                    desc: '显示参考地面网格',
-                },
             ],
-            defaults: {scale: 1, autoRotate: 0, showGrid: 0},
+          defaults: {autoRotate: 0},
             footer: openGroup,
             resettable: false,
             onChange(key, value) {
                 switch (key) {
-                    case 'scale':
-                        state.scale = value;
-                        applyScale();
-                        break;
                     case 'autoRotate':
                         state.autoRotate = value >= 0.5 ? 1 : 0;
-                        break;
-                    case 'showGrid':
-                        state.showGrid = value >= 0.5 ? 1 : 0;
-                        grid.visible = state.showGrid >= 0.5;
                         break;
                 }
             },
@@ -297,8 +255,6 @@ export const objViewer: Lesson = {
             controls.dispose();
             if (model) disposeObject(model);
             defaultMaterial.dispose();
-            grid.geometry.dispose();
-            (grid.material as THREE.Material).dispose();
             panel.remove();
             openGroup.remove();
             tip.remove();

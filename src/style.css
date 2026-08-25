@@ -505,6 +505,97 @@ body {
   background: var(--panel);
   border-left: 1px solid var(--border);
   overflow-y: auto;
+  min-width: 0;
+  transition: transform 0.25s ease;
+}
+
+/* 收起说明栏时，列宽塌缩为 0，整体右移消失 */
+.layout.doc-collapsed {
+  grid-template-columns: 230px 1fr 0;
+}
+
+.layout.doc-collapsed .doc-panel {
+  transform: translateX(100%);
+  border-left: none;
+}
+
+.doc-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  border-bottom: 1px solid var(--border);
+}
+
+.doc-panel-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 说明栏内的折叠按钮：靠左对齐（右侧栏的折叠方向朝右） */
+.doc-collapse {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.doc-collapse:hover {
+  background: var(--panel-light);
+  border-color: var(--accent);
+}
+
+/* 收起后右上角的展开按钮：默认隐藏，折叠时滑入 */
+.doc-expand {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 30;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transform: translateX(12px);
+  visibility: hidden;
+  transition: opacity 0.25s ease, transform 0.25s ease,
+  background 0.2s, border-color 0.2s, visibility 0.25s;
+}
+
+.doc-expand:hover {
+  background: var(--panel-light);
+  border-color: var(--accent);
+}
+
+.layout.doc-collapsed .doc-expand.visible {
+  opacity: 1;
+  transform: translateX(0);
+  visibility: visible;
 }
 
 .doc-placeholder {

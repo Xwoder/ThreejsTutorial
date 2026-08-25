@@ -18,14 +18,22 @@ app.innerHTML = `
       <div class="empty-tip">从左侧选择一节课开始学习</div>
     </main>
     <aside class="doc-panel" id="doc-panel">
-      <div class="doc-placeholder">课程说明将显示在这里</div>
+      <div class="doc-panel-header">
+        <span class="doc-panel-title">课程说明</span>
+        <button class="doc-collapse" id="doc-collapse" title="收起说明栏" aria-label="收起说明栏">⟩</button>
+      </div>
+      <div class="doc-content" id="doc-content">
+        <div class="doc-placeholder">课程说明将显示在这里</div>
+      </div>
     </aside>
+    <button class="doc-expand" id="doc-expand" title="展开说明栏" aria-label="展开说明栏">☰</button>
   </div>
 `;
 
 const toc = document.querySelector<HTMLElement>('#toc')!;
 const viewport = document.querySelector<HTMLElement>('#viewport')!;
 const docPanel = document.querySelector<HTMLElement>('#doc-panel')!;
+const docContent = document.querySelector<HTMLElement>('#doc-content')!;
 
 let cleanup: (() => void) | null = null;
 let activeLink: HTMLButtonElement | null = null;
@@ -37,7 +45,7 @@ function selectLesson(lesson: Lesson, link: HTMLButtonElement) {
   link.classList.add('active');
   activeLink = link;
 
-  docPanel.innerHTML = `<div class="doc-content">${lesson.description}</div>`;
+  docContent.innerHTML = lesson.description;
   cleanup = lesson.create ? lesson.create(viewport) : () => {};
   history.replaceState(null, '', `/${lesson.id}`);
 }
@@ -129,6 +137,32 @@ function setSidebar(collapsed: boolean) {
 
 sidebarCollapse.addEventListener('click', () => setSidebar(true));
 sidebarExpand.addEventListener('click', () => setSidebar(false));
+
+// 右侧说明栏：同样的折叠/展开逻辑
+const docPanelEl = document.querySelector<HTMLElement>('#doc-panel')!;
+const docCollapse = document.querySelector<HTMLButtonElement>('#doc-collapse')!;
+const docExpand = document.querySelector<HTMLButtonElement>('#doc-expand')!;
+
+function setDoc(collapsed: boolean) {
+  if (collapsed) {
+    layout.classList.add('doc-collapsed');
+    docPanelEl.addEventListener(
+        'transitionend',
+        () => docExpand.classList.add('visible'),
+        {once: true}
+    );
+  } else {
+    docExpand.classList.remove('visible');
+    docExpand.addEventListener(
+        'transitionend',
+        () => layout.classList.remove('doc-collapsed'),
+        {once: true}
+    );
+  }
+}
+
+docCollapse.addEventListener('click', () => setDoc(true));
+docExpand.addEventListener('click', () => setDoc(false));
 
 /** 收集所有可打开的叶子课时（忽略仅作为标题分组的父课时） */
 function collectLeaves(): Lesson[] {
