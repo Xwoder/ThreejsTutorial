@@ -1,0 +1,169 @@
+# 由代码生成的 MTL 材质库（共 24 个材质，每个子面一种颜色）
+newmtl Face0_0
+Ka 0.1 0.1 0.1
+Kd 0.843 0.258 0.258
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+newmtl Face0_1
+Ka 0.1 0.1 0.1
+Kd 0.843 0.404 0.258
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+newmtl Face0_2
+Ka 0.1 0.1 0.1
+Kd 0.843 0.550 0.258
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+newmtl Face0_3
+Ka 0.1 0.1 0.1
+Kd 0.843 0.696 0.258
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+newmtl Face1_0
+Ka 0.1 0.1 0.1
+Kd 0.843 0.843 0.258
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+newmtl Face1_1
+Ka 0.1 0.1 0.1
+Kd 0.696 0.843 0.258
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+newmtl Face1_2
+Ka 0.1 0.1 0.1
+Kd 0.550 0.843 0.258
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+newmtl Face1_3
+Ka 0.1 0.1 0.1
+Kd 0.404 0.843 0.258
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+newmtl Face2_0
+Ka 0.1 0.1 0.1
+Kd 0.258 0.843 0.258
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+newmtl Face2_1
+Ka 0.1 0.1 0.1
+Kd 0.258 0.843 0.404
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+newmtl Face2_2
+Ka 0.1 0.1 0.1
+Kd 0.258 0.843 0.550
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+newmtl Face2_3
+Ka 0.1 0.1 0.1
+Kd 0.258 0.843 0.696
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+newmtl Face3_0
+Ka 0.1 0.1 0.1
+Kd 0.258 0.843 0.843
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+newmtl Face3_1
+Ka 0.1 0.1 0.1
+Kd 0.258 0.696 0.843
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+newmtl Face3_2
+Ka 0.1 0.1 0.1
+Kd 0.258 0.550 0.843
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+newmtl Face3_3
+Ka 0.1 0.1 0.1
+Kd 0.258 0.404 0.843
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+newmtl Face4_0
+Ka 0.1 0.1 0.1
+Kd 0.258 0.258 0.843
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+newmtl Face4_1
+Ka 0.1 0.1 0.1
+Kd 0.404 0.258 0.843
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+newmtl Face4_2
+Ka 0.1 0.1 0.1
+Kd 0.550 0.258 0.843
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+newmtl Face4_3
+Ka 0.1 0.1 0.1
+Kd 0.696 0.258 0.843
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+newmtl Face5_0
+Ka 0.1 0.1 0.1
+Kd 0.843 0.258 0.843
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+newmtl Face5_1
+Ka 0.1 0.1 0.1
+Kd 0.843 0.258 0.696
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+newmtl Face5_2
+Ka 0.1 0.1 0.1
+Kd 0.843 0.258 0.550
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2
+newmtl Face5_3
+Ka 0.1 0.1 0.1
+Kd 0.843 0.258 0.404
+Ks 0.2 0.2 0.2
+Ns 30
+d 1.0
+illum 2

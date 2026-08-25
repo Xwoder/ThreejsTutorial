@@ -32,7 +32,6 @@ app.innerHTML = `
 
 const toc = document.querySelector<HTMLElement>('#toc')!;
 const viewport = document.querySelector<HTMLElement>('#viewport')!;
-const docPanel = document.querySelector<HTMLElement>('#doc-panel')!;
 const docContent = document.querySelector<HTMLElement>('#doc-content')!;
 
 let cleanup: (() => void) | null = null;

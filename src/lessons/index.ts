@@ -40,6 +40,7 @@ import {gridHelper} from './uncategorized/gridHelper';
 import {sineTerrain} from './uncategorized/sineTerrain';
 import {worldToLocal} from './uncategorized/worldToLocal';
 import {objViewer} from './uncategorized/objViewer';
+import {objFromCode} from './objFromCode';
 import {rapierPhysics} from './physics/rapierPhysics';
 
 export const chapters: Chapter[] = [
@@ -86,7 +87,7 @@ export const chapters: Chapter[] = [
   {
     id: 'uncategorized',
     title: '未分类',
-    lessons: [arrowHelper, axesHelper, cameraHelper, gridHelper, sineTerrain, worldToLocal, objViewer],
+    lessons: [arrowHelper, axesHelper, cameraHelper, gridHelper, sineTerrain, worldToLocal, objViewer, objFromCode],
   },
   {
     id: 'physics',
