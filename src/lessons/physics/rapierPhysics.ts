@@ -106,7 +106,7 @@ export const rapierPhysics: Lesson = {
             // 地面：固定刚体 + 立方体碰撞体
             const groundBody = w.createRigidBody(R.RigidBodyDesc.fixed().setTranslation(0, -0.25, 0));
             w.createCollider(
-                R.ColliderDesc.cuboid(floorSize / 2, 0.25, floorSize / 2).setRestitution(0.4),
+                R.ColliderDesc.cuboid(floorSize / 2, 0.25, floorSize / 2).setRestitution(0.2),
                 groundBody,
             );
 
@@ -116,7 +116,7 @@ export const rapierPhysics: Lesson = {
                     R.RigidBodyDesc.fixed().setTranslation(pos[0], pos[1], pos[2]),
                 );
                 w.createCollider(
-                    R.ColliderDesc.cuboid(size[0] / 2, size[1] / 2, size[2] / 2).setRestitution(0.4),
+                    R.ColliderDesc.cuboid(size[0] / 2, size[1] / 2, size[2] / 2).setRestitution(0.2),
                     wallBody,
                 );
             }
@@ -167,7 +167,7 @@ export const rapierPhysics: Lesson = {
                     }
                 }
                 // 恢复系数（弹性）：球体弹得明显，其余形状偏「落地即停」
-                const restitution = currentShape === 'ball' ? 0.85 : 0.2;
+                const restitution = currentShape === 'ball' ? 0.5 : 0.1;
                 collider.setRestitution(restitution);
                 return {geo, collider};
             };
@@ -259,13 +259,12 @@ export const rapierPhysics: Lesson = {
                         label: labels[s],
                         active: () => currentShape === s,
                         onClick: () => {
-                            if (currentShape === s) return;
                             currentShape = s;
                             shapeGroup.sync();
                             reSpawn();
                         },
                         color: '#5dc8ff',
-                        activeColor: '#5dc8ff',
+                        activeColor: '#0f172a',
                     };
                 }),
             });
