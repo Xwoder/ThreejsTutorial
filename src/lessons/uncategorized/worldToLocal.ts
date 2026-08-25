@@ -3,6 +3,7 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import type {Lesson} from '../types';
 import {createContext, makeCleanup} from '../helper';
 import {createParamPanel} from '../../utils/paramPanel.ts';
+import {LabeledAxesHelper} from '../../utils/LabeledAxesHelper.ts';
 
 /** 生成字母贴片组：透明背景、只画字母，贴在盒子的六个面（±X/±Y/±Z）中心，从上下左右前后都能看到。 */
 function makeLetterPatches(letter: string, color: string, size: number): THREE.Group {
@@ -89,6 +90,10 @@ export const worldToLocal: Lesson = {
         // 网格与地面参考
         const grid = new THREE.GridHelper(20, 20, 0x64748b, 0x334155);
         ctx.scene.add(grid);
+
+        // 带标签的坐标轴辅助器（X 红 / Y 绿 / Z 蓝），位于原点
+        const labeledAxes = new LabeledAxesHelper(6);
+        ctx.scene.add(labeledAxes);
 
         // 三个点构成层级：A → B → C（A 是 B 的父级，B 是 C 的父级）
         // A 点代表原点：放在世界原点并固定为本地 (0,0,0)
@@ -385,6 +390,22 @@ export const worldToLocal: Lesson = {
             dom.removeEventListener('pointercancel', endDrag);
             grid.geometry.dispose();
             (grid.material as THREE.Material).dispose();
+            // 释放带标签坐标轴辅助器：Line2 线 + X/Y/Z 标签精灵
+            labeledAxes.traverse((obj) => {
+                const anyObj = obj as THREE.Object3D & {
+                    geometry?: THREE.BufferGeometry;
+                    material?: THREE.Material | THREE.Material[];
+                };
+                if (anyObj.geometry) anyObj.geometry.dispose();
+                const mat = anyObj.material;
+                if (mat) {
+                    (Array.isArray(mat) ? mat : [mat]).forEach((m) => {
+                        const map = (m as THREE.MeshBasicMaterial | THREE.SpriteMaterial).map;
+                        if (map) map.dispose();
+                        m.dispose();
+                    });
+                }
+            });
             abArrow.arrow.dispose();
             acArrow.arrow.dispose();
             bcArrow.arrow.dispose();
