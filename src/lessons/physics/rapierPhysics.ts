@@ -56,12 +56,31 @@ export const rapierPhysics: Lesson = {
         };
         syncLightToCamera();
 
-        // 地面网格（仅用于显示）
-        const groundGeo = new THREE.BoxGeometry(20, 0.5, 20);
+        // 容器（地面 + 四面矮墙）网格，仅用于显示
+        const floorSize = 20;   // 地面边长
+        const wallH = 1.2;      // 墙高（不要太⾼）
+        const wallT = 0.4;      // 墙厚
         const groundMat = new THREE.MeshStandardMaterial({color: 0x223044, roughness: 0.9});
-        const groundMesh = new THREE.Mesh(groundGeo, groundMat);
-        groundMesh.position.y = -0.25;
-        ctx.scene.add(groundMesh);
+        const wallMat = new THREE.MeshStandardMaterial({color: 0x2b3a52, roughness: 0.9});
+
+        const floorMesh = new THREE.Mesh(new THREE.BoxGeometry(floorSize, 0.5, floorSize), groundMat);
+        floorMesh.position.y = -0.25;
+        ctx.scene.add(floorMesh);
+
+        // 四面矮墙：沿 +X / -X / +Z / -Z，固定在地面边缘
+        const wallDefs: { pos: [number, number, number]; size: [number, number, number] }[] = [
+            {pos: [floorSize / 2, wallH / 2, 0], size: [wallT, wallH, floorSize]},
+            {pos: [-floorSize / 2, wallH / 2, 0], size: [wallT, wallH, floorSize]},
+            {pos: [0, wallH / 2, floorSize / 2], size: [floorSize, wallH, wallT]},
+            {pos: [0, wallH / 2, -floorSize / 2], size: [floorSize, wallH, wallT]},
+        ];
+        const wallMeshes: THREE.Mesh[] = [];
+        for (const {pos, size} of wallDefs) {
+            const m = new THREE.Mesh(new THREE.BoxGeometry(size[0], size[1], size[2]), wallMat);
+            m.position.set(pos[0], pos[1], pos[2]);
+            ctx.scene.add(m);
+            wallMeshes.push(m);
+        }
 
         let raf = 0;
         // 在 `create` 返回之后全局可见，供清理逻辑判断资源归属
@@ -86,9 +105,67 @@ export const rapierPhysics: Lesson = {
 
             // 地面：固定刚体 + 立方体碰撞体
             const groundBody = w.createRigidBody(R.RigidBodyDesc.fixed().setTranslation(0, -0.25, 0));
-            w.createCollider(R.ColliderDesc.cuboid(10, 0.25, 10), groundBody);
+            w.createCollider(R.ColliderDesc.cuboid(floorSize / 2, 0.25, floorSize / 2), groundBody);
+
+            // 四面矮墙：固定刚体，与可视网格位置/尺寸保持一致
+            for (const {pos, size} of wallDefs) {
+                const wallBody = w.createRigidBody(
+                    R.RigidBodyDesc.fixed().setTranslation(pos[0], pos[1], pos[2]),
+                );
+                w.createCollider(
+                    R.ColliderDesc.cuboid(size[0] / 2, size[1] / 2, size[2] / 2),
+                    wallBody,
+                );
+            }
 
             const colors = [0xff5d5d, 0xffb84d, 0xffe65d, 0x5dff8f, 0x5dc8ff, 0xb45dff, 0xff5dd6];
+            // 当前碰撞体形状：cube | ball | capsule | cylinder | cone
+            const shapes = ['cube', 'ball', 'capsule', 'cylinder', 'cone'] as const;
+            type Shape = (typeof shapes)[number];
+            let currentShape: Shape = 'cube';
+
+            // 根据形状创建 Three.js 几何与 Rapier 碰撞体描述
+            const buildShape = (R: typeof import('@dimforge/rapier3d-compat'), size: number) => {
+                let geo: THREE.BufferGeometry;
+                let collider: RAPIER.ColliderDesc;
+                switch (currentShape) {
+                    case 'ball': {
+                        const r = size / 2;
+                        geo = new THREE.SphereGeometry(r, 24, 16);
+                        collider = R.ColliderDesc.ball(r);
+                        break;
+                    }
+                    case 'capsule': {
+                        const r = size / 2;
+                        const halfH = size / 2; // 圆柱段半高
+                        geo = new THREE.CapsuleGeometry(r, halfH * 2, 8, 16);
+                        collider = R.ColliderDesc.capsule(halfH, r);
+                        break;
+                    }
+                    case 'cylinder': {
+                        const r = size / 2;
+                        const halfH = size / 2;
+                        geo = new THREE.CylinderGeometry(r, r, size, 24);
+                        collider = R.ColliderDesc.cylinder(halfH, r);
+                        break;
+                    }
+                    case 'cone': {
+                        const r = size / 2;
+                        const h = size;
+                        geo = new THREE.ConeGeometry(r, h, 24);
+                        collider = R.ColliderDesc.cone(h / 2, r);
+                        break;
+                    }
+                    case 'cube':
+                    default: {
+                        geo = new THREE.BoxGeometry(size, size, size);
+                        collider = R.ColliderDesc.cuboid(size / 2, size / 2, size / 2);
+                        break;
+                    }
+                }
+                return {geo, collider};
+            };
+
             const spawn = (count: number) => {
                 for (let i = 0; i < count; i++) {
                     const size = 0.8 + Math.random() * 0.6;
@@ -96,7 +173,7 @@ export const rapierPhysics: Lesson = {
                     const z = (Math.random() - 0.5) * 6;
                     const y = 4 + i * 1.2;
 
-                    const geo = new THREE.BoxGeometry(size, size, size);
+                    const {geo, collider} = buildShape(R, size);
                     const mat = new THREE.MeshStandardMaterial({
                         color: colors[i % colors.length],
                         roughness: 0.4,
@@ -108,7 +185,7 @@ export const rapierPhysics: Lesson = {
                     const body = w.createRigidBody(
                         R.RigidBodyDesc.dynamic().setTranslation(x, y, z).setRotation(randomQuat()),
                     );
-                    w.createCollider(R.ColliderDesc.cuboid(size / 2, size / 2, size / 2), body);
+                    w.createCollider(collider, body);
 
                     dynamicObjs.push({body, mesh});
                 }
@@ -160,6 +237,31 @@ export const rapierPhysics: Lesson = {
                     },
                 ],
                 defaults: {gx: gravity.x, gy: gravity.y, gz: gravity.z},
+            });
+            // 碰撞体形状切换标签（默认立方体），切换后重新生成落体
+            const shapeGroup = paramPanel.addControlGroup({
+                title: '碰撞体形状',
+                items: shapes.map((s) => {
+                    const labels: Record<Shape, string> = {
+                        cube: '立方体',
+                        ball: '球体',
+                        capsule: '胶囊体',
+                        cylinder: '圆柱体',
+                        cone: '圆锥',
+                    };
+                    return {
+                        label: labels[s],
+                        active: () => currentShape === s,
+                        onClick: () => {
+                            if (currentShape === s) return;
+                            currentShape = s;
+                            shapeGroup.sync();
+                            reSpawn();
+                        },
+                        color: '#5dc8ff',
+                        activeColor: '#5dc8ff',
+                    };
+                }),
             });
             // 底部重放按钮
             paramPanel.addControlGroup({
@@ -222,6 +324,12 @@ export const rapierPhysics: Lesson = {
                 (mesh.material as THREE.Material).dispose();
             }
             dynamicObjs.length = 0;
+            // 清理地面与四面墙
+            for (const m of [floorMesh, ...wallMeshes]) {
+                ctx.scene.remove(m);
+                m.geometry.dispose();
+                (m.material as THREE.Material).dispose();
+            }
         });
     },
 };
