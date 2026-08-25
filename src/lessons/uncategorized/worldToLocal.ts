@@ -4,20 +4,19 @@ import type {Lesson} from '../types';
 import {createContext, makeCleanup} from '../helper';
 import {createParamPanel} from '../../utils/paramPanel.ts';
 
-/** 生成字母贴片组：透明背景、只画字母，贴在球的六个方向（±X/±Y/±Z）各一小块球冠上，
- *  每块经纬度跨度很小、近似平面，字母几乎不变形，从上下左右前后都能看到。 */
-function makeLetterPatches(letter: string, color: string, radius: number): THREE.Group {
-    const size = 256;
+/** 生成字母贴片组：透明背景、只画字母，贴在盒子的六个面（±X/±Y/±Z）中心，从上下左右前后都能看到。 */
+function makeLetterPatches(letter: string, color: string, size: number): THREE.Group {
+    const canvasSize = 256;
     const canvas = document.createElement('canvas');
-    canvas.width = size;
-    canvas.height = size;
+    canvas.width = canvasSize;
+    canvas.height = canvasSize;
     const c = canvas.getContext('2d')!;
-    c.clearRect(0, 0, size, size);
+    c.clearRect(0, 0, canvasSize, canvasSize);
     c.fillStyle = color;
     c.font = 'bold 170px sans-serif';
     c.textAlign = 'center';
     c.textBaseline = 'middle';
-    c.fillText(letter, size / 2, size / 2 + 8);
+    c.fillText(letter, canvasSize / 2, canvasSize / 2 + 8);
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
     texture.anisotropy = 4;
@@ -29,29 +28,24 @@ function makeLetterPatches(letter: string, color: string, radius: number): THREE
         depthWrite: false,
     });
 
-    // 六个方向对应的球面瓦片参数（phi=经度, theta=纬度），d 控制瓦片大小
-    const d = Math.PI * 0.16;
-    const dirs = [
-        {phiStart: Math.PI / 2 - d, phiLength: d * 2, thetaStart: Math.PI / 2 - d, thetaLength: d * 2}, // +Z 前
-        {phiStart: -Math.PI / 2 - d, phiLength: d * 2, thetaStart: Math.PI / 2 - d, thetaLength: d * 2}, // -Z 后
-        {phiStart: Math.PI - d, phiLength: d * 2, thetaStart: Math.PI / 2 - d, thetaLength: d * 2}, // +X 右
-        {phiStart: -d, phiLength: d * 2, thetaStart: Math.PI / 2 - d, thetaLength: d * 2}, // -X 左
-        {phiStart: 0, phiLength: d * 2, thetaStart: 0, thetaLength: d * 2}, // +Y 上
-        {phiStart: 0, phiLength: d * 2, thetaStart: Math.PI - d * 2, thetaLength: d * 2}, // -Y 下
+    const half = size / 2;
+    const patchSize = size * 0.6;
+    // 六个面：position（贴在表面外一点）+ 朝向（通过 lookAt 让平面正对法线外侧）
+    const faces = [
+        {pos: [0, 0, half + 0.002], look: [0, 0, 1]}, // +Z 前
+        {pos: [0, 0, -half - 0.002], look: [0, 0, -1]}, // -Z 后
+        {pos: [half + 0.002, 0, 0], look: [1, 0, 0]}, // +X 右
+        {pos: [-half - 0.002, 0, 0], look: [-1, 0, 0]}, // -X 左
+        {pos: [0, half + 0.002, 0], look: [0, 1, 0]}, // +Y 上
+        {pos: [0, -half - 0.002, 0], look: [0, -1, 0]}, // -Y 下
     ];
 
     const group = new THREE.Group();
-    dirs.forEach((a) => {
-        const geo = new THREE.SphereGeometry(
-            radius * 1.002,
-            24,
-            16,
-            a.phiStart,
-            a.phiLength,
-            a.thetaStart,
-            a.thetaLength,
-        );
+    faces.forEach((f) => {
+        const geo = new THREE.PlaneGeometry(patchSize, patchSize);
         const mesh = new THREE.Mesh(geo, material);
+        mesh.position.set(f.pos[0], f.pos[1], f.pos[2]);
+        mesh.lookAt(f.look[0], f.look[1], f.look[2]);
         mesh.renderOrder = 999;
         group.add(mesh);
     });
@@ -110,33 +104,33 @@ export const worldToLocal: Lesson = {
         C.position.set(1.5, 0, 1); // 相对 B 的本地坐标
         B.add(C);
 
-        // 三个可视化小球：球用纯色，字母作为透明贴片贴在六个方向球冠上
-        const sphereA = new THREE.Mesh(
-            new THREE.SphereGeometry(0.22, 48, 48),
+        // 三个可视化小盒子：盒子用纯色，字母作为透明贴片贴在六个面中心
+        const boxA = new THREE.Mesh(
+            new THREE.BoxGeometry(0.44, 0.44, 0.44),
             new THREE.MeshStandardMaterial({color: 0xfacc15, emissive: 0x713f12, emissiveIntensity: 0.25}),
         );
-        A.add(sphereA);
-        const patchA = makeLetterPatches('A', '#ffffff', 0.22);
-        sphereA.add(patchA);
+        A.add(boxA);
+        const patchA = makeLetterPatches('A', '#ffffff', 0.44);
+        boxA.add(patchA);
 
-        const sphereB = new THREE.Mesh(
-            new THREE.SphereGeometry(0.18, 48, 48),
+        const boxB = new THREE.Mesh(
+            new THREE.BoxGeometry(0.36, 0.36, 0.36),
             new THREE.MeshStandardMaterial({color: 0x38bdf8, emissive: 0x0c4a6e, emissiveIntensity: 0.25}),
         );
-        B.add(sphereB);
-        const patchB = makeLetterPatches('B', '#ffffff', 0.18);
-        sphereB.add(patchB);
+        B.add(boxB);
+        const patchB = makeLetterPatches('B', '#ffffff', 0.36);
+        boxB.add(patchB);
 
-        const sphereC = new THREE.Mesh(
-            new THREE.SphereGeometry(0.18, 48, 48),
+        const boxC = new THREE.Mesh(
+            new THREE.BoxGeometry(0.36, 0.36, 0.36),
             new THREE.MeshStandardMaterial({color: 0xf472b6, emissive: 0x831843, emissiveIntensity: 0.25}),
         );
-        C.add(sphereC);
-        const patchC = makeLetterPatches('C', '#ffffff', 0.18);
-        sphereC.add(patchC);
+        C.add(boxC);
+        const patchC = makeLetterPatches('C', '#ffffff', 0.36);
+        boxC.add(patchC);
 
-        // 创建一个「从起点指向目标」的箭头 + 沿箭柄方向显示坐标的标签
-        const makeArrowWithLabel = (color: number) => {
+        // 创建一个「从起点指向目标」的箭头（不带文字）
+        const makeArrow = (color: number) => {
             const arrow = new THREE.ArrowHelper(
                 new THREE.Vector3(1, 0, 0),
                 new THREE.Vector3(),
@@ -147,69 +141,65 @@ export const worldToLocal: Lesson = {
             );
             ctx.scene.add(arrow);
 
-            const labelCanvas = document.createElement('canvas');
-            labelCanvas.width = 512;
-            labelCanvas.height = 128;
-            const labelTex = new THREE.CanvasTexture(labelCanvas);
-            labelTex.colorSpace = THREE.SRGBColorSpace;
-            labelTex.minFilter = THREE.LinearFilter;
-            const label = new THREE.Mesh(
-                new THREE.PlaneGeometry(1.3, 0.32),
-                new THREE.MeshBasicMaterial({
-                    map: labelTex,
-                    transparent: true,
-                    depthTest: false,
-                    side: THREE.DoubleSide,
-                }),
-            );
-            label.renderOrder = 1000;
-            ctx.scene.add(label);
-
-            const setLabel = (rel: THREE.Vector3) => {
-                const c = labelCanvas.getContext('2d')!;
-                c.clearRect(0, 0, labelCanvas.width, labelCanvas.height);
-                c.fillStyle = '#ffffff';
-                c.font = 'bold 26px sans-serif';
-                c.textAlign = 'center';
-                c.textBaseline = 'middle';
-                c.fillText(
-                    `(${rel.x.toFixed(2)}, ${rel.y.toFixed(2)}, ${rel.z.toFixed(2)})`,
-                    labelCanvas.width / 2,
-                    labelCanvas.height / 2,
-                );
-                labelTex.needsUpdate = true;
-            };
-
-            // 更新箭头与标签：from、to 为世界坐标；labelRel 为标签要显示的相对坐标（默认用世界差）
-            const update = (
-                from: THREE.Vector3,
-                to: THREE.Vector3,
-                labelRel: THREE.Vector3 = to.clone().sub(from),
-            ) => {
+            const update = (from: THREE.Vector3, to: THREE.Vector3) => {
                 const rel = to.clone().sub(from);
-                const dir = rel.clone();
-                const len = dir.length();
+                const dir = rel.clone().normalize();
+                const len = rel.length();
                 if (len > 1e-4) {
                     arrow.position.copy(from);
-                    arrow.setDirection(dir.normalize());
+                    arrow.setDirection(dir);
                     arrow.setLength(len, Math.min(0.25, len * 0.3), Math.min(0.15, len * 0.18));
                     arrow.visible = true;
-                    label.position.copy(from).add(to).multiplyScalar(0.5).add(new THREE.Vector3(0, 0.08, 0));
-                    label.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), dir.clone().normalize());
-                    label.visible = true;
-                    setLabel(labelRel);
                 } else {
                     arrow.visible = false;
-                    label.visible = false;
                 }
             };
 
-            return {arrow, label, labelTex, update};
+            return {arrow, update};
         };
 
-        const abArrow = makeArrowWithLabel(0xffffff); // A → B
-        const acArrow = makeArrowWithLabel(0xf472b6); // A → C
-        const bcArrow = makeArrowWithLabel(0x38bdf8); // B → C
+        const abArrow = makeArrow(0xffffff); // A → B
+        const acArrow = makeArrow(0xf472b6); // A → C
+        const bcArrow = makeArrow(0x38bdf8); // B → C
+
+        // 方块下方的标签：永远朝向镜头，显示该方块的世界坐标与局部坐标
+        const makeBoxLabel = () => {
+            // 用较高分辨率画布保证靠近镜头时文字依然清晰
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 288;
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.colorSpace = THREE.SRGBColorSpace;
+            tex.minFilter = THREE.LinearFilter;
+            tex.magFilter = THREE.LinearFilter;
+            const sprite = new THREE.Sprite(
+                new THREE.SpriteMaterial({map: tex, transparent: true, depthTest: false}),
+            );
+            sprite.renderOrder = 1001;
+            sprite.scale.set(1.3, 0.73, 1);
+            const setText = (world: THREE.Vector3, local: THREE.Vector3) => {
+                const c = canvas.getContext('2d')!;
+                c.clearRect(0, 0, canvas.width, canvas.height);
+                c.fillStyle = '#ffffff';
+                c.textAlign = 'center';
+                c.textBaseline = 'middle';
+                c.font = '34px sans-serif';
+                c.fillText(`世界坐标: (${world.x.toFixed(2)}, ${world.y.toFixed(2)}, ${world.z.toFixed(2)})`, canvas.width / 2, 132);
+                c.fillText(`局部坐标: (${local.x.toFixed(2)}, ${local.y.toFixed(2)}, ${local.z.toFixed(2)})`, canvas.width / 2, 216);
+                tex.needsUpdate = true;
+            };
+            return {sprite, tex, setText};
+        };
+
+        const labelA = makeBoxLabel();
+        labelA.sprite.position.set(0, -0.62, 0);
+        boxA.add(labelA.sprite);
+        const labelB = makeBoxLabel();
+        labelB.sprite.position.set(0, -0.52, 0);
+        boxB.add(labelB.sprite);
+        const labelC = makeBoxLabel();
+        labelC.sprite.position.set(0, -0.52, 0);
+        boxC.add(labelC.sprite);
 
         // 状态：A 点位置(原点基准) 与 B、C 各自的本地坐标偏移（B、C 初始随机）
         const state = {
@@ -249,8 +239,13 @@ export const worldToLocal: Lesson = {
 
             abArrow.update(aWorld, bWorld);
             acArrow.update(aWorld, cWorld);
-            // B → C：箭头从 B 指向 C（世界坐标），标签显示 C 相对 B 的本地坐标（即 C.position）
-            bcArrow.update(bWorld, cWorld, C.position.clone());
+            bcArrow.update(bWorld, cWorld);
+
+            // 每个方块下方的标签：世界坐标 + 局部坐标
+            // A 的局部坐标 = 相对父级（场景原点）的 position
+            labelA.setText(aWorld, A.position);
+            labelB.setText(bWorld, B.position);
+            labelC.setText(cWorld, C.position);
 
             // 把 C 的世界坐标转回 A 的本地坐标系（相对原点的偏移）
             const localInA = A.worldToLocal(cWorld.clone());
@@ -429,14 +424,14 @@ export const worldToLocal: Lesson = {
         const onPointerDown = (e: PointerEvent) => {
             setPointer(e);
             raycaster.setFromCamera(pointer, camera);
-            const hits = raycaster.intersectObjects([sphereB, sphereC], false);
+            const hits = raycaster.intersectObjects([boxB, boxC], false);
             if (hits.length === 0) return;
             const hit = hits[0];
-            dragTarget = hit.object === sphereB ? 'B' : 'C';
+            dragTarget = hit.object === boxB ? 'B' : 'C';
             controls.enabled = false;
             dom.setPointerCapture(e.pointerId);
-            // 拖拽平面：过球心、法线朝向相机
-            const target = dragTarget === 'B' ? sphereB : sphereC;
+            // 拖拽平面：过盒子中心、法线朝向相机
+            const target = dragTarget === 'B' ? boxB : boxC;
             const targetWorld = new THREE.Vector3();
             target.getWorldPosition(targetWorld);
             camera.getWorldDirection(planeNormal);
@@ -452,7 +447,7 @@ export const worldToLocal: Lesson = {
             if (!dragTarget) {
                 // 悬停在可拖拽球上时给出抓取光标
                 raycaster.setFromCamera(pointer, camera);
-                const hover = raycaster.intersectObjects([sphereB, sphereC], false);
+                const hover = raycaster.intersectObjects([boxB, boxC], false);
                 dom.style.cursor = hover.length ? 'grab' : '';
                 return;
             }
@@ -516,31 +511,28 @@ export const worldToLocal: Lesson = {
             grid.geometry.dispose();
             (grid.material as THREE.Material).dispose();
             abArrow.arrow.dispose();
-            abArrow.label.geometry.dispose();
-            (abArrow.label.material as THREE.Material).dispose();
-            abArrow.labelTex.dispose();
             acArrow.arrow.dispose();
-            acArrow.label.geometry.dispose();
-            (acArrow.label.material as THREE.Material).dispose();
-            acArrow.labelTex.dispose();
             bcArrow.arrow.dispose();
-            bcArrow.label.geometry.dispose();
-            (bcArrow.label.material as THREE.Material).dispose();
-            bcArrow.labelTex.dispose();
-            sphereA.geometry.dispose();
-            (sphereA.material as THREE.Material).dispose();
+            labelA.sprite.material.dispose();
+            labelA.tex.dispose();
+            labelB.sprite.material.dispose();
+            labelB.tex.dispose();
+            labelC.sprite.material.dispose();
+            labelC.tex.dispose();
+            boxA.geometry.dispose();
+            (boxA.material as THREE.Material).dispose();
             patchA.children.forEach((m) => (m as THREE.Mesh).geometry.dispose());
             (patchA.userData.material as THREE.Material).dispose();
             (patchA.userData.texture as THREE.Texture).dispose();
 
-            sphereB.geometry.dispose();
-            (sphereB.material as THREE.Material).dispose();
+            boxB.geometry.dispose();
+            (boxB.material as THREE.Material).dispose();
             patchB.children.forEach((m) => (m as THREE.Mesh).geometry.dispose());
             (patchB.userData.material as THREE.Material).dispose();
             (patchB.userData.texture as THREE.Texture).dispose();
 
-            sphereC.geometry.dispose();
-            (sphereC.material as THREE.Material).dispose();
+            boxC.geometry.dispose();
+            (boxC.material as THREE.Material).dispose();
             patchC.children.forEach((m) => (m as THREE.Mesh).geometry.dispose());
             (patchC.userData.material as THREE.Material).dispose();
             (patchC.userData.texture as THREE.Texture).dispose();
