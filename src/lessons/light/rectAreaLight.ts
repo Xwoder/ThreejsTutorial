@@ -237,37 +237,43 @@ scene.add(light);</code></pre>
                     desc: '面板在世界空间中的 Z 位置'
                 },
                 {
-                    key: 'targetX',
-                    label: '目标 X target.x',
-                    type: 'range',
-                    min: -6,
-                    max: 6,
-                    step: 0.1,
-                    value: 0,
-                    precision: 1,
-                    desc: '面板发光面正对的 X 位置'
-                },
-                {
-                    key: 'targetY',
-                    label: '目标 Y target.y',
-                    type: 'range',
-                    min: 0,
-                    max: 8,
-                    step: 0.1,
-                    value: 0,
-                    precision: 1,
-                    desc: '面板发光面正对的 Y 位置'
-                },
-                {
-                    key: 'targetZ',
-                    label: '目标 Z target.z',
-                    type: 'range',
-                    min: -6,
-                    max: 6,
-                    step: 0.1,
-                    value: 0,
-                    precision: 1,
-                    desc: '面板发光面正对的 Z 位置'
+                    type: 'group',
+                    label: '目标',
+                    children: [
+                        {
+                            key: 'targetX',
+                            label: '目标 X target.x',
+                            type: 'range',
+                            min: -6,
+                            max: 6,
+                            step: 0.1,
+                            value: 0,
+                            precision: 1,
+                            desc: '面板发光面正对的 X 位置'
+                        },
+                        {
+                            key: 'targetY',
+                            label: '目标 Y target.y',
+                            type: 'range',
+                            min: 0,
+                            max: 8,
+                            step: 0.1,
+                            value: 0,
+                            precision: 1,
+                            desc: '面板发光面正对的 Y 位置'
+                        },
+                        {
+                            key: 'targetZ',
+                            label: '目标 Z target.z',
+                            type: 'range',
+                            min: -6,
+                            max: 6,
+                            step: 0.1,
+                            value: 0,
+                            precision: 1,
+                            desc: '面板发光面正对的 Z 位置'
+                        },
+                    ],
                 },
                 {
                     key: 'showHelper',
