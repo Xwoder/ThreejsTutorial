@@ -28,7 +28,7 @@ controls.update();</code></pre>
 controls.maxDistance = 15;         // 最远距离
 controls.maxPolarAngle = Math.PI / 2.1; // 限制不能翻到地面下
 controls.autoRotate = true;        // 自动旋转展示</code></pre>
-    <p>试试在画布中操作：本例开启了自动旋转与距离/角度限制。</p>
+    <p>试试在画布中操作：本例开启了距离/角度限制（自动旋转已关闭）。</p>
   `,
   create(container) {
     const ctx = createContext(container);
@@ -59,7 +59,7 @@ controls.autoRotate = true;        // 自动旋转展示</code></pre>
     controls.minDistance = 3;
     controls.maxDistance = 15;
     controls.maxPolarAngle = Math.PI / 2.05;
-    controls.autoRotate = true;
+    controls.autoRotate = false;
     controls.autoRotateSpeed = 1.2;
     controls.target.set(0, 1.5, 0);
 
