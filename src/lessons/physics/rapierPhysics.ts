@@ -58,7 +58,7 @@ export const rapierPhysics: Lesson = {
 
         // 容器（地面 + 四面矮墙）网格，仅用于显示
         const floorSize = 20;   // 地面边长
-        const wallH = 1.2;      // 墙高（不要太⾼）
+        const wallH = 1.8;      // 墙高（不要太⾼）
         const wallT = 0.4;      // 墙厚
         const groundMat = new THREE.MeshStandardMaterial({color: 0x223044, roughness: 0.9});
         const wallMat = new THREE.MeshStandardMaterial({color: 0x2b3a52, roughness: 0.9});
@@ -105,7 +105,10 @@ export const rapierPhysics: Lesson = {
 
             // 地面：固定刚体 + 立方体碰撞体
             const groundBody = w.createRigidBody(R.RigidBodyDesc.fixed().setTranslation(0, -0.25, 0));
-            w.createCollider(R.ColliderDesc.cuboid(floorSize / 2, 0.25, floorSize / 2), groundBody);
+            w.createCollider(
+                R.ColliderDesc.cuboid(floorSize / 2, 0.25, floorSize / 2).setRestitution(0.4),
+                groundBody,
+            );
 
             // 四面矮墙：固定刚体，与可视网格位置/尺寸保持一致
             for (const {pos, size} of wallDefs) {
@@ -113,7 +116,7 @@ export const rapierPhysics: Lesson = {
                     R.RigidBodyDesc.fixed().setTranslation(pos[0], pos[1], pos[2]),
                 );
                 w.createCollider(
-                    R.ColliderDesc.cuboid(size[0] / 2, size[1] / 2, size[2] / 2),
+                    R.ColliderDesc.cuboid(size[0] / 2, size[1] / 2, size[2] / 2).setRestitution(0.4),
                     wallBody,
                 );
             }
@@ -163,6 +166,9 @@ export const rapierPhysics: Lesson = {
                         break;
                     }
                 }
+                // 恢复系数（弹性）：球体弹得明显，其余形状偏「落地即停」
+                const restitution = currentShape === 'ball' ? 0.85 : 0.2;
+                collider.setRestitution(restitution);
                 return {geo, collider};
             };
 
