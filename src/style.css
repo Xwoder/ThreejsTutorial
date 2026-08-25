@@ -33,12 +33,19 @@ body {
   grid-template-columns: 0 1fr 300px;
 }
 
+/* 侧栏整体左移消失，便于 transitionend 触发展开按钮 */
+.layout.sidebar-collapsed .sidebar {
+  transform: translateX(-100%);
+  border-right: none;
+}
+
 /* 左侧目录 */
 .sidebar {
   background: var(--panel);
   border-right: 1px solid var(--border);
   overflow-y: auto;
   min-width: 0;
+  transition: transform 0.25s ease;
 }
 
 .sidebar-header {
@@ -91,7 +98,7 @@ body {
   z-index: 30;
   width: 32px;
   height: 32px;
-  display: none;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   background: var(--panel);
@@ -102,7 +109,12 @@ body {
   line-height: 1;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  transition: background 0.2s, border-color 0.2s;
+  /* 默认隐藏在左侧外、透明，不可点击 */
+  opacity: 0;
+  transform: translateX(-12px);
+  visibility: hidden;
+  transition: opacity 0.25s ease, transform 0.25s ease,
+  background 0.2s, border-color 0.2s, visibility 0.25s;
 }
 
 .sidebar-expand:hover {
@@ -110,8 +122,11 @@ body {
   border-color: var(--accent);
 }
 
-.layout.sidebar-collapsed .sidebar-expand {
-  display: inline-flex;
+/* 侧栏消失后，由 JS 加 .visible 触发从左侧滑入出现 */
+.sidebar-expand.visible {
+  opacity: 1;
+  transform: translateX(0);
+  visibility: visible;
 }
 
 .chapter-header {

@@ -102,13 +102,29 @@ function renderLesson(lesson: Lesson, parent: HTMLElement, depth: number) {
 buildToc();
 
 const layout = document.querySelector<HTMLElement>('.layout')!;
+const sidebar = document.querySelector<HTMLElement>('#sidebar')!;
 const sidebarCollapse = document.querySelector<HTMLButtonElement>('#sidebar-collapse')!;
 const sidebarExpand = document.querySelector<HTMLButtonElement>('#sidebar-expand')!;
 
-/** 收起/展开教程栏 */
+/** 收起/展开教程栏，带先后顺序的动画 */
 function setSidebar(collapsed: boolean) {
-  layout.classList.toggle('sidebar-collapsed', collapsed);
-  sidebarExpand.classList.toggle('visible', collapsed);
+  if (collapsed) {
+    // 先收起侧栏（整体左移），等其消失后再让展开按钮滑入
+    layout.classList.add('sidebar-collapsed');
+    sidebar.addEventListener(
+        'transitionend',
+        () => sidebarExpand.classList.add('visible'),
+        {once: true}
+    );
+  } else {
+    // 先让展开按钮消失，再展开侧栏
+    sidebarExpand.classList.remove('visible');
+    sidebarExpand.addEventListener(
+        'transitionend',
+        () => layout.classList.remove('sidebar-collapsed'),
+        {once: true}
+    );
+  }
 }
 
 sidebarCollapse.addEventListener('click', () => setSidebar(true));
