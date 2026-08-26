@@ -16,8 +16,16 @@ const rapierDescription = `
     <li>为每个 Three.js 网格创建对应的刚体（<code>RigidBodyDesc</code>）与碰撞体（<code>ColliderDesc</code>）；</li>
     <li>每帧调用 <code>world.step()</code> 推进物理，再把刚体的 <code>translation / rotation</code> 同步到网格。</li>
   </ol>
-  <p>场景中：地面为<b>固定刚体</b>（static），彩色立方体为<b>动态刚体</b>（dynamic），受重力下落并相互堆叠碰撞。点击「重置」可让所有方块重新从高处落下。</p>
+  <p>场景中：地面与四面矮墙为<b>固定刚体</b>（static），彩色落体为<b>动态刚体</b>（dynamic），受重力下落并相互堆叠碰撞。面板可切换 9 种碰撞形状（立方体/球体/胶囊体/圆柱/圆锥/四面体/八面体/十二面体/二十面体），点击「重放」可让物体重新从高处落下。</p>
   <p>使用 <code>@dimforge/rapier3d-compat</code> 包，wasm 已内联为 base64，无需额外 Vite 配置即可直接运行。</p>
+  <p><b>用到的 Rapier 知识点：</b></p>
+  <ul>
+    <li><b>刚体（RigidBody）</b>：用 <code>RigidBodyDesc</code> 描述并创建。本例用到两种刚体类型——<code>fixed()</code> 固定刚体（地面、墙壁，质量视为无穷大，不参与动力学积分）与 <code>dynamic()</code> 动态刚体（落体，受重力、碰撞、摩擦等力影响）。此外 Rapier 还有第三种 <code>kinematicPositionBased() / kinematicVelocityBased()</code> 运动学刚体（由程序直接控制运动，本例未涉及）。</li>
+    <li><b>碰撞体（Collider）</b>：用 <code>ColliderDesc</code> 创建后挂到刚体上。本例展示了多种形状：<code>cuboid()</code> 立方体、<code>ball()</code> 球、<code>capsule()</code> 胶囊、<code>cylinder()</code> 圆柱、<code>cone()</code> 圆锥，以及 <code>convexHull()</code> 凸包（把四面体/八面体/十二面体/二十面体的几何顶点喂给凸包构建器，让碰撞外形与模型一致）。</li>
+    <li><b>碰撞体材质参数</b>：<code>setRestitution()</code> 恢复系数（弹性大小）、<code>setFriction()</code> 摩擦系数；刚体上的 <code>setAngularDamping()</code> 角阻尼、<code>setLinearDamping()</code> 线阻尼，用于模拟球/胶囊这类圆滚物体的落地减速。</li>
+    <li><b>世界与重力</b>：<code>World</code> 容纳所有刚体并统一推进模拟；<code>world.gravity = { x:0, y:-9.81, z:0 }</code> 设置重力向量（本例 Y 轴向下，与 Three.js 坐标系一致）。</li>
+    <li><b>时间步进与数据同步</b>：每帧调用 <code>world.step()</code> 让引擎完成一步解算（碰撞检测 + 速度/位置积分），随后把刚体的 <code>translation() / rotation()</code> 写回网格的 <code>position / quaternion</code>，实现「物理驱动渲染」。</li>
+  </ul>
 `;
 
 export const rapierPhysics: Lesson = {
