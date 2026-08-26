@@ -309,18 +309,20 @@ export const rapierPhysics: Lesson = {
                     return {
                         label: labels[s],
                         active: () => currentShape === s,
-                        onClick: () => {
-                            currentShape = s;
-                            shapeGroup.sync();
-                            reSpawn();
-                        },
+                        onClick: () => selectShape(s),
                         color: '#5dc8ff',
                         activeColor: '#0f172a',
                     };
                 }),
             });
-            // 初始默认选中「立方体」按钮
-            shapeGroup.sync();
+            // 选中某个形状：切换形状 → 同步按钮高亮 → 重新生成对应形状的落体动画
+            const selectShape = (s: Shape) => {
+                currentShape = s;
+                shapeGroup.sync();
+                reSpawn();
+            };
+            // 进入场景时立即选中「立方体」，并触发对应的落体动画
+            selectShape('cube');
             // 底部重放按钮
             paramPanel.addControlGroup({
                 title: '',
@@ -334,8 +336,6 @@ export const rapierPhysics: Lesson = {
                     },
                 ],
             });
-
-            spawn(7);
 
             const clock = new THREE.Clock();
             const loop = () => {
