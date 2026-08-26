@@ -92,7 +92,6 @@ export const ambientLight: Lesson = {
                 h: 0.9
             },
         ];
-        const meshes: THREE.Mesh[] = [];
         const SPACING = 3.2;
         shapes.forEach(({geo, mat, h}, i) => {
             const mesh = new THREE.Mesh(geo, mat);
@@ -100,7 +99,6 @@ export const ambientLight: Lesson = {
             const col = i % 3;
             mesh.position.set((col - 1) * SPACING, h + 0.1, (row - 1) * SPACING);
             ctx.scene.add(mesh);
-            meshes.push(mesh);
         });
 
         // 环境光：均匀照亮所有物体
