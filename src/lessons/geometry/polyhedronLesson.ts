@@ -7,6 +7,8 @@ import {
   tetrahedronGeometry,
 } from './polyhedron';
 
+// 注：children 顺序即左侧面板展示顺序
+
 const overviewDescription = `
   <h2>多面体 Polyhedron</h2>
   <p>这一类几何体都继承自 <code>PolyhedronGeometry</code>：你给定一组顶点与面索引，它把顶点统一投影到半径为 <code>radius</code> 的球面，再生成网格。下面 5 个课时演示了最典型的几种——其中四面体、八面体、二十面体、十二面体是五种柏拉图立体中的四个（另一个立方体即 BoxGeometry），而 <code>PolyhedronGeometry</code> 正是它们的底层基类，可直接用顶点拼出任意凸多面体。</p>
@@ -27,7 +29,7 @@ export const polyhedron: Lesson = {
     polyhedronGeometry,
     tetrahedronGeometry,
     octahedronGeometry,
-    icosahedronGeometry,
     dodecahedronGeometry,
+      icosahedronGeometry,
   ],
 };

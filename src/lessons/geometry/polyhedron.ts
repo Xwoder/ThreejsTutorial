@@ -49,21 +49,6 @@ const polyhedronDefs: PolyhedronDef[] = [
 `,
     },
     {
-        id: 'geometry/polyhedron/icosahedron-geometry',
-        title: 'IcosahedronGeometry 二十面体',
-        ctor: (r, d) => new THREE.IcosahedronGeometry(r, d),
-        description: `
-  <h2>IcosahedronGeometry 二十面体</h2>
-  <p>正二十面体：由 20 个正三角形面组成，是五种柏拉图立体之一，也是地球仪/足球（截角二十面体）的近似基础。</p>
-  <pre><code>new THREE.IcosahedronGeometry(
-  radius,  // 外接球半径
-  detail   // 细分级别（0 为原始 20 面，越大越平滑）
-)</code></pre>
-  <p>本例使用 <code>IcosahedronGeometry(1.5, 0)</code>。提高 <code>detail</code> 会把每个三角形细分，逐渐趋近球体。</p>
-  <p>左上角提供 3 个选项卡：<b>几何体</b>（原始面片）、<b>边缘</b>（<code>EdgesGeometry</code> 提取硬边棱线）、<b>框线</b>（<code>WireframeGeometry</code> 画出全部三角棱）。</p>
-`,
-    },
-    {
         id: 'geometry/polyhedron/dodecahedron-geometry',
         title: 'DodecahedronGeometry 十二面体',
         ctor: (r, d) => new THREE.DodecahedronGeometry(r, d),
@@ -75,6 +60,21 @@ const polyhedronDefs: PolyhedronDef[] = [
   detail   // 细分级别（0 为原始 12 面，越大越平滑）
 )</code></pre>
   <p>本例使用 <code>DodecahedronGeometry(1.5, 0)</code>。提高 <code>detail</code> 会把每个面细分，逐渐趋近球体。</p>
+  <p>左上角提供 3 个选项卡：<b>几何体</b>（原始面片）、<b>边缘</b>（<code>EdgesGeometry</code> 提取硬边棱线）、<b>框线</b>（<code>WireframeGeometry</code> 画出全部三角棱）。</p>
+`,
+    },
+    {
+        id: 'geometry/polyhedron/icosahedron-geometry',
+        title: 'IcosahedronGeometry 二十面体',
+        ctor: (r, d) => new THREE.IcosahedronGeometry(r, d),
+        description: `
+  <h2>IcosahedronGeometry 二十面体</h2>
+  <p>正二十面体：由 20 个正三角形面组成，是五种柏拉图立体之一，也是地球仪/足球（截角二十面体）的近似基础。</p>
+  <pre><code>new THREE.IcosahedronGeometry(
+  radius,  // 外接球半径
+  detail   // 细分级别（0 为原始 20 面，越大越平滑）
+)</code></pre>
+  <p>本例使用 <code>IcosahedronGeometry(1.5, 0)</code>。提高 <code>detail</code> 会把每个三角形细分，逐渐趋近球体。</p>
   <p>左上角提供 3 个选项卡：<b>几何体</b>（原始面片）、<b>边缘</b>（<code>EdgesGeometry</code> 提取硬边棱线）、<b>框线</b>（<code>WireframeGeometry</code> 画出全部三角棱）。</p>
 `,
     },
@@ -108,12 +108,12 @@ function makePolyhedronLesson(def: PolyhedronDef): Lesson {
 
 const tetrahedronGeometry = makePolyhedronLesson(polyhedronDefs[0]);
 const octahedronGeometry = makePolyhedronLesson(polyhedronDefs[1]);
-const icosahedronGeometry = makePolyhedronLesson(polyhedronDefs[2]);
-const dodecahedronGeometry = makePolyhedronLesson(polyhedronDefs[3]);
+const dodecahedronGeometry = makePolyhedronLesson(polyhedronDefs[2]);
+const icosahedronGeometry = makePolyhedronLesson(polyhedronDefs[3]);
 
 export {
     tetrahedronGeometry,
     octahedronGeometry,
-    icosahedronGeometry,
     dodecahedronGeometry,
+    icosahedronGeometry,
 };
