@@ -127,6 +127,25 @@ export const rapierPhysics: Lesson = {
             type Shape = (typeof shapes)[number];
             let currentShape: Shape = 'cube';
 
+            // 每种形状的物理参数键值对：
+            //   restitution 弹性（恢复系数）、friction 摩擦系数（0 无摩擦，越大越「涩」）、
+            //   angularDamping 角阻尼（抑制旋转/滚动）、linearDamping 线阻尼（抑制平移）。
+            // 胶囊体与球体同档：摩擦更高、阻尼更大，落地后能较快停下。
+            const SHAPE_PHYSICS: Record<Shape, {
+                restitution: number;
+                friction: number;
+                angularDamping: number;
+                linearDamping: number
+            }> = {
+                cube: {restitution: 0.1, friction: 0.6, angularDamping: 0.6, linearDamping: 0.1},
+                ball: {restitution: 0.3, friction: 0.8, angularDamping: 1.5, linearDamping: 0.3},
+                capsule: {restitution: 0.1, friction: 0.8, angularDamping: 1.5, linearDamping: 0.3},
+                cylinder: {restitution: 0.1, friction: 0.6, angularDamping: 0.6, linearDamping: 0.1},
+                cone: {restitution: 0.1, friction: 0.6, angularDamping: 0.6, linearDamping: 0.1},
+                octa: {restitution: 0.1, friction: 0.6, angularDamping: 0.6, linearDamping: 0.1},
+                ico: {restitution: 0.1, friction: 0.6, angularDamping: 0.6, linearDamping: 0.1},
+            };
+
             // 根据形状创建 Three.js 几何与 Rapier 碰撞体描述
             const buildShape = (R: typeof import('@dimforge/rapier3d-compat'), size: number) => {
                 let geo: THREE.BufferGeometry;
@@ -190,11 +209,9 @@ export const rapierPhysics: Lesson = {
                         break;
                     }
                 }
-                // 恢复系数（弹性）：球体弹得明显，其余形状偏「落地即停」
-                const restitution = currentShape === 'ball' ? 0.3 : 0.1;
-                collider.setRestitution(restitution);
-                // 摩擦系数：让球体滚动一段距离后停下（地面也需有摩擦才有效）
-                collider.setFriction(currentShape === 'ball' ? 0.8 : 0.6);
+                // 从形状参数表取弹性与摩擦
+                collider.setRestitution(SHAPE_PHYSICS[currentShape].restitution);
+                collider.setFriction(SHAPE_PHYSICS[currentShape].friction);
                 return {geo, collider};
             };
 
@@ -214,9 +231,8 @@ export const rapierPhysics: Lesson = {
                     const mesh = new THREE.Mesh(geo, mat);
                     ctx.scene.add(mesh);
 
-                    // 角阻尼抑制滚动/旋转，让球体落地后较快停下
-                    const angularDamping = currentShape === 'ball' ? 1.5 : 0.6;
-                    const linearDamping = currentShape === 'ball' ? 0.3 : 0.1;
+                    // 从形状参数表取阻尼（角阻尼抑制滚动/旋转，让球体/胶囊体落地后较快停下）
+                    const {angularDamping, linearDamping} = SHAPE_PHYSICS[currentShape];
                     const body = w.createRigidBody(
                         R.RigidBodyDesc.dynamic()
                             .setTranslation(x, y, z)
