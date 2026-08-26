@@ -35,7 +35,7 @@ function create(container: HTMLElement): () => void {
     scene.add(dir);
 
     // 1) 直接加载磁盘上生成的 OBJ 文件（box-from-code.obj）
-    //    注意：每次运行 `npm run gen:obj` 后刷新页面，形状都会跟着变化。
+    //    注意：每次运行 `npm run gen:obj_and_mtl` 后刷新页面，形状都会跟着变化。
     let currentObj: THREE.Object3D | null = null;
 
     // 给模型所有网格开启双面渲染（从内部也能看到面）
@@ -180,7 +180,7 @@ export const objFromCode: Lesson = {
       <code>Ka</code>/<code>Kd</code>/<code>Ks</code>（环境/漫反射/高光色）、<code>Ns</code>（高光指数）、<code>d</code>（不透明度）。</p>
     <p>因为本质是文本，<b>任何代码都能直接拼出 OBJ / MTL</b>。本例：</p>
     <ol>
-      <li>用极简生成器（<code>utils/objWriter.ts</code>）由代码构造一个立方体的 OBJ 文本；</li>
+      <li>运行生成脚本（<code>scripts/generate-obj-and-mtl.mjs</code>，即 <code>npm run gen:obj_and_mtl</code>）由代码构造一个立方体的 OBJ 文本；</li>
       <li>用官方 <code>OBJLoader</code> 把该文本解析回 Three.js 网格并实时显示；</li>
       <li>勾选左上角"加载 MTL 材质"复选框，用 <code>MTLLoader</code> 加载配套的
         <code>box-from-code.mtl</code> 并应用到模型（漫反射蓝色）。</li>
