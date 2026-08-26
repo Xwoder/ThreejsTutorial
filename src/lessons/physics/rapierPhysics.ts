@@ -121,9 +121,9 @@ export const rapierPhysics: Lesson = {
                 );
             }
 
-            const colors = [0xff5d5d, 0xffb84d, 0xffe65d, 0x5dff8f, 0x5dc8ff, 0xb45dff, 0xff5dd6];
-            // 当前碰撞体形状：cube | ball | capsule | cylinder | cone | octa(八面体) | ico(二十面体体)
-            const shapes = ['cube', 'ball', 'capsule', 'cylinder', 'cone', 'octa', 'ico'] as const;
+            const colors = [0xff5d5d, 0xffb84d, 0xffe65d, 0x5dff8f, 0x5dc8ff, 0xb45dff, 0xff5dd6, 0x5dffd6, 0x5d5dff];
+            // 当前碰撞体形状：cube | ball | capsule | cylinder | cone | tetra(四面体) | octa(八面体) | dodeca(十二面体) | ico(二十面体)
+            const shapes = ['cube', 'ball', 'capsule', 'cylinder', 'cone', 'tetra', 'octa', 'dodeca', 'ico'] as const;
             type Shape = (typeof shapes)[number];
             let currentShape: Shape = 'cube';
 
@@ -142,7 +142,9 @@ export const rapierPhysics: Lesson = {
                 capsule: {restitution: 0.1, friction: 0.8, angularDamping: 1.5, linearDamping: 0.3},
                 cylinder: {restitution: 0.1, friction: 0.6, angularDamping: 0.6, linearDamping: 0.1},
                 cone: {restitution: 0.1, friction: 0.6, angularDamping: 0.6, linearDamping: 0.1},
+                tetra: {restitution: 0.1, friction: 0.6, angularDamping: 0.6, linearDamping: 0.1},
                 octa: {restitution: 0.1, friction: 0.6, angularDamping: 0.6, linearDamping: 0.1},
+                dodeca: {restitution: 0.1, friction: 0.6, angularDamping: 0.6, linearDamping: 0.1},
                 ico: {restitution: 0.1, friction: 0.6, angularDamping: 0.6, linearDamping: 0.1},
             };
 
@@ -184,12 +186,36 @@ export const rapierPhysics: Lesson = {
                         collider = R.ColliderDesc.cuboid(size / 2, size / 2, size / 2);
                         break;
                     }
+                    case 'tetra': {
+                        const r = size / 2;
+                        const tet = new THREE.TetrahedronGeometry(r, 0);
+                        geo = tet;
+                        // 用几何体顶点构建凸包碰撞体，保证物理与外观一致
+                        const pos = tet.getAttribute('position');
+                        const verts = new Float32Array(pos.array.length);
+                        verts.set(pos.array as Float32Array);
+                        const hull = R.ColliderDesc.convexHull(verts);
+                        collider = hull ?? R.ColliderDesc.ball(r);
+                        break;
+                    }
                     case 'octa': {
                         const r = size / 2;
                         const oct = new THREE.OctahedronGeometry(r, 0);
                         geo = oct;
                         // 用几何体顶点构建凸包碰撞体，保证物理与外观一致
                         const pos = oct.getAttribute('position');
+                        const verts = new Float32Array(pos.array.length);
+                        verts.set(pos.array as Float32Array);
+                        const hull = R.ColliderDesc.convexHull(verts);
+                        collider = hull ?? R.ColliderDesc.ball(r);
+                        break;
+                    }
+                    case 'dodeca': {
+                        const r = size / 2;
+                        const dod = new THREE.DodecahedronGeometry(r, 0);
+                        geo = dod;
+                        // 用几何体顶点构建凸包碰撞体，保证物理与外观一致
+                        const pos = dod.getAttribute('position');
                         const verts = new Float32Array(pos.array.length);
                         verts.set(pos.array as Float32Array);
                         const hull = R.ColliderDesc.convexHull(verts);
@@ -303,8 +329,10 @@ export const rapierPhysics: Lesson = {
                         capsule: '胶囊体',
                         cylinder: '圆柱体',
                         cone: '圆锥',
+                        tetra: '四面体',
                         octa: '八面体',
-                        ico: '二十面体体',
+                        dodeca: '十二面体',
+                        ico: '二十面体',
                     };
                     return {
                         label: labels[s],
