@@ -319,6 +319,8 @@ export const rapierPhysics: Lesson = {
                     };
                 }),
             });
+            // 初始默认选中「立方体」按钮
+            shapeGroup.sync();
             // 底部重放按钮
             paramPanel.addControlGroup({
                 title: '',
