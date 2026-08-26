@@ -30,6 +30,6 @@ export const polyhedron: Lesson = {
     tetrahedronGeometry,
     octahedronGeometry,
     dodecahedronGeometry,
-      icosahedronGeometry,
+    icosahedronGeometry,
   ],
 };
