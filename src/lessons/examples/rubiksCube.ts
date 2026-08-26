@@ -93,8 +93,7 @@ export const rubiksCube: Lesson = {
 
         // 程序化环境贴图，为材质提供反射，产生光泽感
         const pmrem = new THREE.PMREMGenerator(ctx.renderer);
-        const envTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-        ctx.scene.environment = envTex;
+        ctx.scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
         ctx.scene.environmentIntensity = 0.4; // 降低环境反射亮度
 
         const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
