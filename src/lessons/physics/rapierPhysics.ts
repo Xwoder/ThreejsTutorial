@@ -21,8 +21,8 @@ const rapierDescription = `
 `;
 
 export const rapierPhysics: Lesson = {
-    id: 'physics/cube-drop',
-    title: '立方体落体',
+    id: 'physics/free-fall',
+    title: '自由落体',
     description: rapierDescription,
     create(container) {
         const ctx = createContext(container);
