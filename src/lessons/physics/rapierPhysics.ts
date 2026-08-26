@@ -97,8 +97,7 @@ export const rapierPhysics: Lesson = {
 
         const run = async () => {
             await import('@dimforge/rapier3d-compat').then((m) => m.init());
-            const RAPIER_NS = await import('@dimforge/rapier3d-compat');
-            const R = RAPIER_NS;
+            const R = await import('@dimforge/rapier3d-compat');
 
             const w = new R.World({x: 0, y: -9.81, z: 0});
             world = w;
