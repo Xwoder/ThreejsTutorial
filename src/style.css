@@ -14,6 +14,17 @@
   --accent: #38bdf8;
 }
 
+/* 浅色主题：在 <html> 上加 .light 类切换 */
+:root.light {
+    --bg: #f1f5f9;
+    --panel: #ffffff;
+    --panel-light: #e2e8f0;
+    --border: #cbd5e1;
+    --text: #1e293b;
+    --text-dim: #64748b;
+    --accent: #0284c7;
+}
+
 body {
   font-family: 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
   background: var(--bg);
@@ -88,6 +99,29 @@ body {
 .sidebar-collapse:hover {
   background: var(--panel-light);
   border-color: var(--accent);
+}
+
+/* 标题右侧的主题切换按钮 */
+.theme-toggle {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.theme-toggle:hover {
+    background: var(--panel-light);
+    border-color: var(--accent);
 }
 
 /* 收起后左上角的展开按钮：默认隐藏，折叠时可见 */
@@ -743,3 +777,27 @@ body {
   border-color: #38bdf8;
 }
 
+/* 浅色主题下，修正文档代码块等硬编码深色背景 */
+:root.light .doc-content code {
+    background: #e2e8f0;
+    color: #b45309;
+}
+
+:root.light .doc-content pre {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+:root.light .doc-content pre code {
+    color: #0e7490;
+}
+
+:root.light .control-group-buttons button {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+:root.light .control-group-buttons button.active {
+    background: var(--accent);
+    color: #ffffff;
+}

@@ -9,6 +9,7 @@ app.innerHTML = `
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <span class="sidebar-title">Three.js 教程</span>
+        <button class="theme-toggle" id="theme-toggle" title="切换浅色/深色主题" aria-label="切换主题">🌙</button>
         <button class="sidebar-collapse" id="sidebar-collapse" title="收起教程栏" aria-label="收起教程栏">⟨</button>
       </div>
       <nav id="toc"></nav>
@@ -136,6 +137,20 @@ function setSidebar(collapsed: boolean) {
 
 sidebarCollapse.addEventListener('click', () => setSidebar(true));
 sidebarExpand.addEventListener('click', () => setSidebar(false));
+
+// 浅色 / 深色主题切换，并持久化到 localStorage
+const themeToggle = document.querySelector<HTMLButtonElement>('#theme-toggle')!;
+const rootEl = document.documentElement;
+
+function applyTheme(light: boolean) {
+  rootEl.classList.toggle('light', light);
+  themeToggle.textContent = light ? '☀️' : '🌙';
+  themeToggle.title = light ? '切换到深色主题' : '切换到浅色主题';
+  localStorage.setItem('threejs-tutorial-theme', light ? 'light' : 'dark');
+}
+
+applyTheme(localStorage.getItem('threejs-tutorial-theme') === 'light');
+themeToggle.addEventListener('click', () => applyTheme(!rootEl.classList.contains('light')));
 
 // 右侧说明栏：同样的折叠/展开逻辑
 const docPanelEl = document.querySelector<HTMLElement>('#doc-panel')!;
