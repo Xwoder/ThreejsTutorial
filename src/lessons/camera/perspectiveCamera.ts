@@ -44,7 +44,6 @@ export const perspectiveCamera: Lesson = {
       }
     });
 
-    ctx.scene.add(new THREE.GridHelper(12, 12, 0x475569, 0x1e293b));
     // 在世界原点显示 X(红) / Y(绿) / Z(蓝) 坐标轴及文字标签
     ctx.scene.add(new LabeledAxesHelper(6));
     const material = new THREE.MeshNormalMaterial();
