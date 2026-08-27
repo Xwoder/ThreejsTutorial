@@ -49,15 +49,16 @@ function makeAxisLine(to: THREE.Vector3, color: string, width: number): Line2 {
  *
  * 用法：
  * ```ts
- * const axes = new LabeledAxesHelper(6, true);
+ * const axes = new LabeledAxesHelper(6, true, true);
  * scene.add(axes);
  * ```
  *
  * @param size 坐标轴长度
  * @param showArrow 是否在轴末端显示箭头（圆锥）
+ * @param showLabel 是否显示 X/Y/Z 文字标签
  */
 export class LabeledAxesHelper extends THREE.Group {
-    constructor(size: number, showArrow: boolean) {
+    constructor(size: number, showArrow: boolean, showLabel: boolean) {
         super();
 
         // 加粗的轴线：粗细随坐标轴尺寸等比缩放
@@ -95,11 +96,13 @@ export class LabeledAxesHelper extends THREE.Group {
             {text: 'Y', color: '#32d74b', pos: new THREE.Vector3(0, dY, 0)},
             {text: 'Z', color: '#0a84ff', pos: new THREE.Vector3(0, 0, d)},
         ];
-        labels.forEach(({text, color, pos}) => {
-            const sprite = makeAxisLabel(text, color);
-            sprite.position.copy(pos);
-            sprite.scale.set(labelScale, labelScale, labelScale);
-            this.add(sprite);
-        });
+        if (showLabel) {
+            labels.forEach(({text, color, pos}) => {
+                const sprite = makeAxisLabel(text, color);
+                sprite.position.copy(pos);
+                sprite.scale.set(labelScale, labelScale, labelScale);
+                this.add(sprite);
+            });
+        }
     }
 }

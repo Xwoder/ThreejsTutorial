@@ -93,7 +93,7 @@ export const worldToLocal: Lesson = {
         ctx.scene.add(grid);
 
         // 带标签的坐标轴辅助器（X 红 / Y 绿 / Z 蓝），位于原点
-        const labeledAxes = new LabeledAxesHelper(6, true);
+        const labeledAxes = new LabeledAxesHelper(6, true, true);
         ctx.scene.add(labeledAxes);
 
         // 三个点构成层级：A → B → C（A 是 B 的父级，B 是 C 的父级）

@@ -43,7 +43,7 @@ renderer.render(scene, camera);</code></pre>
     camera.position.set(0, 5, 18);
 
     ctx.scene.add(new THREE.GridHelper(40, 40, 0x334155, 0x1e293b));
-    ctx.scene.add(new LabeledAxesHelper(6, true));
+    ctx.scene.add(new LabeledAxesHelper(6, true, true));
 
     // 反射球（被 CubeCamera 实时捕获为环境）
     const sphereMat = new THREE.MeshStandardMaterial({
