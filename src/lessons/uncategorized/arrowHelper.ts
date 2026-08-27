@@ -44,7 +44,7 @@ export const arrowHelper: Lesson = {
         const controls = new OrbitControls(camera, ctx.renderer.domElement);
         controls.enableDamping = true;
 
-        ctx.scene.add(new LabeledAxesHelper(3));
+        ctx.scene.add(new LabeledAxesHelper(3, true));
         ctx.scene.add(new THREE.GridHelper(10, 10, 0x475569, 0x1e293b));
 
         // 可动态修改的主箭头：方向随参数变化

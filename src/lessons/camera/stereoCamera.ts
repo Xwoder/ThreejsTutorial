@@ -66,7 +66,7 @@ renderer.render(scene, stereo.cameraR); // 右眼</code></pre>
     container.append(leftTag, rightTag, divider);
 
     ctx.scene.add(new THREE.GridHelper(40, 40, 0x475569, 0x1e293b));
-    ctx.scene.add(new LabeledAxesHelper(8));
+    ctx.scene.add(new LabeledAxesHelper(8, true));
 
     // 多层立方体"墙"，深度越靠前高度越高，便于观察视差
     const cubeMat = new THREE.MeshNormalMaterial();

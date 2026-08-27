@@ -76,7 +76,7 @@ new THREE.OrthographicCamera(left, right, top, bottom, near, far)</code></pre>
         const scene = new THREE.Scene();
         setSceneBackgroundForScene(scene, BG_DARK);
         scene.add(new THREE.GridHelper(40, 20, 0x475569, 0x1e293b));
-        scene.add(new LabeledAxesHelper(6));
+        scene.add(new LabeledAxesHelper(6, true));
 
         // 立方体阵列：透视 vs 正交差异一目了然
         const material = new THREE.MeshNormalMaterial();

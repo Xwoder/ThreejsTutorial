@@ -45,7 +45,7 @@ export const perspectiveCamera: Lesson = {
     });
 
     // 在世界原点显示 X(红) / Y(绿) / Z(蓝) 坐标轴及文字标签
-    ctx.scene.add(new LabeledAxesHelper(6));
+    ctx.scene.add(new LabeledAxesHelper(6, true));
     const material = new THREE.MeshNormalMaterial();
     // 围绕原点、10×10 规格、间距 5 单位的立方体阵列（透视 vs 正交对比）
     const GRID = 10;

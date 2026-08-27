@@ -38,7 +38,7 @@ scene.add(new THREE.GridHelper(10, 10)); // 地面网格</code></pre>
       camera.updateProjectionMatrix();
     });
 
-      ctx.scene.add(new LabeledAxesHelper(2));
+    ctx.scene.add(new LabeledAxesHelper(2, true));
     ctx.scene.add(new THREE.GridHelper(10, 10, 0x475569, 0x1e293b));
 
     const box = new THREE.Mesh(

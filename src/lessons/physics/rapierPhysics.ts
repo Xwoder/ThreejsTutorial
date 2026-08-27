@@ -99,7 +99,7 @@ export const rapierPhysics: Lesson = {
         const dynamicObjs: { body: RAPIER.RigidBody; mesh: THREE.Mesh }[] = [];
 
         // 带文字标签的坐标轴辅助器：红=X, 绿=Y, 蓝=Z，便于对照重力面板的轴方向
-        axes = new LabeledAxesHelper(3);
+        axes = new LabeledAxesHelper(3, true);
         // 抬高一点点，避免 X/Z 轴与地面顶面共面而被遮挡（否则低角度看会缺一段）
         axes.position.y = 0.05;
         ctx.scene.add(axes);

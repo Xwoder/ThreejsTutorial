@@ -49,31 +49,47 @@ function makeAxisLine(to: THREE.Vector3, color: string, width: number): Line2 {
  *
  * 用法：
  * ```ts
- * const axes = new LabeledAxesHelper(6);
+ * const axes = new LabeledAxesHelper(6, true);
  * scene.add(axes);
  * ```
  *
  * @param size 坐标轴长度
+ * @param showArrow 是否在轴末端显示箭头（圆锥）
  */
 export class LabeledAxesHelper extends THREE.Group {
-    constructor(size = 6) {
+    constructor(size: number, showArrow: boolean) {
         super();
 
         // 加粗的轴线：粗细随坐标轴尺寸等比缩放
         const lineWidth = size * 0.01;
+        // 箭头（圆锥）尺寸随坐标轴尺寸等比缩放
+        const coneHeight = size * 0.08;
+        const coneRadius = size * 0.025;
         [
             {dir: new THREE.Vector3(size, 0, 0), color: '#ff453a'},
             {dir: new THREE.Vector3(0, size, 0), color: '#32d74b'},
             {dir: new THREE.Vector3(0, 0, size), color: '#0a84ff'},
         ].forEach(({dir, color}) => {
             this.add(makeAxisLine(dir, color, lineWidth));
+            if (showArrow) {
+                // 在轴线末端放置一个圆锥作为箭头，方向对齐该轴
+                const cone = new THREE.Mesh(
+                    new THREE.ConeGeometry(coneRadius, coneHeight, 16),
+                    new THREE.MeshBasicMaterial({color, depthTest: false}),
+                );
+                cone.position.copy(dir).addScaledVector(dir.clone().normalize(), coneHeight / 2);
+                cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+                cone.renderOrder = 998;
+                this.add(cone);
+            }
         });
 
-        // 标签紧贴轴末端，仅间隔很小一段距离
+        // 标签贴在轴末端之外，仅间隔很小一段距离；显示箭头时则贴到箭头尖端之外
         const labelScale = size * 0.10;
-        const d = size + labelScale * 0.25;
+        const tip = showArrow ? size + coneHeight : size;
+        const d = tip + labelScale * 0.25;
         // Y 轴竖直放置，视觉上容易贴着轴线，单独多留一点间距
-        const dY = size + labelScale * 0.4;
+        const dY = tip + labelScale * 0.4;
         const labels: { text: string; color: string; pos: THREE.Vector3 }[] = [
             {text: 'X', color: '#ff453a', pos: new THREE.Vector3(d, 0, 0)},
             {text: 'Y', color: '#32d74b', pos: new THREE.Vector3(0, dY, 0)},
