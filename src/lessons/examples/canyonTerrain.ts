@@ -2,9 +2,8 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { Lesson } from '../types';
-import {createContext, loadTexture, makeCleanup, setSceneBackground} from '../helper';
+import {createContext, loadTexture, makeCleanup, setSceneBackground, BG_CANYON} from '../helper';
 
-;
 
 import heightMapUrl from '../../assets/HeightMap/Canyon Height Maps/Canyon Height Map.png?url';
 import diffuseMapUrl from '../../assets/HeightMap/Canyon Height Maps/Canyon Diffuse.png?url';
@@ -37,7 +36,7 @@ const mat = new THREE.MeshStandardMaterial({
   `,
   create(container) {
     const ctx = createContext(container);
-      setSceneBackground(ctx, 0x1b1f24);
+      setSceneBackground(ctx, BG_CANYON);
 
     // 课程切换后置为 true：此后加载完成的贴图会被立即释放，而非应用到已销毁的材质
     let disposed = false;

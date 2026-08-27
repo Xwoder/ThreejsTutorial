@@ -2,9 +2,7 @@ import * as THREE from 'three';
 import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader.js';
 import {MTLLoader} from 'three/examples/jsm/loaders/MTLLoader.js';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
-import {createContext, makeCleanup, disposeObject3D, setSceneBackground} from './helper';
-
-;
+import {createContext, makeCleanup, disposeObject3D, setSceneBackground, BG_DARK} from './helper';
 import {createParamPanel} from '../utils/paramPanel';
 import type {Lesson} from './types';
 // 从磁盘读取真实生成的文件：?url 拿到可加载地址，?raw 拿到文本内容
@@ -23,7 +21,7 @@ function create(container: HTMLElement): () => void {
     const ctx = createContext(container);
     const {scene, renderer} = ctx;
 
-    setSceneBackground(ctx, 0x111418);
+    setSceneBackground(ctx, BG_DARK);
 
     const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
     camera.position.set(3, 2.5, 4);

@@ -1,9 +1,8 @@
 import * as THREE from 'three';
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
 import type { Lesson } from '../types';
-import {createContext, makeCleanup, setSceneBackground} from '../helper';
+import {createContext, makeCleanup, setSceneBackground, BG_DARK_BLUE} from '../helper';
 
-;
 
 export const trackballControls: Lesson = {
   id: 'controls/trackball-controls',
@@ -33,7 +32,7 @@ controls.dynamicDampingFactor = 0.15; // 阻尼系数</code></pre>
   `,
   create(container) {
     const ctx = createContext(container);
-      setSceneBackground(ctx, 0x0f172a);
+      setSceneBackground(ctx, BG_DARK_BLUE);
 
     const { width, height } = ctx.getSize();
     const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 100);

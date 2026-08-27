@@ -2,9 +2,8 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { Lesson } from '../types';
-import {createContext, loadTexture, makeCleanup, setSceneBackground} from '../helper';
+import {createContext, loadTexture, makeCleanup, setSceneBackground, BG_SKY} from '../helper';
 
-;
 
 import heightMapUrl from '../../assets/HeightMap/Mountain Range 8k Height Map/Mountain Range Height Map PNG.png?url';
 import diffuseMapUrl from '../../assets/HeightMap/Mountain Range 8k Height Map/Mountain Range Diffuse PNG.png?url';
@@ -44,7 +43,7 @@ const mat = new THREE.MeshStandardMaterial({
   `,
   create(container) {
     const ctx = createContext(container);
-      setSceneBackground(ctx, 0x87ceeb); // 天蓝色背景，模拟晴空
+      setSceneBackground(ctx, BG_SKY); // 天蓝色背景，模拟晴空
 
     // 课程切换后置为 true：此后加载完成的贴图会被立即释放，而非应用到已销毁的材质
     let disposed = false;

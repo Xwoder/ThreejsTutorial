@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {RectAreaLightHelper} from 'three/examples/jsm/helpers/RectAreaLightHelper.js';
 import type {Lesson} from '../types';
-import {createContext, makeCleanup, setSceneBackground} from '../helper';
+import {createContext, makeCleanup, setSceneBackground, BG_DARK_NAVY} from '../helper';
 import {createParamPanel} from '../../utils/paramPanel.ts';
 
 export const rectAreaLight: Lesson = {
@@ -27,7 +27,7 @@ scene.add(light);</code></pre>
   `,
     create(container) {
         const ctx = createContext(container);
-        setSceneBackground(ctx, 0x0d1b2a);
+        setSceneBackground(ctx, BG_DARK_NAVY);
 
         const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 100);
         camera.position.set(5.5, 7, 8);

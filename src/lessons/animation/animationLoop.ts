@@ -1,9 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import type { Lesson } from '../types';
-import {createContext, makeCleanup, setSceneBackground} from '../helper';
+import {createContext, makeCleanup, setSceneBackground, BG_DARK} from '../helper';
 
-;
 import {LabeledAxesHelper} from '../../utils/LabeledAxesHelper.ts';
 
 export const animationLoop: Lesson = {
@@ -28,7 +27,7 @@ cube.position.y = Math.sin(t * 2);  // 每秒 2 弧度，与帧率无关</code><
   `,
   create(container) {
     const ctx = createContext(container);
-      setSceneBackground(ctx, 0x111827);
+      setSceneBackground(ctx, BG_DARK);
 
     const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
     camera.position.set(3.2, 2.5, 6);

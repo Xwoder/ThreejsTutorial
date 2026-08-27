@@ -1,9 +1,8 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import type { Lesson } from '../types';
-import {createContext, makeCleanup, setSceneBackground} from '../helper';
+import {createContext, makeCleanup, setSceneBackground, BG_DARK} from '../helper';
 
-;
 
 export const orbitControls: Lesson = {
   id: 'controls/orbit-controls',
@@ -34,7 +33,7 @@ controls.autoRotate = true;        // 自动旋转展示</code></pre>
   `,
   create(container) {
     const ctx = createContext(container);
-      setSceneBackground(ctx, 0x111827);
+      setSceneBackground(ctx, BG_DARK);
 
     const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
     camera.position.set(4, 3, 6);

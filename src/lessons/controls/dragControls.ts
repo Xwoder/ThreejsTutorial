@@ -2,9 +2,8 @@ import * as THREE from 'three';
 import { DragControls } from 'three/examples/jsm/controls/DragControls.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import type { Lesson } from '../types';
-import {createContext, makeCleanup, setSceneBackground} from '../helper';
+import {createContext, makeCleanup, setSceneBackground, BG_DARK_BLUE} from '../helper';
 
-;
 
 export const dragControls: Lesson = {
   id: 'controls/drag-controls',
@@ -36,7 +35,7 @@ controls.addEventListener('dragend',   () => orbit.enabled = true);</code></pre>
   `,
   create(container) {
     const ctx = createContext(container);
-      setSceneBackground(ctx, 0x0f172a);
+      setSceneBackground(ctx, BG_DARK_BLUE);
 
     const { width, height } = ctx.getSize();
     const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 100);

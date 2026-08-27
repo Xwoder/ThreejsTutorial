@@ -1,9 +1,8 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import type {Lesson} from '../types';
-import {createContext, makeCleanup, setSceneBackground} from '../helper';
+import {createContext, makeCleanup, setSceneBackground, BG_DARK_BLUE} from '../helper';
 
-;
 import {createParamPanel} from '../../utils/paramPanel.ts';
 
 export const sineTerrain: Lesson = {
@@ -33,7 +32,7 @@ export const sineTerrain: Lesson = {
   `,
     create(container) {
         const ctx = createContext(container);
-        setSceneBackground(ctx, 0x0f172a);
+        setSceneBackground(ctx, BG_DARK_BLUE);
 
         const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 1000);
         camera.position.set(60, 45, 60);

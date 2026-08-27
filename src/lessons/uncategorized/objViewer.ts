@@ -2,9 +2,8 @@ import * as THREE from 'three';
 import {TrackballControls} from 'three/examples/jsm/controls/TrackballControls.js';
 import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader.js';
 import type {Lesson} from '../types';
-import {createContext, makeCleanup, setSceneBackground} from '../helper';
+import {createContext, makeCleanup, setSceneBackground, BG_DARK_BLUE} from '../helper';
 
-;
 import {createParamPanel} from '../../utils/paramPanel.ts';
 
 export const objViewer: Lesson = {
@@ -27,7 +26,7 @@ export const objViewer: Lesson = {
   `,
     create(container) {
         const ctx = createContext(container);
-        setSceneBackground(ctx, 0x0f172a);
+        setSceneBackground(ctx, BG_DARK_BLUE);
 
         const camera = new THREE.PerspectiveCamera(50, 1, 0.01, 100000);
         camera.position.set(0, 0, 10);

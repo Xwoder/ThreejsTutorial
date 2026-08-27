@@ -2,9 +2,8 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type {Lesson} from '../types';
-import {createContext, loadTexture, makeCleanup, setSceneBackground} from '../helper';
+import {createContext, loadTexture, makeCleanup, setSceneBackground, BG_DARK} from '../helper';
 
-;
 import {createParamPanel} from '../../utils/paramPanel.ts';
 
 import albedoUrl from '../../assets/PbrTexture/leafy-grass2-bl/leafy-grass2-albedo.png?url';
@@ -42,7 +41,7 @@ export const pbrGrass: Lesson = {
   `,
     create(container) {
         const ctx = createContext(container);
-        setSceneBackground(ctx, 0x111827);
+        setSceneBackground(ctx, BG_DARK);
 
         // 课程切换后置为 true：此后加载完成的贴图会被立即释放，而非应用到已销毁的材质
         let disposed = false;

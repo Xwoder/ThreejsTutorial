@@ -59,9 +59,29 @@ export interface SceneContext {
   dispose: () => void;
 }
 
+/** 场景背景色常量：集中管理，避免各课程散落魔法数字 */
+/** 通用深灰底（绝大多数课程默认背景） */
+export const BG_DARK = 0x111827;
+/** 偏蓝深底（物理、部分控制器课程） */
+export const BG_DARK_BLUE = 0x0f172a;
+/** 深海军蓝（灯光类课程） */
+export const BG_DARK_NAVY = 0x0d1b2a;
+/** 深石板色（方向光、飞行/立方相机） */
+export const BG_DARK_SLATE = 0x0b1120;
+/** 深墨色（魔方课程） */
+export const BG_DARK_INK = 0x0b1020;
+/** 深面板色（地图控制器） */
+export const BG_DARK_PANEL = 0x0b1220;
+/** 峡谷暖深底（峡谷示例，保留为命名常量） */
+export const BG_CANYON = 0x1b1f24;
+/** 晴空蓝（山脉地形示例，模拟天空） */
+export const BG_SKY = 0x87ceeb;
+/** 星空黑（太阳系示例） */
+export const BG_SPACE = 0x05070f;
+
 /**
  * 统一设置场景背景色。仅负责设置背景，不参与主题切换——
- * 各课程传入自己的深色/黑色底色（如 0x111827），浅色模式下也保持该深色。
+ * 各课程传入自己的深色/黑色底色，浅色模式下也保持该深色。
  */
 export function setSceneBackground(ctx: SceneContext, hex: number): void {
   ctx.scene.background = new THREE.Color(hex);

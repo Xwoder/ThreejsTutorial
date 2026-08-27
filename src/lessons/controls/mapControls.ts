@@ -1,9 +1,8 @@
 import * as THREE from 'three';
 import { MapControls } from 'three/examples/jsm/controls/MapControls.js';
 import type { Lesson } from '../types';
-import {createContext, makeCleanup, setSceneBackground} from '../helper';
+import {createContext, makeCleanup, setSceneBackground, BG_DARK_PANEL} from '../helper';
 
-;
 
 export const mapControls: Lesson = {
   id: 'controls/map-controls',
@@ -35,7 +34,7 @@ controls.maxPolarAngle = Math.PI / 2;// 限制不能翻到地面下</code></pre>
   `,
   create(container) {
     const ctx = createContext(container);
-      setSceneBackground(ctx, 0x0b1220);
+      setSceneBackground(ctx, BG_DARK_PANEL);
 
     const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 200);
     camera.position.set(0, 14, 18);

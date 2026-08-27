@@ -3,9 +3,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { Lesson } from '../types';
-import {createContext, disposeObject3D, makeCleanup, setSceneBackground} from '../helper';
+import {createContext, disposeObject3D, makeCleanup, setSceneBackground, BG_DARK} from '../helper';
 
-;
 import {createParamPanel} from '../../utils/paramPanel.ts';
 
 import modelUrl from '../../assets/model/AIRCO_DH2_v2_by_Joshua_Johanson_9iVI9GHMleJ.glb?url';
@@ -30,7 +29,7 @@ loader.load(url, (gltf) => {
   `,
   create(container) {
     const ctx = createContext(container);
-      setSceneBackground(ctx, 0x111827);
+      setSceneBackground(ctx, BG_DARK);
 
     // 环境贴图：为 PBR 材质提供基于图像的照明
     const pmrem = new THREE.PMREMGenerator(ctx.renderer);

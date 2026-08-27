@@ -1,8 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import {createContext, makeCleanup, setSceneBackground} from '../helper';
+import {createContext, makeCleanup, setSceneBackground, BG_DARK} from '../helper';
 
-;
 import {createParamPanel, type ParamSlider} from '../../utils/paramPanel.ts';
 import type { Lesson } from '../types';
 
@@ -48,7 +47,7 @@ export function makeGeometryLesson(opts: GeometryLessonOptions): Lesson {
     description,
     create(container) {
       const ctx = createContext(container);
-        setSceneBackground(ctx, 0x111827);
+      setSceneBackground(ctx, BG_DARK);
 
       const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
       camera.position.set(...cameraPos);
