@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import type { Lesson } from '../types';
-import {createContext, makeCleanup} from '../helper';
+import {setSceneBackground, createContext, makeCleanup} from '../helper';
 import {LabeledAxesHelper} from '../../utils/LabeledAxesHelper.ts';
 import {createParamPanel, type ParamSlider} from '../../utils/paramPanel.ts';
 
@@ -34,7 +34,7 @@ const camera = new THREE.OrthographicCamera(
   `,
   create(container) {
     const ctx = createContext(container);
-    ctx.scene.background = new THREE.Color(0x111827);
+      setSceneBackground(ctx, 0x111827);
 
     let currentView = DEFAULT_VIEW;
     const camera = new THREE.OrthographicCamera(-DEFAULT_VIEW, DEFAULT_VIEW, DEFAULT_VIEW, -DEFAULT_VIEW, DEFAULT_NEAR, DEFAULT_FAR);

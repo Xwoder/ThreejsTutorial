@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 import type { Lesson } from '../types';
-import { createContext, makeCleanup } from '../helper';
+import {setSceneBackground, createContext, makeCleanup} from '../helper';
 import {createControlPanelGroup} from '../../utils/controlPanel';
 
 export const transformControls: Lesson = {
@@ -40,7 +40,7 @@ control.setSpace('world'   | 'local');  // 世界坐标 / 本地坐标</code></p
   `,
   create(container) {
     const ctx = createContext(container);
-    ctx.scene.background = new THREE.Color(0x0f172a);
+      setSceneBackground(ctx, 0x0f172a);
 
     const { width, height } = ctx.getSize();
     const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 100);

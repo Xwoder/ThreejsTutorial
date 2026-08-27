@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import type { Lesson } from '../types';
-import {createContext, makeCleanup} from '../helper';
+import {setSceneBackground, createContext, makeCleanup} from '../helper';
 import {LabeledAxesHelper} from '../../utils/LabeledAxesHelper.ts';
 import {createParamPanel, type ParamSlider} from '../../utils/paramPanel.ts';
 
@@ -29,7 +29,7 @@ export const perspectiveCamera: Lesson = {
   `,
   create(container) {
     const ctx = createContext(container);
-    ctx.scene.background = new THREE.Color(0x111827);
+      setSceneBackground(ctx, 0x111827);
 
     const camera = new THREE.PerspectiveCamera(DEFAULT_FOV, 1, DEFAULT_NEAR, DEFAULT_FAR);
     camera.position.set(0, 2, 6);

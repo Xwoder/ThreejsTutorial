@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type {Lesson} from '../types';
-import {createContext, makeCleanup} from '../helper';
+import {setSceneBackground, createContext, makeCleanup} from '../helper';
 import {createParamPanel} from '../../utils/paramPanel.ts';
 
 /** 生成带文字的小标签 sprite（用于显示材质参数） */
@@ -61,7 +61,7 @@ export const meshStandardMaterial: Lesson = {
   `,
     create(container) {
         const ctx = createContext(container);
-        ctx.scene.background = new THREE.Color(0x111827);
+        setSceneBackground(ctx, 0x111827);
 
         // 程序化环境贴图，为金属材质提供反射来源，产生光泽感
         const pmrem = new THREE.PMREMGenerator(ctx.renderer);

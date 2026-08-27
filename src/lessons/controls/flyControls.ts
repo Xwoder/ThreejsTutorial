@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { FlyControls } from 'three/examples/jsm/controls/FlyControls.js';
 import type { Lesson } from '../types';
-import { createContext, makeCleanup } from '../helper';
+import {setSceneBackground, createContext, makeCleanup} from '../helper';
 
 export const flyControls: Lesson = {
   id: 'controls/fly-controls',
@@ -33,7 +33,7 @@ controls.dragToLook = true;      // 拖拽时才转向，否则持续跟随鼠�
   `,
   create(container) {
     const ctx = createContext(container);
-    ctx.scene.background = new THREE.Color(0x0b1120);
+      setSceneBackground(ctx, 0x0b1120);
     ctx.scene.fog = new THREE.FogExp2(0x0b1120, 0.02);
 
     const camera = new THREE.PerspectiveCamera(70, 1, 0.1, 1000);

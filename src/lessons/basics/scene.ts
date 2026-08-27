@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import type { Lesson } from '../types';
-import { createContext, makeCleanup } from '../helper';
+import {setSceneBackground, createContext, makeCleanup} from '../helper';
 
 export const scene: Lesson = {
   id: 'basics/first-scene',
@@ -32,7 +32,7 @@ renderer.render(scene, camera);</code></pre>
   `,
   create(container) {
     const ctx = createContext(container);
-    ctx.scene.background = new THREE.Color(0x111827);
+      setSceneBackground(ctx, 0x111827);
 
     const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
     camera.position.z = 3;

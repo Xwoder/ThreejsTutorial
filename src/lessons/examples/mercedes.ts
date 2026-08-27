@@ -3,7 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type { Lesson } from '../types';
-import {createContext, disposeObject3D, makeCleanup} from '../helper';
+import {setSceneBackground, createContext, disposeObject3D, makeCleanup} from '../helper';
 
 import modelUrl from '../../assets/model/1996_mercedes-benz_e50_amg_w210.glb?url';
 
@@ -27,7 +27,7 @@ loader.load(url, (gltf) => {
   `,
   create(container) {
     const ctx = createContext(container);
-    ctx.scene.background = new THREE.Color(0x111827);
+      setSceneBackground(ctx, 0x111827);
 
     // 环境贴图：为 PBR 材质提供基于图像的照明，让车漆/金属更亮更通透
     const pmrem = new THREE.PMREMGenerator(ctx.renderer);

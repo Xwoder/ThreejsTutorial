@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { ArcballControls } from 'three/examples/jsm/controls/ArcballControls.js';
 import type { Lesson } from '../types';
-import { createContext, makeCleanup } from '../helper';
+import {setSceneBackground, createContext, makeCleanup} from '../helper';
 
 export const arcballControls: Lesson = {
   id: 'controls/arcball-controls',
@@ -32,7 +32,7 @@ controls.setGizmosVisible(false);   // 是否显示旋转辅助线</code></pre>
   `,
   create(container) {
     const ctx = createContext(container);
-    ctx.scene.background = new THREE.Color(0x0f172a);
+      setSceneBackground(ctx, 0x0f172a);
 
     const { width, height } = ctx.getSize();
     const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 100);

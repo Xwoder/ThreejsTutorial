@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
-import {createContext, makeCleanup} from '../helper';
+import {setSceneBackground, createContext, makeCleanup} from '../helper';
 import type {Lesson} from '../types';
 import {LabeledAxesHelper} from '../../utils/LabeledAxesHelper.ts';
 import {createParamPanel} from '../../utils/paramPanel.ts';
@@ -34,7 +34,7 @@ export const rapierPhysics: Lesson = {
     description: rapierDescription,
     create(container) {
         const ctx = createContext(container);
-        ctx.scene.background = new THREE.Color(0x0f172a);
+        setSceneBackground(ctx, 0x0f172a);
 
         const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
         camera.position.set(11, 9, 14);

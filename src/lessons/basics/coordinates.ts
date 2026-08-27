@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import type { Lesson } from '../types';
-import {createContext, makeCleanup} from '../helper';
+import {setSceneBackground, createContext, makeCleanup} from '../helper';
 import {LabeledAxesHelper} from '../../utils/LabeledAxesHelper.ts';
 
 export const coordinates: Lesson = {
@@ -27,7 +27,7 @@ scene.add(new THREE.GridHelper(10, 10)); // 地面网格</code></pre>
   `,
   create(container) {
     const ctx = createContext(container);
-    ctx.scene.background = new THREE.Color(0x111827);
+      setSceneBackground(ctx, 0x111827);
 
     const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
     camera.position.set(3, 2.5, 4);

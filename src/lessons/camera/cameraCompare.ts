@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import type {Lesson} from '../types';
 import {LabeledAxesHelper} from '../../utils/LabeledAxesHelper.ts';
+import {setStandaloneSceneBackground} from '../helper';
 
 const PERSP_FOV = 55;
 const CAMERA_POSITION = new THREE.Vector3(20, 14, 20);
@@ -72,7 +73,7 @@ new THREE.OrthographicCamera(left, right, top, bottom, near, far)</code></pre>
 
         // 共享同一个场景
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x111827);
+        setStandaloneSceneBackground(scene, 0x111827);
         scene.add(new THREE.GridHelper(40, 20, 0x475569, 0x1e293b));
         scene.add(new LabeledAxesHelper(6));
 

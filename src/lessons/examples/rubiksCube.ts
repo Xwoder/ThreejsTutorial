@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type {Lesson} from '../types';
-import {createContext, makeCleanup} from '../helper';
+import {setSceneBackground, createContext, makeCleanup} from '../helper';
 
 // 标准三阶魔方的六个面颜色（左、右、上、下、前、后）
 const FACE_COLORS = {
@@ -89,7 +89,7 @@ export const rubiksCube: Lesson = {
   `,
     create(container) {
         const ctx = createContext(container);
-        ctx.scene.background = new THREE.Color(0x0b1020);
+        setSceneBackground(ctx, 0x0b1020);
 
         // 程序化环境贴图，为材质提供反射，产生光泽感
         const pmrem = new THREE.PMREMGenerator(ctx.renderer);
