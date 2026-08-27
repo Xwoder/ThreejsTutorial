@@ -2,7 +2,9 @@ import * as THREE from 'three';
 import {TrackballControls} from 'three/examples/jsm/controls/TrackballControls.js';
 import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader.js';
 import type {Lesson} from '../types';
-import {setSceneBackground, createContext, makeCleanup} from '../helper';
+import {createContext, makeCleanup, setSceneBackground} from '../helper';
+
+;
 import {createParamPanel} from '../../utils/paramPanel.ts';
 
 export const objViewer: Lesson = {

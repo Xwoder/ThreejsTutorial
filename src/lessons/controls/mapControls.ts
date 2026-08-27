@@ -1,7 +1,9 @@
 import * as THREE from 'three';
 import { MapControls } from 'three/examples/jsm/controls/MapControls.js';
 import type { Lesson } from '../types';
-import {setSceneBackground, createContext, makeCleanup} from '../helper';
+import {createContext, makeCleanup, setSceneBackground} from '../helper';
+
+;
 
 export const mapControls: Lesson = {
   id: 'controls/map-controls',

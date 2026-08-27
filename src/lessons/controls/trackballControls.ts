@@ -1,7 +1,9 @@
 import * as THREE from 'three';
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
 import type { Lesson } from '../types';
-import {setSceneBackground, createContext, makeCleanup} from '../helper';
+import {createContext, makeCleanup, setSceneBackground} from '../helper';
+
+;
 
 export const trackballControls: Lesson = {
   id: 'controls/trackball-controls',

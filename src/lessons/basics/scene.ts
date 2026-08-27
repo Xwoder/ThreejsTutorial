@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import type { Lesson } from '../types';
-import {setSceneBackground, createContext, makeCleanup} from '../helper';
+import {createContext, makeCleanup, setSceneBackground} from '../helper';
+
+;
 
 export const scene: Lesson = {
   id: 'basics/first-scene',

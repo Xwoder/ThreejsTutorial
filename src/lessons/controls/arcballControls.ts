@@ -1,7 +1,9 @@
 import * as THREE from 'three';
 import { ArcballControls } from 'three/examples/jsm/controls/ArcballControls.js';
 import type { Lesson } from '../types';
-import {setSceneBackground, createContext, makeCleanup} from '../helper';
+import {createContext, makeCleanup, setSceneBackground} from '../helper';
+
+;
 
 export const arcballControls: Lesson = {
   id: 'controls/arcball-controls',

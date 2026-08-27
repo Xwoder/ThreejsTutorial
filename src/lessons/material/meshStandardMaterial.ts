@@ -2,7 +2,9 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type {Lesson} from '../types';
-import {setSceneBackground, createContext, makeCleanup} from '../helper';
+import {createContext, makeCleanup, setSceneBackground} from '../helper';
+
+;
 import {createParamPanel} from '../../utils/paramPanel.ts';
 
 /** 生成带文字的小标签 sprite（用于显示材质参数） */

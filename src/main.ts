@@ -1,7 +1,6 @@
 import './style.css';
 import { chapters } from './lessons';
 import type { Lesson } from './lessons/types';
-import {refreshThemeBackgrounds} from './lessons/helper';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
 
@@ -153,7 +152,6 @@ function applyTheme(light: boolean) {
 applyTheme(localStorage.getItem('threejs-tutorial-theme') === 'light');
 themeToggle.addEventListener('click', () => {
   applyTheme(!rootEl.classList.contains('light'));
-  refreshThemeBackgrounds();
 });
 
 // 右侧说明栏：同样的折叠/展开逻辑

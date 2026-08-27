@@ -2,7 +2,9 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {DragControls} from 'three/examples/jsm/controls/DragControls.js';
 import type {Lesson} from '../types';
-import {setSceneBackground, createContext, makeCleanup} from '../helper';
+import {createContext, makeCleanup, setSceneBackground} from '../helper';
+
+;
 import {createParamPanel} from '../../utils/paramPanel.ts';
 
 export const spotLight: Lesson = {

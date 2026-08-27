@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import type { Lesson } from '../types';
-import {setSceneBackground, createContext, makeCleanup} from '../helper';
+import {createContext, makeCleanup, setSceneBackground} from '../helper';
+
+;
 import {LabeledAxesHelper} from '../../utils/LabeledAxesHelper.ts';
 
 export const coordinates: Lesson = {

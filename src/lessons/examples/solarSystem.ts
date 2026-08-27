@@ -1,7 +1,9 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import type {Lesson} from '../types';
-import {createContext, makeCleanup} from '../helper';
+import {createContext, makeCleanup, setSceneBackground} from '../helper';
+
+;
 
 /** 在 canvas 上随机散布斑块，用于给球体增加可见纹理 */
 function makeBlobTexture(base: string, blob: string, count: number, size = 512): THREE.CanvasTexture {
@@ -45,7 +47,7 @@ export const solarSystem: Lesson = {
         const ctx = createContext(container);
 
         /* 场景的背景 */
-        ctx.scene.background = new THREE.Color(0x05070f);
+        setSceneBackground(ctx, 0x05070f);
         /* 场景的环境光 */
         ctx.scene.add(new THREE.AmbientLight(0xffffff, 0.15));
 

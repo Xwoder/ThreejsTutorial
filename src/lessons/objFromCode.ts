@@ -2,7 +2,9 @@ import * as THREE from 'three';
 import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader.js';
 import {MTLLoader} from 'three/examples/jsm/loaders/MTLLoader.js';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
-import {setSceneBackground, createContext, makeCleanup, disposeObject3D} from './helper';
+import {createContext, makeCleanup, disposeObject3D, setSceneBackground} from './helper';
+
+;
 import {createParamPanel} from '../utils/paramPanel';
 import type {Lesson} from './types';
 // 从磁盘读取真实生成的文件：?url 拿到可加载地址，?raw 拿到文本内容

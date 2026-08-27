@@ -57,48 +57,19 @@ export interface SceneContext {
   getSize: () => { width: number; height: number };
   /** 释放内部资源（ResizeObserver 等），由 makeCleanup 自动调用 */
   dispose: () => void;
-    /** 若该场景背景交由主题管理，则记录其在深色主题下使用的底色 */
-    _themeDarkBg?: number;
-}
-
-/** 浅色主题下所有跟随主题的 3D 场景统一底色 */
-const LIGHT_BG = 0xf1f5f9;
-
-/** 当前所有"背景由主题管理"的场景 -> 深色主题底色，用于切换主题时统一刷新 */
-const themeBackgrounds: Map<THREE.Scene, number> = new Map();
-
-/** 读取当前是否为浅色主题（与 main.ts 的 .light 约定一致） */
-function isLightTheme(): boolean {
-    return document.documentElement.classList.contains('light');
 }
 
 /**
- * 设置场景背景并使其跟随浅色/深色主题切换。
- * - 深色主题使用传入的 darkHex（即各课程原本的底色，保持原貌）。
- * - 浅色主题统一使用浅色底，避免画布在浅色界面里仍是黑块。
- * 传入 Texture（如天空贴图）或特殊语义底色（星空、天蓝等）的课程请勿使用本函数，
- * 直接 `scene.background = ...` 即可，它们不参与主题切换。
+ * 统一设置场景背景色。仅负责设置背景，不参与主题切换——
+ * 各课程传入自己的深色/黑色底色（如 0x111827），浅色模式下也保持该深色。
  */
-export function setSceneBackground(ctx: SceneContext, darkHex: number): void {
-    ctx._themeDarkBg = darkHex;
-    applyThemeBg(ctx.scene, darkHex);
+export function setSceneBackground(ctx: SceneContext, hex: number): void {
+  ctx.scene.background = new THREE.Color(hex);
 }
 
-/** 为没有 ctx 的独立场景（如对比课程共用一个 scene）登记主题背景 */
-export function setStandaloneSceneBackground(scene: THREE.Scene, darkHex: number): void {
-    applyThemeBg(scene, darkHex);
-}
-
-function applyThemeBg(scene: THREE.Scene, darkHex: number): void {
-    scene.background = new THREE.Color(isLightTheme() ? LIGHT_BG : darkHex);
-    themeBackgrounds.set(scene, darkHex);
-}
-
-/** 主题切换时，刷新所有由主题管理的场景背景；贴图/特殊背景不受影响 */
-export function refreshThemeBackgrounds(): void {
-    themeBackgrounds.forEach((darkHex, scene) => {
-        scene.background = new THREE.Color(isLightTheme() ? LIGHT_BG : darkHex);
-    });
+/** 为没有 ctx 的独立场景（如对比课程共用一个 scene）统一设置背景色 */
+export function setSceneBackgroundForScene(scene: THREE.Scene, hex: number): void {
+  scene.background = new THREE.Color(hex);
 }
 
 /** 创建渲染器并处理容器尺寸变化，返回清理函数由调用方组合 */
@@ -212,8 +183,6 @@ export function makeCleanup(
 ): () => void {
   return () => {
     extra?.();
-      // 从主题背景管理中移除，避免切换主题时刷新已销毁的场景
-      themeBackgrounds.delete(ctx.scene);
     // 断开 ResizeObserver，停止对容器尺寸变化的监听
     ctx.dispose();
     // 释放场景中的几何体、材质与纹理

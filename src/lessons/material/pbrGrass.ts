@@ -2,7 +2,9 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type {Lesson} from '../types';
-import {setSceneBackground, createContext, loadTexture, makeCleanup} from '../helper';
+import {createContext, loadTexture, makeCleanup, setSceneBackground} from '../helper';
+
+;
 import {createParamPanel} from '../../utils/paramPanel.ts';
 
 import albedoUrl from '../../assets/PbrTexture/leafy-grass2-bl/leafy-grass2-albedo.png?url';
