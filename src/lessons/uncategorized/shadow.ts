@@ -102,6 +102,8 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
 
         /** 网格间距，与 point-light 课程保持一致 */
         const SPACING = 3.2;
+        /** 几何体整体悬浮高度：底部离地的间距，越高影子越"飘" */
+        const HOVER_Y = 0.8;
         const shapeDefs: {
             geo: THREE.BufferGeometry;
             color: number;
@@ -178,7 +180,7 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
             const mesh = new THREE.Mesh(d.geo, mat);
             const row = Math.floor(i / 3);
             const col = i % 3;
-            mesh.position.set((col - 1) * SPACING, restY, (row - 1) * SPACING);
+            mesh.position.set((col - 1) * SPACING, restY + HOVER_Y, (row - 1) * SPACING);
             mesh.castShadow = true;
             mesh.receiveShadow = true;
             ctx.scene.add(mesh);
@@ -239,8 +241,10 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                 lightHelper = new THREE.DirectionalLightHelper(l, 2, 0xfacc15);
                 shadowCamera = l.shadow.camera;
             } else if (type === 'point') {
-                // 点光源强度用 candela（物理单位），随距离平方反比衰减，
-                // 在 ~10 单位距离外需要上百量级才够亮（平行光的 3 是"光照"单位，不衰减）。
+                // 点光源强度用 candela（物理单位），随距离平方反比衰减。
+                // 没有方向概念，光照强弱完全由距离决定，故初始放在较近的高度（POINT_Y），
+                // 衰减更小、更亮、阴影更明显。
+                state.posY = POINT_Y;
                 const l = new THREE.PointLight(0xffffff, intensity, state.distance, state.decay);
                 l.position.set(0, state.posY, 0);
                 ctx.scene.add(l);
@@ -248,6 +252,8 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                 lightHelper = new THREE.PointLightHelper(l, 0.4, 0xfacc15);
                 shadowCamera = l.shadow.camera;
             } else {
+                // 聚光光源初始位置比点光源稍远（SPOT_Y），光锥能照到更大的地面范围
+                state.posY = SPOT_Y;
                 const l = new THREE.SpotLight(0xffffff, intensity, state.distance, THREE.MathUtils.degToRad(state.angle), state.penumbra, state.decay);
                 l.position.set(0, state.posY, 0);
                 l.target.position.set(0, 0, 0);
@@ -304,6 +310,10 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
 
         // ---------- 状态 ----------
         const LIGHT_DIST = 14;
+        /** 点光源初始高度：放得近一些，平方反比衰减更小，光照/阴影更明显（聚光仍用 state.posY） */
+        const POINT_Y = 6;
+        /** 聚光光源初始高度：比点光源稍远一点，光锥能照到更大的地面范围 */
+        const SPOT_Y = 12;
         /** 几何体自转的基础角速度（弧度/秒），各物体再乘以自身的 speed 系数 */
         const SPIN_SPEED = 0.3;
         const state = {
@@ -319,7 +329,6 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
             // 聚光光源专属
             angle: 35,
             penumbra: 0.3,
-            hover: 0.8,
             radius: 2,
             bias: -0.0005,
             normalBias: 0.02,
@@ -349,13 +358,6 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
             );
             l.target.position.set(0, 0, 0);
             (lightHelper as THREE.DirectionalLightHelper).update();
-        };
-
-        /** 让所有几何体整体抬升，与地面保持距离（影子与物体"脱开"，更易观察） */
-        const applyHover = () => {
-            shapes.forEach(({mesh, restY}) => {
-                mesh.position.y = restY + state.hover;
-            });
         };
 
         /** 阴影相机范围 / 远平面：改完必须刷新投影矩阵 */
@@ -432,7 +434,6 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
         // 初始化：装配默认（平行光）并应用初始参数
         installLight('directional');
         applyDirection();
-        applyHover();
         applyShadowCamera();
         applyShadowMapEnabled();
         applyLightCast();
@@ -443,22 +444,6 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
         const panel = createParamPanel({
             container,
             controls: [
-                {
-                    type: 'group',
-                    label: '几何体',
-                    children: [
-                        {
-                            key: 'hover',
-                            label: '悬浮高度',
-                            min: 0,
-                            max: 4,
-                            step: 0.05,
-                            value: state.hover,
-                            precision: 2,
-                            desc: '几何体底部与地面的间距，越高影子越"飘"',
-                        },
-                    ],
-                },
                 {
                     type: 'group',
                     label: '灯光',
@@ -704,7 +689,6 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                 decay: 2,
                 angle: 22.5,
                 penumbra: 0.3,
-                hover: 0.8,
                 radius: 2,
                 bias: -0.0005,
                 normalBias: 0.02,
@@ -770,10 +754,6 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                         if (activeLight instanceof THREE.PointLight || activeLight instanceof THREE.SpotLight) {
                             activeLight.decay = value;
                         }
-                        break;
-                    case 'hover':
-                        state.hover = value;
-                        applyHover();
                         break;
                     case 'radius':
                         state.radius = value;
