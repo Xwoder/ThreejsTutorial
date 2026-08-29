@@ -443,7 +443,7 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                 },
                 {
                     type: 'group',
-                    label: '阴影的四个开关（缺一不可）',
+                    label: '阴影的四个开关',
                     children: [
                         {
                             key: 'enableShadowMap',
