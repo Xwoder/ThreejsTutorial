@@ -216,6 +216,8 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
 
         // ---------- 状态 ----------
         const LIGHT_DIST = 14;
+        /** 几何体自转的基础角速度（弧度/秒），各物体再乘以自身的 speed 系数 */
+        const SPIN_SPEED = 0.3;
         const state = {
             intensity: 3,
             ambient: 0.3,
@@ -227,7 +229,6 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
             normalBias: 0.02,
             camSize: 10,
             camFar: 30,
-            spin: 0.3,
             shadows: 1,
             showLightHelper: 1,
             showCamHelper: 0,
@@ -405,16 +406,6 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                     desc: '超出此距离的物体不再投影',
                 },
                 {
-                    key: 'spin',
-                    label: '物体自转速度',
-                    min: 0,
-                    max: 2,
-                    step: 0.05,
-                    value: state.spin,
-                    precision: 2,
-                    desc: '让物体转动，观察阴影随之实时更新',
-                },
-                {
                     key: 'shadows',
                     label: '开启阴影',
                     type: 'checkbox',
@@ -456,7 +447,6 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                 normalBias: 0.02,
                 camSize: 10,
                 camFar: 30,
-                spin: 0.3,
                 shadows: 1,
                 showLightHelper: 1,
                 showCamHelper: 0,
@@ -502,9 +492,6 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                     case 'camFar':
                         state.camFar = value;
                         applyShadowCamera();
-                        break;
-                    case 'spin':
-                        state.spin = value;
                         break;
                     case 'shadows':
                         state.shadows = value;
@@ -570,8 +557,8 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
             raf = requestAnimationFrame(loop);
             const dt = Math.min(clock.getDelta(), 0.1);
             shapes.forEach(({mesh, speed}) => {
-                mesh.rotation.y += dt * state.spin * speed;
-                mesh.rotation.x += dt * state.spin * speed * 0.35;
+                mesh.rotation.y += dt * SPIN_SPEED * speed;
+                mesh.rotation.x += dt * SPIN_SPEED * speed * 0.35;
             });
             if (camHelper.visible) camHelper.update();
             controls.update();
