@@ -189,29 +189,111 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
         const ambient = new THREE.AmbientLight(0xffffff, 0.3);
         ctx.scene.add(ambient);
 
-        const dirLight = new THREE.DirectionalLight(0xffffff, 3);
-        dirLight.castShadow = true;
-        dirLight.shadow.mapSize.set(4096, 4096);
-        dirLight.shadow.radius = 2;
-        dirLight.shadow.bias = -0.0005;
-        dirLight.shadow.normalBias = 0.02;
-        // 阴影相机（正交）范围
-        Object.assign(dirLight.shadow.camera, {
-            left: -10,
-            right: 10,
-            top: 10,
-            bottom: -10,
-            near: 0.5,
-            far: 30,
-        });
-        dirLight.shadow.camera.updateProjectionMatrix();
-        ctx.scene.add(dirLight);
-        ctx.scene.add(dirLight.target);
+        /** 光源类型枚举 */
+        type LightType = 'directional' | 'point' | 'spot';
+        const LIGHT_TYPES: { key: LightType; label: string }[] = [
+            {key: 'directional', label: '平行光'},
+            {key: 'point', label: '点光源'},
+            {key: 'spot', label: '聚光光源'},
+        ];
+        let lightType: LightType = 'directional';
 
-        // ---------- Helper ----------
-        const lightHelper = new THREE.DirectionalLightHelper(dirLight, 2, 0xfacc15);
-        ctx.scene.add(lightHelper);
-        const camHelper = new THREE.CameraHelper(dirLight.shadow.camera);
+        /**
+         * 当前"活动光源"。场景里同一时刻只有一盏主光源，切换类型时整体替换，
+         * 其余代码统一通过它访问 shadow / intensity 等属性，避免为三种灯各写一套逻辑。
+         */
+        let activeLight: THREE.DirectionalLight | THREE.PointLight | THREE.SpotLight;
+        /** 辅助线（Helper）：随光源类型切换而替换 */
+        let lightHelper: THREE.DirectionalLightHelper | THREE.PointLightHelper | THREE.SpotLightHelper | THREE.CameraHelper;
+        /** 当前阴影相机（平行光=正交相机；点/聚光=透视相机） */
+        let shadowCamera: THREE.OrthographicCamera | THREE.PerspectiveCamera;
+
+        /**
+         * 把一盏新光源装配进场景，并继承当前面板的强度 / 阴影开关 / 阴影质量等参数。
+         * 旧的 activeLight 与 lightHelper 会被移除并释放资源。
+         */
+        const installLight = (type: LightType) => {
+            // 移除旧光源与 Helper
+            if (activeLight) {
+                ctx.scene.remove(activeLight);
+                if ('target' in activeLight) ctx.scene.remove(activeLight.target);
+                // 阴影贴图由光源单独持有，disposeObject3D 不会遍历到，需显式释放
+                activeLight.shadow.map?.dispose();
+            }
+            if (lightHelper) {
+                ctx.scene.remove(lightHelper as THREE.Object3D);
+                (lightHelper as { dispose?: () => void }).dispose?.();
+            }
+
+            const intensity = state.intensity;
+            if (type === 'directional') {
+                const l = new THREE.DirectionalLight(0xffffff, intensity);
+                l.position.set(0, LIGHT_DIST, 0);
+                l.target.position.set(0, 0, 0);
+                ctx.scene.add(l.target);
+                ctx.scene.add(l);
+                activeLight = l;
+                lightHelper = new THREE.DirectionalLightHelper(l, 2, 0xfacc15);
+                shadowCamera = l.shadow.camera;
+            } else if (type === 'point') {
+                const l = new THREE.PointLight(0xffffff, intensity, state.distance, state.decay);
+                l.position.set(0, LIGHT_DIST, 0);
+                ctx.scene.add(l);
+                activeLight = l;
+                lightHelper = new THREE.PointLightHelper(l, 0.4, 0xfacc15);
+                shadowCamera = l.shadow.camera;
+            } else {
+                const l = new THREE.SpotLight(0xffffff, intensity, state.distance, THREE.MathUtils.degToRad(state.angle), state.penumbra, state.decay);
+                l.position.set(0, LIGHT_DIST, 0);
+                l.target.position.set(0, 0, 0);
+                ctx.scene.add(l.target);
+                ctx.scene.add(l);
+                activeLight = l;
+                lightHelper = new THREE.SpotLightHelper(l, 0xfacc15);
+                shadowCamera = l.shadow.camera;
+            }
+
+            // 应用公共阴影参数
+            activeLight.castShadow = state.lightCast >= 0.5;
+            activeLight.shadow.mapSize.set(mapSize, mapSize);
+            activeLight.shadow.radius = state.radius;
+            activeLight.shadow.bias = state.bias;
+            activeLight.shadow.normalBias = state.normalBias;
+
+            // 平行光的阴影相机是正交相机，需设置取景范围
+            if (type === 'directional') {
+                Object.assign(activeLight.shadow.camera, {
+                    left: -state.camSize,
+                    right: state.camSize,
+                    top: state.camSize,
+                    bottom: -state.camSize,
+                    near: 0.5,
+                    far: state.camFar,
+                });
+            } else {
+                // 点 / 聚光阴影相机是透视相机，仅设置近 / 远平面
+                activeLight.shadow.camera.near = 0.5;
+                activeLight.shadow.camera.far = state.camFar;
+            }
+            activeLight.shadow.camera.updateProjectionMatrix();
+
+            // 让新 Helper 继承显隐状态
+            (lightHelper as { visible: boolean }).visible = state.showLightHelper >= 0.5;
+
+            ctx.scene.add(lightHelper as THREE.Object3D);
+            (lightHelper as { update?: () => void }).update?.();
+
+            if (type !== 'directional') {
+                camHelper.visible = false;
+            } else {
+                camHelper.visible = state.showCamHelper >= 0.5;
+                camHelper.camera = shadowCamera;
+            }
+        };
+
+        // ---------- Helper（阴影相机视锥，仅平行光有意义） ----------
+        // 先用一个临时正交相机占位，installLight('directional') 会接管
+        const camHelper = new THREE.CameraHelper(new THREE.OrthographicCamera(-10, 10, 10, -10, 0.5, 30));
         camHelper.visible = false;
         ctx.scene.add(camHelper);
 
@@ -224,6 +306,14 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
             ambient: 0.3,
             azimuth: 45,
             elevation: 50,
+            // 点光源 / 聚光光源的位置（平行光由方位角 / 仰角决定，不用这两组）
+            posY: LIGHT_DIST,
+            // 点光源 / 聚光光源的衰减参数
+            distance: 0,
+            decay: 2,
+            // 聚光光源专属
+            angle: 22.5,
+            penumbra: 0.3,
             hover: 0.8,
             radius: 2,
             bias: -0.0005,
@@ -241,17 +331,19 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
         let shadowType: THREE.ShadowMapType = THREE.PCFSoftShadowMap;
         let mapSize = 4096;
 
-        /** 按方位角 / 仰角摆放光源 */
+        /** 按方位角 / 仰角摆放平行光 */
         const applyDirection = () => {
+            if (lightType !== 'directional') return;
             const a = THREE.MathUtils.degToRad(state.azimuth);
             const e = THREE.MathUtils.degToRad(state.elevation);
-            dirLight.position.set(
+            const l = activeLight as THREE.DirectionalLight;
+            l.position.set(
                 Math.sin(a) * Math.cos(e) * LIGHT_DIST,
                 Math.sin(e) * LIGHT_DIST,
                 Math.cos(a) * Math.cos(e) * LIGHT_DIST,
             );
-            dirLight.target.position.set(0, 0, 0);
-            lightHelper.update();
+            l.target.position.set(0, 0, 0);
+            (lightHelper as THREE.DirectionalLightHelper).update();
         };
 
         /** 让所有几何体整体抬升，与地面保持距离（影子与物体"脱开"，更易观察） */
@@ -261,13 +353,16 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
             });
         };
 
-        /** 阴影相机是正交相机，改范围后必须刷新投影矩阵 */
+        /** 阴影相机范围 / 远平面：改完必须刷新投影矩阵 */
         const applyShadowCamera = () => {
-            const cam = dirLight.shadow.camera;
-            cam.left = -state.camSize;
-            cam.right = state.camSize;
-            cam.top = state.camSize;
-            cam.bottom = -state.camSize;
+            const cam = activeLight.shadow.camera;
+            if (cam instanceof THREE.OrthographicCamera) {
+                // 平行光：正交相机，需设置取景范围
+                cam.left = -state.camSize;
+                cam.right = state.camSize;
+                cam.top = state.camSize;
+                cam.bottom = -state.camSize;
+            }
             cam.far = state.camFar;
             cam.updateProjectionMatrix();
             camHelper.update();
@@ -275,17 +370,17 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
 
         /** 切换阴影贴图分辨率：需释放旧贴图，Three.js 才会在下一帧重建 */
         const applyMapSize = () => {
-            dirLight.shadow.mapSize.set(mapSize, mapSize);
-            dirLight.shadow.map?.dispose();
-            dirLight.shadow.map = null as unknown as THREE.WebGLRenderTarget;
-            dirLight.shadow.needsUpdate = true;
+            activeLight.shadow.mapSize.set(mapSize, mapSize);
+            activeLight.shadow.map?.dispose();
+            activeLight.shadow.map = null as unknown as THREE.WebGLRenderTarget;
+            activeLight.shadow.needsUpdate = true;
         };
 
         /** 切换过滤类型：着色器需要重新编译 */
         const applyShadowType = () => {
             ctx.renderer.shadowMap.type = shadowType;
-            dirLight.shadow.map?.dispose();
-            dirLight.shadow.map = null as unknown as THREE.WebGLRenderTarget;
+            activeLight.shadow.map?.dispose();
+            activeLight.shadow.map = null as unknown as THREE.WebGLRenderTarget;
             ctx.renderer.shadowMap.needsUpdate = true;
             refreshMaterials();
         };
@@ -312,7 +407,7 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
 
         /** 开关 2：光源是否投射阴影 */
         const applyLightCast = () => {
-            dirLight.castShadow = state.lightCast >= 0.5;
+            activeLight.castShadow = state.lightCast >= 0.5;
             refreshMaterials();
         };
 
@@ -329,6 +424,8 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
             shapes.forEach(({mesh}) => (mesh.receiveShadow = on));
         };
 
+        // 初始化：装配默认（平行光）并应用初始参数
+        installLight('directional');
         applyDirection();
         applyHover();
         applyShadowCamera();
@@ -363,7 +460,7 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                     children: [
                         {
                             key: 'intensity',
-                            label: '平行光强度',
+                            label: '光源强度',
                             type: 'stepper',
                             min: 0,
                             max: 10,
@@ -382,6 +479,7 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                             precision: 2,
                             desc: '抬高环境光会"冲淡"阴影，使其变浅',
                         },
+                        // —— 仅平行光：方位角 / 仰角决定光的方向 ——
                         {
                             key: 'azimuth',
                             label: '方位角（°）',
@@ -401,6 +499,64 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                             value: state.elevation,
                             precision: 0,
                             desc: '光线与地面的夹角，越小影子越长',
+                        },
+                        // —— 仅点光源 / 聚光光源：用位置决定光从哪里来 ——
+                        {
+                            key: 'posY',
+                            label: '光源高度',
+                            type: 'stepper',
+                            min: 2,
+                            max: 20,
+                            step: 0.2,
+                            value: state.posY,
+                            precision: 1,
+                            desc: '光源在 Y 轴的高度（点光源 / 聚光光源没有方位角概念）',
+                        },
+                        // —— 仅聚光光源 ——
+                        {
+                            key: 'angle',
+                            label: '光锥半角（°）',
+                            type: 'stepper',
+                            min: 1,
+                            max: 80,
+                            step: 0.5,
+                            value: state.angle,
+                            precision: 1,
+                            desc: '聚光灯光锥的张开角度的一半',
+                        },
+                        {
+                            key: 'penumbra',
+                            label: '边缘柔化（0-1）',
+                            type: 'stepper',
+                            min: 0,
+                            max: 1,
+                            step: 0.02,
+                            value: state.penumbra,
+                            precision: 2,
+                            desc: '聚光灯光锥边缘的羽化程度',
+                        },
+                        // —— 仅点光源 / 聚光光源：衰减 ——
+                        {
+                            key: 'distance',
+                            label: '衰减距离',
+                            type: 'stepper',
+                            min: 0,
+                            max: 40,
+                            step: 0.5,
+                            value: state.distance,
+                            precision: 1,
+                            desc: '光照从多远处开始衰减到 0；0 表示无限远',
+                        },
+                        {
+                            key: 'decay',
+                            label: '衰减系数',
+                            type: 'stepper',
+                            min: 0,
+                            max: 4,
+                            step: 0.1,
+                            value: state.decay,
+                            precision: 1,
+                            desc: '物理衰减曲线指数，越大衰减越快（2 ≈ 真实世界）',
                         },
                     ],
                 },
@@ -538,6 +694,11 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                 ambient: 0.3,
                 azimuth: 45,
                 elevation: 50,
+                posY: LIGHT_DIST,
+                distance: 0,
+                decay: 2,
+                angle: 22.5,
+                penumbra: 0.3,
                 hover: 0.8,
                 radius: 2,
                 bias: -0.0005,
@@ -555,7 +716,7 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                 switch (key) {
                     case 'intensity':
                         state.intensity = value;
-                        dirLight.intensity = value;
+                        activeLight.intensity = value;
                         break;
                     case 'ambient':
                         state.ambient = value;
@@ -569,21 +730,55 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                         state.elevation = value;
                         applyDirection();
                         break;
+                    // 点光源 / 聚光光源：改高度后更新光源位置
+                    case 'posY':
+                        state.posY = value;
+                        activeLight.position.y = value;
+                        (lightHelper as { update?: () => void }).update?.();
+                        break;
+                    // 聚光光源专属
+                    case 'angle':
+                        state.angle = value;
+                        if (activeLight instanceof THREE.SpotLight) {
+                            activeLight.angle = THREE.MathUtils.degToRad(value);
+                            (lightHelper as THREE.SpotLightHelper).update();
+                        }
+                        break;
+                    case 'penumbra':
+                        state.penumbra = value;
+                        if (activeLight instanceof THREE.SpotLight) {
+                            activeLight.penumbra = value;
+                            (lightHelper as THREE.SpotLightHelper).update();
+                        }
+                        break;
+                    // 点光源 / 聚光光源：衰减参数
+                    case 'distance':
+                        state.distance = value;
+                        if (activeLight instanceof THREE.PointLight || activeLight instanceof THREE.SpotLight) {
+                            activeLight.distance = value;
+                        }
+                        break;
+                    case 'decay':
+                        state.decay = value;
+                        if (activeLight instanceof THREE.PointLight || activeLight instanceof THREE.SpotLight) {
+                            activeLight.decay = value;
+                        }
+                        break;
                     case 'hover':
                         state.hover = value;
                         applyHover();
                         break;
                     case 'radius':
                         state.radius = value;
-                        dirLight.shadow.radius = value;
+                        activeLight.shadow.radius = value;
                         break;
                     case 'bias':
                         state.bias = value;
-                        dirLight.shadow.bias = value;
+                        activeLight.shadow.bias = value;
                         break;
                     case 'normalBias':
                         state.normalBias = value;
-                        dirLight.shadow.normalBias = value;
+                        activeLight.shadow.normalBias = value;
                         break;
                     case 'camSize':
                         state.camSize = value;
@@ -611,7 +806,7 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                         break;
                     case 'showLightHelper':
                         state.showLightHelper = value;
-                        lightHelper.visible = value >= 0.5;
+                        (lightHelper as { visible: boolean }).visible = value >= 0.5;
                         break;
                     case 'showCamHelper':
                         state.showCamHelper = value;
@@ -653,9 +848,58 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
         });
         typeGroup.sync();
 
+        // ---------- 左上角：光源类型切换标签 ----------
+        /**
+         * 根据当前光源类型，显隐参数面板中"灯光"分组的对应行。
+         * 平行光 → 方位角 / 仰角；点光源 / 聚光 → 光源高度 / 衰减；聚光 → 光锥半角 / 边缘柔化。
+         * 这些行在面板里都已创建，只是按类型决定显隐，避免露出不适用的参数。
+         */
+        const applyLightTypeVisibility = () => {
+            const show = (key: string, on: boolean) => {
+                const row = panel.el.querySelector<HTMLElement>(
+                    '.camera-control-row[data-key="' + key + '"]',
+                );
+                if (row) row.style.display = on ? '' : 'none';
+            };
+            const isDir = lightType === 'directional';
+            const isSpot = lightType === 'spot';
+            const isPointOrSpot = lightType === 'point' || lightType === 'spot';
+            show('azimuth', isDir);
+            show('elevation', isDir);
+            show('posY', isPointOrSpot);
+            show('distance', isPointOrSpot);
+            show('decay', isPointOrSpot);
+            show('angle', isSpot);
+            show('penumbra', isSpot);
+        };
+
+        const tabBar = document.createElement('div');
+        tabBar.className = 'view-tabs';
+        const tabBtns: HTMLButtonElement[] = [];
+        LIGHT_TYPES.forEach((t) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = t.label;
+            btn.addEventListener('click', () => {
+                if (lightType === t.key) return;
+                lightType = t.key;
+                installLight(t.key);
+                applyDirection();
+                applyShadowCamera();
+                applyLightTypeVisibility();
+                tabBtns.forEach((b) => b.classList.toggle('active', b === btn));
+            });
+            tabBar.appendChild(btn);
+            tabBtns.push(btn);
+        });
+        tabBtns[0].classList.add('active');
+        container.appendChild(tabBar);
+        // 初始按默认光源类型显隐面板参数
+        applyLightTypeVisibility();
+
         // 提示
         const tip = document.createElement('div');
-        tip.textContent = '拖动环绕观察 · 滚轮缩放 · 右侧参数实时调节阴影效果';
+        tip.textContent = '左上角切换光源类型 · 拖动环绕观察 · 滚轮缩放 · 右侧参数实时调节阴影效果';
         tip.style.cssText =
             'position:absolute;left:16px;bottom:14px;color:#94a3b8;font-size:13px;pointer-events:none;';
         container.appendChild(tip);
@@ -684,9 +928,10 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
             cancelAnimationFrame(raf);
             controls.dispose();
             // 阴影贴图由光源单独持有，disposeObject3D 不会遍历到，需显式释放
-            dirLight.shadow.map?.dispose();
+            activeLight.shadow.map?.dispose();
             panel.remove();
             tip.remove();
+            tabBar.remove();
         });
     },
 };
