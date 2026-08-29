@@ -191,7 +191,7 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
 
         const dirLight = new THREE.DirectionalLight(0xffffff, 3);
         dirLight.castShadow = true;
-        dirLight.shadow.mapSize.set(2048, 2048);
+        dirLight.shadow.mapSize.set(4096, 4096);
         dirLight.shadow.radius = 2;
         dirLight.shadow.bias = -0.0005;
         dirLight.shadow.normalBias = 0.02;
@@ -239,7 +239,7 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
             showCamHelper: 0,
         };
         let shadowType: THREE.ShadowMapType = THREE.PCFSoftShadowMap;
-        let mapSize = 2048;
+        let mapSize = 4096;
 
         /** 按方位角 / 仰角摆放光源 */
         const applyDirection = () => {
@@ -444,54 +444,66 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                     ],
                 },
                 {
-                    key: 'radius',
-                    label: '阴影半径 radius',
-                    min: 0,
-                    max: 8,
-                    step: 0.5,
-                    value: state.radius,
-                    precision: 1,
-                    desc: '边缘模糊程度，仅 PCF / PCFSoft / VSM 生效',
+                    type: 'group',
+                    label: '阴影质量',
+                    children: [
+                        {
+                            key: 'radius',
+                            label: '阴影半径 radius',
+                            min: 0,
+                            max: 8,
+                            step: 0.5,
+                            value: state.radius,
+                            precision: 1,
+                            desc: '边缘模糊程度，仅 PCF / PCFSoft / VSM 生效',
+                        },
+                        {
+                            key: 'bias',
+                            label: '深度偏移 bias',
+                            min: -0.002,
+                            max: 0.002,
+                            step: 0.0001,
+                            value: state.bias,
+                            precision: 4,
+                            desc: '消除阴影痤疮，通常为很小的负值',
+                        },
+                        {
+                            key: 'normalBias',
+                            label: '法线偏移 normalBias',
+                            min: 0,
+                            max: 0.1,
+                            step: 0.001,
+                            value: state.normalBias,
+                            precision: 3,
+                            desc: '沿法线偏移采样点，同样用于去除自阴影',
+                        },
+                    ],
                 },
                 {
-                    key: 'bias',
-                    label: '深度偏移 bias',
-                    min: -0.002,
-                    max: 0.002,
-                    step: 0.0001,
-                    value: state.bias,
-                    precision: 4,
-                    desc: '消除阴影痤疮，通常为很小的负值',
-                },
-                {
-                    key: 'normalBias',
-                    label: '法线偏移 normalBias',
-                    min: 0,
-                    max: 0.1,
-                    step: 0.001,
-                    value: state.normalBias,
-                    precision: 3,
-                    desc: '沿法线偏移采样点，同样用于去除自阴影',
-                },
-                {
-                    key: 'camSize',
-                    label: '阴影相机范围',
-                    min: 2,
-                    max: 20,
-                    step: 0.5,
-                    value: state.camSize,
-                    precision: 1,
-                    desc: '正交相机的半边长，越小阴影越清晰',
-                },
-                {
-                    key: 'camFar',
-                    label: '阴影相机远平面',
-                    min: 5,
-                    max: 60,
-                    step: 1,
-                    value: state.camFar,
-                    precision: 0,
-                    desc: '超出此距离的物体不再投影',
+                    type: 'group',
+                    label: '阴影相机',
+                    children: [
+                        {
+                            key: 'camSize',
+                            label: '阴影相机范围',
+                            min: 2,
+                            max: 20,
+                            step: 0.5,
+                            value: state.camSize,
+                            precision: 1,
+                            desc: '正交相机的半边长，越小阴影越清晰',
+                        },
+                        {
+                            key: 'camFar',
+                            label: '阴影相机远平面',
+                            min: 5,
+                            max: 60,
+                            step: 1,
+                            value: state.camFar,
+                            precision: 0,
+                            desc: '超出此距离的物体不再投影',
+                        },
+                    ],
                 },
                 {
                     key: 'showLightHelper',
@@ -602,9 +614,10 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
             },
         });
 
-        // 阴影贴图分辨率：按钮组
+        // 阴影贴图分辨率：按钮组（每行两个）
         const sizeGroup = panel.addControlGroup({
             title: '阴影贴图分辨率',
+            columns: 2,
             items: SHADOW_SIZES.map((size) => ({
                 label: String(size),
                 onClick: () => {
@@ -617,9 +630,10 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
         });
         sizeGroup.sync();
 
-        // 过滤类型：按钮组
+        // 过滤类型：按钮组（每行两个）
         const typeGroup = panel.addControlGroup({
             title: '过滤类型',
+            columns: 2,
             items: SHADOW_TYPES.map((t) => ({
                 label: t.label,
                 onClick: () => {

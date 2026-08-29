@@ -494,6 +494,13 @@ body {
   gap: 8px;
 }
 
+/* 每行显示多列（如 columns: 2 → 每行两个） */
+.control-group-buttons--grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 2), 1fr);
+  gap: 8px;
+}
+
 .control-group-buttons button {
   width: 100%;
   padding: 8px 14px;

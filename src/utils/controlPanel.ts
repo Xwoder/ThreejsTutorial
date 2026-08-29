@@ -9,6 +9,11 @@ export interface ControlPanelButtonOptions {
     title: string;
     /** 按钮定义 */
     items: ControlPanelButtonItem[];
+    /**
+     * 每行显示的按钮数量。默认 1（纵向堆叠）；传 2 即可每行两个。
+     * 通过 CSS grid 实现，按钮等内容均分宽度。
+     */
+    columns?: number;
 }
 
 /** 单个按钮的定义 */
@@ -49,6 +54,10 @@ export function createControlPanelGroup(
 
     const row = document.createElement('div');
     row.className = 'control-group-buttons';
+    if (options.columns && options.columns > 1) {
+        row.classList.add('control-group-buttons--grid');
+        row.style.setProperty('--cols', String(options.columns));
+    }
 
     const buttons = options.items.map((item) => {
         const btn = document.createElement('button');
