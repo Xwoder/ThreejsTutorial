@@ -5,6 +5,7 @@ import type {Lesson} from '../types';
 import {createContext, makeCleanup, setSceneBackground, BG_DARK_NAVY} from '../helper';
 
 import {createParamPanel} from '../../utils/paramPanel.ts';
+import {getDefaultIntensity, getIntensity, setIntensity} from '../../utils/lightIntensityStore.ts';
 
 export const pointLight: Lesson = {
     id: 'lights/point-light',
@@ -105,7 +106,12 @@ light.position.set(0, 2, 0);</code></pre>
         // 微弱环境光，避免完全漆黑
         ctx.scene.add(new THREE.AmbientLight(0xffffff, 0.08));
 
-        const point = new THREE.PointLight(0xffffff, 30, 20);
+        // 点光源初始强度取自集中配置 DEFAULT_INTENSITY，运行时强度按光源独立保存，与其他光源互不影响
+        const INITIAL_INTENSITY = getDefaultIntensity(pointLight.id);
+        const intensity = getIntensity(pointLight.id);
+        const point = new THREE.PointLight(0xffffff, intensity, 20);
+        // 关闭平方反比衰减，使 candela 强度直接等价于可见亮度，6 才会明显比平行光(3)亮
+        point.decay = 0;
         point.position.set(0, 4, 0);
         ctx.scene.add(point);
 
@@ -137,7 +143,7 @@ light.position.set(0, 2, 0);</code></pre>
                     min: 0,
                     max: 100,
                     step: 1,
-                    value: 30,
+                    value: intensity,
                     desc: '点光源强度（candela，物理单位）',
                     precision: 0
                 },
@@ -202,11 +208,20 @@ light.position.set(0, 2, 0);</code></pre>
                     desc: '是否显示可拖拽的光源小球'
                 },
             ],
-            defaults: {intensity: 30, distance: 20, color: 0xffffff, posX: 0, posY: 4, posZ: 0, showHelper: 1},
+            defaults: {
+                intensity: INITIAL_INTENSITY,
+                distance: 20,
+                color: 0xffffff,
+                posX: 0,
+                posY: 4,
+                posZ: 0,
+                showHelper: 1
+            },
             onChange: (key, value) => {
                 switch (key) {
                     case 'intensity':
                         point.intensity = value;
+                        setIntensity(pointLight.id, value);
                         break;
                     case 'distance':
                         point.distance = value;

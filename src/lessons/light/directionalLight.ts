@@ -4,6 +4,7 @@ import type {Lesson} from '../types';
 import {createContext, makeCleanup, setSceneBackground, BG_DARK_SLATE} from '../helper';
 
 import {createParamPanel} from '../../utils/paramPanel.ts';
+import {getDefaultIntensity, getIntensity, setIntensity} from '../../utils/lightIntensityStore.ts';
 
 export const directionalLight: Lesson = {
     id: 'lights/directional-light',
@@ -103,8 +104,11 @@ renderer.shadowMap.enabled = true;</code></pre>
         // 微弱环境光，避免背光面完全漆黑
         ctx.scene.add(new THREE.AmbientLight(0xffffff, 0.12));
 
-        // 平行光：方向 = position → target（默认原点）
-        const dirLight = new THREE.DirectionalLight(0xffffff, 5);
+        // 平行光：方向 = position → target（默认原点）。
+        // 初始强度取自集中配置 DEFAULT_INTENSITY，运行时强度按光源独立保存，与其他光源互不影响
+        const INITIAL_INTENSITY = getDefaultIntensity(directionalLight.id);
+        const intensity = getIntensity(directionalLight.id);
+        const dirLight = new THREE.DirectionalLight(0xffffff, intensity);
         ctx.scene.add(dirLight);
 
         const helper = new THREE.DirectionalLightHelper(dirLight, 2, 0xfacc15);
@@ -134,7 +138,7 @@ renderer.shadowMap.enabled = true;</code></pre>
                     min: 0,
                     max: 10,
                     step: 0.05,
-                    value: 5,
+                    value: intensity,
                     desc: '平行光强度，可超过 1 来提高亮度',
                     precision: 2
                 },
@@ -169,10 +173,11 @@ renderer.shadowMap.enabled = true;</code></pre>
                     desc: '黄色箭头标示平行光的照射方向'
                 },
             ],
-            defaults: {intensity: 5, azimuth: 45, elevation: 40, showHelper: 1},
+            defaults: {intensity: INITIAL_INTENSITY, azimuth: 45, elevation: 40, showHelper: 1},
             onChange: (key, value) => {
                 if (key === 'intensity') {
                     dirLight.intensity = value;
+                    setIntensity(directionalLight.id, value);
                 } else if (key === 'azimuth') {
                     state.azimuth = value;
                     applyDirection();

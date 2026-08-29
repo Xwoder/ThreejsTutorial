@@ -5,6 +5,7 @@ import type {Lesson} from '../types';
 import {createContext, makeCleanup, setSceneBackground, BG_DARK_NAVY} from '../helper';
 
 import {createParamPanel} from '../../utils/paramPanel.ts';
+import {getDefaultIntensity, getIntensity, setIntensity} from '../../utils/lightIntensityStore.ts';
 
 export const spotLight: Lesson = {
     id: 'lights/spot-light',
@@ -109,7 +110,12 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
         // 比较暗的环境光：照亮背光面，同时保留聚光灯的明暗对比
         ctx.scene.add(new THREE.AmbientLight(0xffffff, 1));
 
-        const spot = new THREE.SpotLight(0xffffff, 120);
+        // 聚光灯初始强度取自集中配置 DEFAULT_INTENSITY，运行时强度按光源独立保存，与其他光源互不影响
+        const INITIAL_INTENSITY = getDefaultIntensity(spotLight.id);
+        const intensity = getIntensity(spotLight.id);
+        const spot = new THREE.SpotLight(0xffffff, intensity);
+        // 关闭平方反比衰减，使 candela 强度直接等价于可见亮度，15 才会明显强于点光源(6)
+        spot.decay = 0;
         spot.position.set(0, 6, 0); // 聚光灯竖直向上移动，悬于原点上方
         spot.angle = Math.PI / 8;
         spot.penumbra = 0.35;
@@ -136,9 +142,9 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
                     key: 'intensity',
                     label: '光照强度 intensity',
                     min: 0,
-                    max: 300,
-                    step: 5,
-                    value: 120,
+                    max: 60,
+                    step: 1,
+                    value: intensity,
                     desc: '聚光灯强度（candela，物理单位）',
                     precision: 0
                 },
@@ -264,7 +270,7 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
                 },
             ],
             defaults: {
-                intensity: 120,
+                intensity: INITIAL_INTENSITY,
                 angle: 22.5,
                 penumbra: 0.35,
                 distance: 0,
@@ -282,6 +288,7 @@ scene.add(spot.target);     // target 也需加入场景</code></pre>
                 switch (key) {
                     case 'intensity':
                         spot.intensity = value;
+                        setIntensity(spotLight.id, value);
                         break;
                     case 'angle':
                         spot.angle = THREE.MathUtils.degToRad(value);

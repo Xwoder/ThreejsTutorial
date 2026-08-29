@@ -55,6 +55,7 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
 
     <h3>动手试试</h3>
     <ul>
+      <li>切换左上角「光源类型」→ 「光源强度」会自动跳到该类型的初始值：<b>平行光 3 / 点光源 5 / 聚光光源 20</b>。因为平行光不衰减、点光源按距离平方反比衰减、聚光还要被光锥摊薄，同样的数值三者看起来亮度并不一样，所以初始值特意取了三档。</li>
       <li>把「仰角」降到 10° 左右 → 影子被拉得很长，像傍晚的太阳。</li>
       <li>拖动「悬浮高度」→ 物体整体远离地面，影子与物体逐渐"脱开"，可以清楚看到"影子是投在地面上的"。</li>
       <li>把「阴影贴图分辨率」调到 512 → 边缘锯齿立刻明显。</li>
@@ -193,12 +194,17 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
 
         /** 光源类型枚举 */
         type LightType = 'directional' | 'point' | 'spot';
-        const LIGHT_TYPES: { key: LightType; label: string }[] = [
-            {key: 'directional', label: '平行光'},
-            {key: 'point', label: '点光源'},
-            {key: 'spot', label: '聚光光源'},
+        const LIGHT_TYPES: { key: LightType; label: string; intensity: number }[] = [
+            // 三种光源的"初始强度"各不相同：平行光不衰减（3 就够亮），
+            // 点光源平方反比衰减（需更大），聚光还要被光锥角摊薄（最大）
+            {key: 'directional', label: '平行光', intensity: 3},
+            {key: 'point', label: '点光源', intensity: 5},
+            {key: 'spot', label: '聚光光源', intensity: 20},
         ];
         let lightType: LightType = 'directional';
+        /** 取某种光源类型的初始强度 */
+        const intensityOf = (type: LightType) =>
+            LIGHT_TYPES.find((t) => t.key === type)?.intensity ?? 3;
 
         /**
          * 当前"活动光源"。场景里同一时刻只有一盏主光源，切换类型时整体替换，
@@ -317,7 +323,7 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
         /** 几何体自转的基础角速度（弧度/秒），各物体再乘以自身的 speed 系数 */
         const SPIN_SPEED = 0.3;
         const state = {
-            intensity: 3,
+            intensity: intensityOf('directional'),
             ambient: 0.3,
             azimuth: 45,
             elevation: 50,
@@ -441,6 +447,33 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
         applyReceive();
 
         // ---------- 参数面板 ----------
+        /**
+         * 「重置参数」用的默认值表。intensity 会随当前光源类型改变（每种光源初始值不同），
+         * 因此这里持有引用而不是写死在面板配置里，切换标签时同步更新它。
+         */
+        const panelDefaults: Record<string, number> = {
+            intensity: intensityOf(lightType),
+            ambient: 0.3,
+            azimuth: 45,
+            elevation: 50,
+            posY: LIGHT_DIST,
+            distance: 0,
+            decay: 2,
+            angle: 22.5,
+            penumbra: 0.3,
+            radius: 2,
+            bias: -0.0005,
+            normalBias: 0.02,
+            camSize: 10,
+            camFar: 30,
+            enableShadowMap: 1,
+            lightCast: 1,
+            castShadow: 1,
+            receiveShadow: 1,
+            showLightHelper: 1,
+            showCamHelper: 0,
+        };
+
         const panel = createParamPanel({
             container,
             controls: [
@@ -453,11 +486,11 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                             label: '光源强度',
                             type: 'stepper',
                             min: 0,
-                            max: 10,
+                            max: 40,
                             step: 0.05,
                             value: state.intensity,
                             precision: 2,
-                            desc: '光线越强，明暗与阴影对比越强烈',
+                            desc: '光线越强，明暗与阴影对比越强烈；切换光源类型会回到该类型的初始值（平行光 3 / 点光源 5 / 聚光 20）',
                         },
                         {
                             key: 'ambient',
@@ -679,28 +712,7 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                     desc: 'CameraHelper：显示渲染阴影贴图所用的视锥',
                 },
             ],
-            defaults: {
-                intensity: 3,
-                ambient: 0.3,
-                azimuth: 45,
-                elevation: 50,
-                posY: LIGHT_DIST,
-                distance: 0,
-                decay: 2,
-                angle: 22.5,
-                penumbra: 0.3,
-                radius: 2,
-                bias: -0.0005,
-                normalBias: 0.02,
-                camSize: 10,
-                camFar: 30,
-                enableShadowMap: 1,
-                lightCast: 1,
-                castShadow: 1,
-                receiveShadow: 1,
-                showLightHelper: 1,
-                showCamHelper: 0,
-            },
+            defaults: panelDefaults,
             onChange(key, value) {
                 switch (key) {
                     case 'intensity':
@@ -870,7 +882,14 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
             btn.addEventListener('click', () => {
                 if (lightType === t.key) return;
                 lightType = t.key;
+                // 每种光源有各自的初始强度（平行光 3 / 点光源 5 / 聚光 20），
+                // 切换标签时把面板与「重置参数」的基准一并切到该档位
+                state.intensity = t.intensity;
+                panelDefaults.intensity = t.intensity;
                 installLight(t.key);
+                // installLight 会为点 / 聚光重置光源高度，同步刷新面板数值
+                panel.setDisplay('intensity', state.intensity);
+                panel.setDisplay('posY', state.posY);
                 applyDirection();
                 applyShadowCamera();
                 applyLightTypeVisibility();
