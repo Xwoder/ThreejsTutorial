@@ -343,11 +343,28 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
             controls: [
                 {
                     type: 'group',
+                    label: '几何体',
+                    children: [
+                        {
+                            key: 'hover',
+                            label: '悬浮高度',
+                            min: 0,
+                            max: 4,
+                            step: 0.05,
+                            value: state.hover,
+                            precision: 2,
+                            desc: '几何体底部与地面的间距，越高影子越"飘"',
+                        },
+                    ],
+                },
+                {
+                    type: 'group',
                     label: '灯光',
                     children: [
                         {
                             key: 'intensity',
                             label: '平行光强度',
+                            type: 'stepper',
                             min: 0,
                             max: 10,
                             step: 0.05,
@@ -386,16 +403,6 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                             desc: '光线与地面的夹角，越小影子越长',
                         },
                     ],
-                },
-                {
-                    key: 'hover',
-                    label: '悬浮高度',
-                    min: 0,
-                    max: 4,
-                    step: 0.05,
-                    value: state.hover,
-                    precision: 2,
-                    desc: '几何体底部与地面的间距，越高影子越"飘"',
                 },
                 {
                     type: 'group',
