@@ -225,7 +225,10 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                 (lightHelper as { dispose?: () => void }).dispose?.();
             }
 
-            const intensity = state.intensity;
+            // 平行光用"光照"单位（不衰减），点/聚光用 candela（平方反比衰减）。
+            // 为了让面板的同一档位在三种光源下都"看起来够亮"，点/聚光把面板值放大一个系数。
+            const intensity =
+                type === 'directional' ? state.intensity : state.intensity * 30;
             if (type === 'directional') {
                 const l = new THREE.DirectionalLight(0xffffff, intensity);
                 l.position.set(0, LIGHT_DIST, 0);
@@ -236,15 +239,17 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                 lightHelper = new THREE.DirectionalLightHelper(l, 2, 0xfacc15);
                 shadowCamera = l.shadow.camera;
             } else if (type === 'point') {
+                // 点光源强度用 candela（物理单位），随距离平方反比衰减，
+                // 在 ~10 单位距离外需要上百量级才够亮（平行光的 3 是"光照"单位，不衰减）。
                 const l = new THREE.PointLight(0xffffff, intensity, state.distance, state.decay);
-                l.position.set(0, LIGHT_DIST, 0);
+                l.position.set(0, state.posY, 0);
                 ctx.scene.add(l);
                 activeLight = l;
                 lightHelper = new THREE.PointLightHelper(l, 0.4, 0xfacc15);
                 shadowCamera = l.shadow.camera;
             } else {
                 const l = new THREE.SpotLight(0xffffff, intensity, state.distance, THREE.MathUtils.degToRad(state.angle), state.penumbra, state.decay);
-                l.position.set(0, LIGHT_DIST, 0);
+                l.position.set(0, state.posY, 0);
                 l.target.position.set(0, 0, 0);
                 ctx.scene.add(l.target);
                 ctx.scene.add(l);
@@ -307,12 +312,12 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
             azimuth: 45,
             elevation: 50,
             // 点光源 / 聚光光源的位置（平行光由方位角 / 仰角决定，不用这两组）
-            posY: LIGHT_DIST,
+            posY: 10,
             // 点光源 / 聚光光源的衰减参数
             distance: 0,
             decay: 2,
             // 聚光光源专属
-            angle: 22.5,
+            angle: 35,
             penumbra: 0.3,
             hover: 0.8,
             radius: 2,
@@ -716,7 +721,9 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                 switch (key) {
                     case 'intensity':
                         state.intensity = value;
-                        activeLight.intensity = value;
+                        // 点 / 聚光用 candela 单位，需放大系数才与平行光同档亮度
+                        activeLight.intensity =
+                            lightType === 'directional' ? value : value * 30;
                         break;
                     case 'ambient':
                         state.ambient = value;
