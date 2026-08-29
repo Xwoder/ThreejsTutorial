@@ -250,10 +250,11 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
             } else if (type === 'point') {
                 // 点光源强度用 candela（物理单位），随距离平方反比衰减。
                 // 没有方向概念，光照强弱完全由距离决定，故初始放在较近的高度（POINT_Y），
-                // 衰减更小、更亮、阴影更明显。
+                // 衰减更小、更亮、阴影更明显；并在水平方向轻微偏移（POINT_TILT_X/Z），
+                // 从正上方挪开一点点形成斜照（偏移量比聚光小，避免一角的物体明显偏亮/偏暗）。
                 state.posY = POINT_Y;
                 const l = new THREE.PointLight(0xffffff, intensity, state.distance, state.decay);
-                l.position.set(0, state.posY, 0);
+                l.position.set(POINT_TILT_X, state.posY, POINT_TILT_Z);
                 ctx.scene.add(l);
                 activeLight = l;
                 lightHelper = new THREE.PointLightHelper(l, 0.4, 0xfacc15);
@@ -320,6 +321,13 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
         const LIGHT_DIST = 14;
         /** 点光源初始高度：放得近一些，平方反比衰减更小，光照/阴影更明显（聚光仍用 state.posY） */
         const POINT_Y = 6;
+        /**
+         * 点光源的水平偏移：从正上方稍微挪开一点，制造出"斜照"的感觉。
+         * 偏移量比聚光小（点光源没有光锥，偏移过大会让一角的物体明显更亮、更暗），
+         * 同样取负 X / 负 Z，让明暗过渡朝相机一侧展开。
+         */
+        const POINT_TILT_X = -1.5;
+        const POINT_TILT_Z = -1.8;
         /** 聚光光源初始高度：比点光源稍远一点，光锥能照到更大的地面范围 */
         const SPOT_Y = 12;
         /**
