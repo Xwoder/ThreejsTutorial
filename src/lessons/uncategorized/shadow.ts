@@ -23,12 +23,13 @@ export const shadow: Lesson = {
     <h2>阴影 Shadow</h2>
     <p>Three.js 中的阴影并不是光线追踪，而是经典的 <b>Shadow Map（阴影贴图）</b>：先<b>从光源视角</b>把场景渲染成一张深度图，再在正式渲染时比较「某点到光源的距离」与「深度图中记录的最近距离」，若更远则该点处于阴影里。</p>
 
-    <h3>三步开启阴影</h3>
-    <pre><code>renderer.shadowMap.enabled = true;   // 1. 渲染器开启阴影
-light.castShadow = true;             // 2. 光源投射阴影
-mesh.castShadow = true;              // 3a. 物体投下影子
-floor.receiveShadow = true;          // 3b. 平面接收影子</code></pre>
-    <p>三者缺一不可：<code>castShadow</code> 决定"谁投影"，<code>receiveShadow</code> 决定"谁被投影"。面板中的「开启阴影」一键开关，可以直观对比有无阴影的差别。</p>
+    <h3>四个开关，缺一不可</h3>
+    <pre><code>renderer.shadowMap.enabled = true;   // ① 渲染器总开关（最容易漏！）
+light.castShadow = true;             // ② 光源投射阴影
+mesh.castShadow = true;              // ③ 物体投下影子  → 谁投影
+floor.receiveShadow = true;          // ④ 平面接收影子  → 谁被投影</code></pre>
+    <p>四个开关必须<b>同时为真</b>才会出现阴影，任意一个关掉影子就消失。<code>castShadow</code> 决定"谁投影"，<code>receiveShadow</code> 决定"谁被投影"，两者互相独立：地面只需 <code>receiveShadow</code>，而几何体若想接到别的物体的影子（互阴影），就得两者都开。</p>
+    <p>右侧面板「阴影的四个开关」分组里有这 4 个勾选项，可以逐个关掉，亲眼验证每一步的作用：关①全部失效；关②光源不再产生深度图；关③物体不投影但地面仍显示别人的影子；关④地面不再显示任何影子。</p>
     <p>地面上共放置 <b>9 个不同形状 / 颜色的几何体</b>，按 <b>3×3 网格</b>排列（间距 3.2），覆盖球体、立方体、圆柱、环面纽结、圆环、圆锥、十二面体、八面体、二十面体，方便对比不同轮廓投出的影子。</p>
     <p>本示例中所有几何体都<b>悬浮在地面之上</b>（可拖动「悬浮高度」调节），影子与物体之间留有空隙，能更清楚地看出"影子落在地面上"这件事。物体高度取各自的<b>包围球半径</b>（<code>geometry.boundingSphere.radius</code>）作为贴地基准，因此无论怎么自转都不会插进地面。</p>
 
@@ -229,7 +230,11 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
             normalBias: 0.02,
             camSize: 10,
             camFar: 30,
-            shadows: 1,
+            // 阴影的四个开关，缺一不可
+            enableShadowMap: 1,
+            lightCast: 1,
+            castShadow: 1,
+            receiveShadow: 1,
             showLightHelper: 1,
             showCamHelper: 0,
         };
@@ -282,6 +287,15 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
             dirLight.shadow.map?.dispose();
             dirLight.shadow.map = null as unknown as THREE.WebGLRenderTarget;
             ctx.renderer.shadowMap.needsUpdate = true;
+            refreshMaterials();
+        };
+
+        /**
+         * 标记场景内所有材质重新编译着色器。
+         * 切换 renderer.shadowMap.enabled 会改变程序缓存键（shadowMapEnabled），
+         * 但不会自动触发重编译，必须手动置 needsUpdate。
+         */
+        const refreshMaterials = () => {
             ctx.scene.traverse((obj) => {
                 const m = (obj as THREE.Mesh).material;
                 if (!m) return;
@@ -290,16 +304,38 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
             });
         };
 
-        /** 一键开关：物体是否投影、地面是否接收阴影 */
-        const applyShadowToggle = () => {
-            const on = state.shadows >= 0.5;
+        /** 开关 1：渲染器总开关 */
+        const applyShadowMapEnabled = () => {
+            ctx.renderer.shadowMap.enabled = state.enableShadowMap >= 0.5;
+            refreshMaterials();
+        };
+
+        /** 开关 2：光源是否投射阴影 */
+        const applyLightCast = () => {
+            dirLight.castShadow = state.lightCast >= 0.5;
+            refreshMaterials();
+        };
+
+        /** 开关 3：几何体是否投下影子 */
+        const applyObjectCast = () => {
+            const on = state.castShadow >= 0.5;
             shapes.forEach(({mesh}) => (mesh.castShadow = on));
+        };
+
+        /** 开关 4：地面与几何体是否接收影子 */
+        const applyReceive = () => {
+            const on = state.receiveShadow >= 0.5;
             floor.receiveShadow = on;
+            shapes.forEach(({mesh}) => (mesh.receiveShadow = on));
         };
 
         applyDirection();
         applyHover();
         applyShadowCamera();
+        applyShadowMapEnabled();
+        applyLightCast();
+        applyObjectCast();
+        applyReceive();
 
         // ---------- 参数面板 ----------
         const panel = createParamPanel({
@@ -406,14 +442,50 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                     desc: '超出此距离的物体不再投影',
                 },
                 {
-                    key: 'shadows',
-                    label: '开启阴影',
-                    type: 'checkbox',
-                    min: 0,
-                    max: 1,
-                    step: 1,
-                    value: state.shadows,
-                    desc: '关闭后物体不再投影，可直观对比效果',
+                    type: 'group',
+                    label: '阴影的四个开关（缺一不可）',
+                    children: [
+                        {
+                            key: 'enableShadowMap',
+                            label: '① renderer.shadowMap.enabled',
+                            type: 'checkbox',
+                            min: 0,
+                            max: 1,
+                            step: 1,
+                            value: state.enableShadowMap,
+                            desc: '渲染器总开关，关闭后其余三项全部失效',
+                        },
+                        {
+                            key: 'lightCast',
+                            label: '② light.castShadow',
+                            type: 'checkbox',
+                            min: 0,
+                            max: 1,
+                            step: 1,
+                            value: state.lightCast,
+                            desc: '平行光是否投射阴影，决定"谁能产生影子"',
+                        },
+                        {
+                            key: 'castShadow',
+                            label: '③ mesh.castShadow',
+                            type: 'checkbox',
+                            min: 0,
+                            max: 1,
+                            step: 1,
+                            value: state.castShadow,
+                            desc: '几何体是否投下影子，决定"谁投影"',
+                        },
+                        {
+                            key: 'receiveShadow',
+                            label: '④ mesh.receiveShadow',
+                            type: 'checkbox',
+                            min: 0,
+                            max: 1,
+                            step: 1,
+                            value: state.receiveShadow,
+                            desc: '地面与几何体是否接收影子，决定"谁被投影"',
+                        },
+                    ],
                 },
                 {
                     key: 'showLightHelper',
@@ -447,7 +519,10 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                 normalBias: 0.02,
                 camSize: 10,
                 camFar: 30,
-                shadows: 1,
+                enableShadowMap: 1,
+                lightCast: 1,
+                castShadow: 1,
+                receiveShadow: 1,
                 showLightHelper: 1,
                 showCamHelper: 0,
             },
@@ -493,9 +568,21 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                         state.camFar = value;
                         applyShadowCamera();
                         break;
-                    case 'shadows':
-                        state.shadows = value;
-                        applyShadowToggle();
+                    case 'enableShadowMap':
+                        state.enableShadowMap = value;
+                        applyShadowMapEnabled();
+                        break;
+                    case 'lightCast':
+                        state.lightCast = value;
+                        applyLightCast();
+                        break;
+                    case 'castShadow':
+                        state.castShadow = value;
+                        applyObjectCast();
+                        break;
+                    case 'receiveShadow':
+                        state.receiveShadow = value;
+                        applyReceive();
                         break;
                     case 'showLightHelper':
                         state.showLightHelper = value;
