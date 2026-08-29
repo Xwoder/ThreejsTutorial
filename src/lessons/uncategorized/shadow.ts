@@ -56,6 +56,7 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
     <h3>动手试试</h3>
     <ul>
       <li>切换左上角「光源类型」→ 「光源强度」会自动跳到该类型的初始值：<b>平行光 3 / 点光源 5 / 聚光光源 20</b>。因为平行光不衰减、点光源按距离平方反比衰减、聚光还要被光锥摊薄，同样的数值三者看起来亮度并不一样，所以初始值特意取了三档。</li>
+      <li>切到「聚光光源」→ 它<b>不在正上方</b>而是偏在一侧斜照，光锥是斜的，影子被拉长并倒向相机这边，比"顶光"更能看出立体感；拖「光源高度」只改 Y，斜照的角度随之变化（越高越接近顶光）。</li>
       <li>把「仰角」降到 10° 左右 → 影子被拉得很长，像傍晚的太阳。</li>
       <li>拖动「悬浮高度」→ 物体整体远离地面，影子与物体逐渐"脱开"，可以清楚看到"影子是投在地面上的"。</li>
       <li>把「阴影贴图分辨率」调到 512 → 边缘锯齿立刻明显。</li>
@@ -258,10 +259,11 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
                 lightHelper = new THREE.PointLightHelper(l, 0.4, 0xfacc15);
                 shadowCamera = l.shadow.camera;
             } else {
-                // 聚光光源初始位置比点光源稍远（SPOT_Y），光锥能照到更大的地面范围
+                // 聚光光源初始位置比点光源稍远（SPOT_Y），并在水平方向偏出一段距离，
+                // 形成斜照效果：光锥是斜的，影子被拉长倒向一侧（而非正下方的"顶光"）。
                 state.posY = SPOT_Y;
                 const l = new THREE.SpotLight(0xffffff, intensity, state.distance, THREE.MathUtils.degToRad(state.angle), state.penumbra, state.decay);
-                l.position.set(0, state.posY, 0);
+                l.position.set(SPOT_TILT_X, state.posY, SPOT_TILT_Z);
                 l.target.position.set(0, 0, 0);
                 ctx.scene.add(l.target);
                 ctx.scene.add(l);
@@ -320,6 +322,13 @@ s.updateProjectionMatrix();          // 改完务必调用</code></pre>
         const POINT_Y = 6;
         /** 聚光光源初始高度：比点光源稍远一点，光锥能照到更大的地面范围 */
         const SPOT_Y = 12;
+        /**
+         * 聚光光源的水平偏移：故意不放在正上方，而是偏到一侧，
+         * 让光"斜照"过来（光轴与地面约成 60°，即入射倾斜约 30°），影子被拉长并倒向相机一侧。
+         * 取负 X / 负 Z 是因为相机在 (+X, +Z) 方向，影子会朝相机这边倒，最有立体感。
+         */
+        const SPOT_TILT_X = -4.5;
+        const SPOT_TILT_Z = -5.5;
         /** 几何体自转的基础角速度（弧度/秒），各物体再乘以自身的 speed 系数 */
         const SPIN_SPEED = 0.3;
         const state = {
