@@ -42,8 +42,8 @@ import {sineTerrain} from './uncategorized/sineTerrain';
 import {worldToLocal} from './uncategorized/worldToLocal';
 import {objViewer} from './uncategorized/objViewer';
 import {objFromCode} from './objFromCode';
-import {rapierPhysics} from './physics/rapierPhysics';
-import {bouncing} from './physics/bouncing';
+import {rapierPhysics} from './physics/rapier-free-fall';
+import {bouncing} from './physics/rapier-bouncing';
 
 export const chapters: Chapter[] = [
   {
