@@ -68,10 +68,14 @@ control.setSpace('world'   | 'local');  // 世界坐标 / 本地坐标</code></p
       targets.push(mesh);
     });
 
-    ctx.scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.4);
+    ctx.scene.add(new THREE.AmbientLight(0xffffff, 1.2));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.8);
     dirLight.position.set(5, 8, 4);
     ctx.scene.add(dirLight);
+    // 反向补光，消除背光面的死黑
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    fillLight.position.set(-5, 4, -4);
+    ctx.scene.add(fillLight);
 
     const orbit = new OrbitControls(camera, ctx.renderer.domElement);
     orbit.enableDamping = true;
