@@ -127,9 +127,24 @@ control.setSpace('world'   | 'local');  // 世界坐标 / 本地坐标</code></p
       const modeGroup = panel.addControlGroup({
       title: '模式',
       items: [
-        { label: '平移', onClick: () => transform.setMode('translate'), active: () => transform.mode === 'translate' },
-        { label: '旋转', onClick: () => transform.setMode('rotate'), active: () => transform.mode === 'rotate' },
-        { label: '缩放', onClick: () => transform.setMode('scale'), active: () => transform.mode === 'scale' },
+        {
+          label: '平移', onClick: () => {
+            transform.setMode('translate');
+            syncModeButtons();
+          }, active: () => transform.mode === 'translate'
+        },
+        {
+          label: '旋转', onClick: () => {
+            transform.setMode('rotate');
+            syncModeButtons();
+          }, active: () => transform.mode === 'rotate'
+        },
+        {
+          label: '缩放', onClick: () => {
+            transform.setMode('scale');
+            syncModeButtons();
+          }, active: () => transform.mode === 'scale'
+        },
       ],
     });
 
@@ -137,8 +152,18 @@ control.setSpace('world'   | 'local');  // 世界坐标 / 本地坐标</code></p
       const spaceGroup = panel.addControlGroup({
       title: '坐标空间',
       items: [
-        { label: 'World', onClick: () => transform.setSpace('world'), active: () => transform.space === 'world' },
-        { label: 'Local', onClick: () => transform.setSpace('local'), active: () => transform.space === 'local' },
+        {
+          label: 'World', onClick: () => {
+            transform.setSpace('world');
+            syncSpaceButtons();
+          }, active: () => transform.space === 'world'
+        },
+        {
+          label: 'Local', onClick: () => {
+            transform.setSpace('local');
+            syncSpaceButtons();
+          }, active: () => transform.space === 'local'
+        },
       ],
     });
 
