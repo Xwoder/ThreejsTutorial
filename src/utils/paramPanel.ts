@@ -38,6 +38,32 @@ export interface ParamStepper {
   disabled?: boolean;
 }
 
+/** 分段按钮组的一个选项 */
+export interface ParamSegmentedOption {
+  /** 按钮文字 */
+  label: string;
+  /** 选中该按钮时回调给 onChange 的数值 */
+  value: number;
+  /** 鼠标悬停提示，可选 */
+  title?: string;
+}
+
+/** 分段按钮组：标题与若干互斥按钮同行显示，点击按钮直接切换到对应数值（视觉同左上角视图选项卡） */
+export interface ParamSegmented {
+  /** 控件类型：'segmented' 为分段按钮组 */
+  type: 'segmented';
+  key: string;
+  label: string;
+  /** 初始值，应为 options 中某一项的 value */
+  value: number;
+  /** 可选项，至少两项；不限于两项 */
+  options: ParamSegmentedOption[];
+  /** 参数说明，显示在控件下方 */
+  desc?: string;
+  /** 是否禁用该组按钮 */
+  disabled?: boolean;
+}
+
 export interface ParamReadonly {
   /** 只读数值控件：仅展示 label + value，不渲染滑块 */
   type: 'readonly';
@@ -62,7 +88,12 @@ export interface ParamGroup {
   children: ParamControl[];
 }
 
-export type ParamControl = ParamSlider | ParamReadonly | ParamGroup | ParamStepper;
+export type ParamControl =
+    | ParamSlider
+    | ParamReadonly
+    | ParamGroup
+    | ParamStepper
+    | ParamSegmented;
 
 export interface ParamPanelOptions {
   /** 面板挂载容器 */
@@ -102,7 +133,10 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
   el.className = 'camera-controls';
   el.innerHTML = `<div class="camera-controls-title">参数 <span>CONTROLS</span></div>`;
 
-  const rows = new Map<string, { input?: HTMLInputElement; value: HTMLElement }>();
+  const rows = new Map<
+      string,
+      { input?: HTMLInputElement; value: HTMLElement; setValue?: (v: number) => void }
+  >();
 
   const hexStr = (n: number) => '#' + (n & 0xffffff).toString(16).padStart(6, '0');
 
@@ -123,6 +157,8 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
 
     let row: HTMLElement;
     let input: HTMLInputElement | undefined;
+    /** 无 input 的控件（分段按钮组）用它回写选中态 */
+    let setValue: ((v: number) => void) | undefined;
 
     switch (c.type) {
       case 'readonly':
@@ -137,6 +173,9 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
       case 'stepper':
         [row, input] = createStepper(c as ParamStepper);
         break;
+      case 'segmented':
+        [row, , setValue] = createSegmented(c as ParamSegmented);
+        break;
       case 'range':
       default:
         [row, input] = createSliderRow(c);
@@ -145,7 +184,7 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
 
     parent.appendChild(row);
     const valueEl = row.querySelector<HTMLElement>('.camera-control-value')!;
-    rows.set(c.key, {input, value: valueEl});
+    rows.set(c.key, {input, value: valueEl, setValue});
   };
 
   const createReadonly = (c: ParamReadonly): HTMLElement => {
@@ -345,6 +384,68 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
     return [row, valueInput];
   };
 
+  const createSegmented = (
+      c: ParamSegmented,
+  ): [HTMLElement, undefined, (v: number) => void] => {
+    const row = document.createElement('div');
+    row.className = 'camera-control-row camera-control-segmented-row';
+    row.dataset.key = c.key;
+
+    const header = document.createElement('div');
+    header.className = 'camera-control-header camera-control-segmented-header';
+    const label = document.createElement('span');
+    label.className = 'camera-control-label';
+    label.textContent = c.label;
+    header.appendChild(label);
+
+    const group = document.createElement('div');
+    group.className = 'camera-control-segmented';
+
+    let current = c.value;
+    const btns: { el: HTMLButtonElement; value: number }[] = [];
+    // 只刷新按钮高亮，不触发 onChange（供外部回写与「重置参数」复用）
+    const sync = () => {
+      btns.forEach((b) => b.el.classList.toggle('active', b.value === current));
+    };
+
+    c.options.forEach((opt) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'camera-control-segmented-btn';
+      btn.textContent = opt.label;
+      if (opt.title) btn.title = opt.title;
+      if (c.disabled) btn.disabled = true;
+      btn.addEventListener('click', () => {
+        if (c.disabled || opt.value === current) return;
+        current = opt.value;
+        sync();
+        onChange?.(c.key, opt.value);
+      });
+      group.appendChild(btn);
+      btns.push({el: btn, value: opt.value});
+    });
+    sync();
+    header.appendChild(group);
+
+    const valueEl = document.createElement('span');
+    valueEl.className = 'camera-control-value';
+    valueEl.style.display = 'none';
+    header.appendChild(valueEl);
+
+    row.appendChild(header);
+    if (c.desc) {
+      const desc = document.createElement('div');
+      desc.className = 'camera-control-desc';
+      desc.textContent = c.desc;
+      row.appendChild(desc);
+    }
+    return [row, undefined, (v) => {
+      current = v;
+      sync();
+      valueEl.textContent = String(v);
+    }];
+  };
+
   controls.forEach((c) => appendControl(el, c));
 
   if (footer) el.appendChild(footer);
@@ -379,6 +480,9 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
         } else if (c.type === 'stepper') {
           row.input!.value = Number(def).toFixed(c.precision ?? 2);
           onChange?.(c.key, def);
+        } else if (c.type === 'segmented') {
+          row.setValue?.(def);
+          onChange?.(c.key, def);
         } else {
           row.input!.value = String(def);
           row.value.textContent = Number(def).toFixed(c.precision ?? 2);
@@ -397,7 +501,9 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
     setDisplay(key, value) {
       const row = rows.get(key);
       if (!row) return;
-      const findControl = (list: ParamControl[]): ParamSlider | ParamReadonly | undefined => {
+      const findControl = (
+          list: ParamControl[],
+      ): Exclude<ParamControl, ParamGroup> | undefined => {
         for (const item of list) {
           if (item.type === 'group') {
             const found = findControl(item.children);
@@ -409,7 +515,7 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
         return undefined;
       };
       const c = findControl(controls);
-      const precision = c?.precision ?? 2;
+      const precision = c && 'precision' in c ? c.precision ?? 2 : 2;
       if (c?.type === 'checkbox') {
         row.input!.checked = value >= 0.5;
       } else if (c?.type === 'color') {
@@ -417,6 +523,8 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
         row.value.textContent = hexStr(value).toUpperCase();
       } else if (c?.type === 'readonly') {
         row.value.textContent = Number(value).toFixed(precision);
+      } else if (c?.type === 'segmented') {
+        row.setValue?.(value);
       } else {
         row.input!.value = String(value);
         row.value.textContent = Number(value).toFixed(precision);
