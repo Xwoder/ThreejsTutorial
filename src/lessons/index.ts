@@ -43,6 +43,7 @@ import {worldToLocal} from './uncategorized/worldToLocal';
 import {objViewer} from './uncategorized/objViewer';
 import {objFromCode} from './objFromCode';
 import {rapierPhysics} from './physics/rapierPhysics';
+import {bouncing} from './physics/bouncing';
 
 export const chapters: Chapter[] = [
   {
@@ -93,6 +94,6 @@ export const chapters: Chapter[] = [
   {
     id: 'physics',
     title: 'Rapier 物理引擎',
-    lessons: [rapierPhysics],
+    lessons: [rapierPhysics, bouncing],
   },
 ];
