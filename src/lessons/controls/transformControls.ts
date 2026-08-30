@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 import type { Lesson } from '../types';
 import {createContext, makeCleanup, setSceneBackground, BG_DARK_BLUE} from '../helper';
+import {LabeledAxesHelper} from '../../utils/LabeledAxesHelper.ts';
 
 import {createParamPanel} from '../../utils/paramPanel';
 
@@ -52,7 +53,7 @@ control.setSpace('world'   | 'local');  // 世界坐标 / 本地坐标</code></p
     });
 
     ctx.scene.add(new THREE.GridHelper(14, 14, 0x475569, 0x1e293b));
-    ctx.scene.add(new THREE.AxesHelper(4));
+    ctx.scene.add(new LabeledAxesHelper(4, true, true));
 
     const colors = [0xc084fc, 0x22c55e, 0x38bdf8, 0xf59e0b, 0xef4444];
     const targets: THREE.Mesh[] = [];
