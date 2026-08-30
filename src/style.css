@@ -12,6 +12,37 @@
   --text: #e2e8f0;
   --text-dim: #94a3b8;
   --accent: #38bdf8;
+
+  /* 参数面板主题变量（深色默认值，运行时由 applyPanelTheme() 覆盖） */
+  --pp-panel-bg: rgba(30, 41, 59, 0.92);
+  --pp-border: #334155;
+  --pp-border-strong: #475569;
+  --pp-divider: #475569;
+  --pp-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --pp-text: #e2e8f0;
+  --pp-text-dim: #94a3b8;
+  --pp-title: #38bdf8;
+  --pp-title-rule: rgba(56, 189, 248, 0.25);
+  --pp-value: #38bdf8;
+  --pp-accent: #38bdf8;
+  --pp-accent-hover: #7dd3fc;
+  --pp-on-accent: #0f172a;
+  --pp-surface: #0b1120;
+  --pp-surface-raised: #1e293b;
+  --pp-surface-hover: #334155;
+  --pp-surface-pressed: #0f172a;
+  --pp-surface-fg: #94a3b8;
+  --pp-group-bg: rgba(15, 23, 42, 0.4);
+  --pp-text-weight: 500;
+  --pp-title-weight: 700;
+  --pp-title-tracking: 0.5px;
+  --pp-value-weight: 600;
+  --pp-value-tracking: 0;
+  --pp-btn-weight: 600;
+  --pp-axis-x: #ff5d5d;
+  --pp-axis-y: #5dff8f;
+  --pp-axis-z: #5dc8ff;
+  --pp-danger: #ff5d5d;
 }
 
 /* 浅色主题：在 <html> 上加 .light 类切换 */
