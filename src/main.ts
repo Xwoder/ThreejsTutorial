@@ -1,6 +1,7 @@
 import './style.css';
 import { chapters } from './lessons';
 import type { Lesson } from './lessons/types';
+import {applyPanelTheme} from './utils/panelTheme.ts';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
 
@@ -147,6 +148,8 @@ function applyTheme(light: boolean) {
   themeToggle.textContent = light ? '☀️' : '🌙';
   themeToggle.title = light ? '切换到深色主题' : '切换到浅色主题';
   localStorage.setItem('threejs-tutorial-theme', light ? 'light' : 'dark');
+  // 参数面板的配色由 PANEL_THEME 参数对象统一提供，切换主题时整体套用
+  applyPanelTheme(light ? 'light' : 'dark');
 }
 
 applyTheme(localStorage.getItem('threejs-tutorial-theme') === 'light');

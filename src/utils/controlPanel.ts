@@ -24,9 +24,12 @@ export interface ControlPanelButtonItem {
     onClick: () => void;
     /** 是否处于选中（高亮）状态 */
     active: () => boolean;
-    /** 普通态配色（CSS 颜色值，如 '#ff5d5d'）。不传则使用 CSS 默认样式 */
+    /**
+     * 普通态配色（CSS 颜色值）。不传则使用 CSS 默认样式。
+     * 传 'var(--pp-axis-x)' 这类主题变量可自动跟随浅色 / 深色主题变化。
+     */
     color?: string;
-    /** 高亮（active）态配色（CSS 颜色值）。不传则使用 CSS 默认样式 */
+    /** 高亮（active）态配色，规则同 color */
     activeColor?: string;
 }
 

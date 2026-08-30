@@ -46,7 +46,10 @@ export interface ParamReadonly {
   value: number;
   /** 数值显示小数位数（默认 2） */
   precision?: number;
-  /** 标签文字颜色（CSS 颜色值，如 '#ff5d5d'），用于按轴向等区分 */
+  /**
+   * 标签文字颜色（CSS 颜色值），用于按轴向等区分。
+   * 传 'var(--pp-axis-x)' 这类主题变量可自动跟随浅色 / 深色主题变化。
+   */
   labelColor?: string;
 }
 

@@ -306,21 +306,21 @@ export const rapierPhysics: Lesson = {
                                 key: 'gx',
                                 label: 'X',
                                 value: gravity.x,
-                                labelColor: '#ff5d5d'
+                                labelColor: 'var(--pp-axis-x)'
                             },
                             {
                                 type: 'readonly',
                                 key: 'gy',
                                 label: 'Y',
                                 value: gravity.y,
-                                labelColor: '#5dff8f'
+                                labelColor: 'var(--pp-axis-y)'
                             },
                             {
                                 type: 'readonly',
                                 key: 'gz',
                                 label: 'Z',
                                 value: gravity.z,
-                                labelColor: '#5dc8ff'
+                                labelColor: 'var(--pp-axis-z)'
                             },
                         ],
                     },
@@ -346,8 +346,8 @@ export const rapierPhysics: Lesson = {
                         label: labels[s],
                         active: () => currentShape === s,
                         onClick: () => selectShape(s),
-                        color: '#5dc8ff',
-                        activeColor: '#0f172a',
+                        color: 'var(--pp-axis-z)',
+                        activeColor: 'var(--pp-on-accent)',
                     };
                 }),
             });
@@ -367,8 +367,8 @@ export const rapierPhysics: Lesson = {
                         label: '重放',
                         active: () => false,
                         onClick: () => reSpawn(),
-                        color: '#ff5d5d',
-                        activeColor: '#ff5d5d',
+                        color: 'var(--pp-danger)',
+                        activeColor: 'var(--pp-danger)',
                     },
                 ],
             });
