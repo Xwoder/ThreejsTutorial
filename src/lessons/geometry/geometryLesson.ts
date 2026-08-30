@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import {createContext, makeCleanup, setSceneBackground, BG_DARK} from '../helper';
 
-import {createParamPanel, type ParamSlider} from '../../utils/paramPanel.ts';
+import {createParamPanel, type ParamControl} from '../../utils/paramPanel.ts';
 import type { Lesson } from '../types';
 
 export interface GeometryLessonOptions {
@@ -11,7 +11,8 @@ export interface GeometryLessonOptions {
   description: string;
   createGeometry: (params: Record<string, number>) => THREE.BufferGeometry;
   params?: Record<string, number>;
-  controls?: ParamSlider[];
+  /** 控件列表，可用滑块 / 步进器 / 分段按钮组 / 勾选框 / 颜色 / 只读 / 分组（见 paramPanel.ts） */
+  controls?: ParamControl[];
   cameraPos?: [number, number, number];
   /** 相机注视目标（OrbitControls target），默认原点。几何体中心不在原点时用它让物体居中 */
   target?: [number, number, number];

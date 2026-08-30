@@ -69,7 +69,17 @@ export const cylinderGeometry: Lesson = makeGeometryLesson({
           precision: 0
       },
     { key: 'thetaLength', label: 'thetaLength', min: 0.1, max: Math.PI * 2, step: 0.01, value: Math.PI * 2, desc: '绕轴扫过角度（2π 为整圈）', precision: 2 },
-    { key: 'openEnded', label: 'openEnded', min: 0, max: 1, step: 1, value: 0, desc: '是否开口（1 为无顶底）', precision: 0 },
+      {
+          key: 'openEnded',
+          label: 'openEnded',
+          type: 'segmented',
+          value: 0,
+          options: [
+              {label: '0', value: 0},
+              {label: '1', value: 1},
+          ],
+          desc: '是否开口（开口即去掉顶面和底面，只剩侧壁）',
+      },
   ],
   cameraPos: [0, 0.5, 5],
   viewTabs: true,

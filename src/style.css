@@ -571,37 +571,6 @@ body {
   margin: 4px 0 0;
 }
 
-/* TransformControls 坐标空间切换面板 */
-.transform-space-panel {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  padding: 14px 16px;
-  background: var(--pp-panel-bg);
-  border: 1px solid var(--pp-border);
-  border-radius: 10px;
-  box-shadow: var(--pp-shadow);
-  color: var(--pp-text);
-  font-size: 11px;
-  font-weight: var(--pp-text-weight);
-  z-index: 5;
-  min-width: 168px;
-}
-
-.transform-panel-heading {
-  font-size: 14px;
-  font-weight: var(--pp-title-weight);
-  color: var(--pp-title);
-  letter-spacing: var(--pp-title-tracking);
-  text-align: center;
-}
-
-.transform-panel-divider {
-  height: 0;
-  margin: 12px 0 14px;
-  border-top: 1px dashed var(--pp-divider);
-}
-
 /* 通用「标题 + 按钮组」分组（createControlPanelGroup） */
 .control-group {
   margin-top: 18px;

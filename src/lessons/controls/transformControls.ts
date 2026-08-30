@@ -4,7 +4,7 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 import type { Lesson } from '../types';
 import {createContext, makeCleanup, setSceneBackground, BG_DARK_BLUE} from '../helper';
 
-import {createControlPanelGroup} from '../../utils/controlPanel';
+import {createParamPanel} from '../../utils/paramPanel';
 
 export const transformControls: Lesson = {
   id: 'controls/transform-controls',
@@ -114,23 +114,17 @@ control.setSpace('world'   | 'local');  // 世界坐标 / 本地坐标</code></p
     };
     window.addEventListener('keydown', onKey);
 
-    // 右上角面板：总标题 → 虚线分隔符 → 模式 → 坐标空间
-    const panel = document.createElement('div');
-    panel.className = 'transform-space-panel';
-
-    // 总标题
-    const panelHeading = document.createElement('div');
-    panelHeading.className = 'transform-panel-heading';
-    panelHeading.textContent = '控制面板';
-    panel.appendChild(panelHeading);
-
-    // 虚线分隔符
-    const divider = document.createElement('div');
-    divider.className = 'transform-panel-divider';
-    panel.appendChild(divider);
+      // 右上角参数面板：复用与其他课程一致的「参数 CONTROLS」面板样式，
+      // 通过 addControlGroup 添加「模式」「坐标空间」两个按钮分组
+      const panel = createParamPanel({
+          container,
+          controls: [],
+          defaults: {},
+          resettable: false,
+      });
 
     // 变换模式分组（平移 / 旋转 / 缩放），与键盘 W/E/R 联动
-    const modeGroup = createControlPanelGroup({
+      const modeGroup = panel.addControlGroup({
       title: '模式',
       items: [
         { label: '平移', onClick: () => transform.setMode('translate'), active: () => transform.mode === 'translate' },
@@ -138,18 +132,15 @@ control.setSpace('world'   | 'local');  // 世界坐标 / 本地坐标</code></p
         { label: '缩放', onClick: () => transform.setMode('scale'), active: () => transform.mode === 'scale' },
       ],
     });
-    panel.appendChild(modeGroup.el);
 
     // 坐标空间分组（World / Local）
-    const spaceGroup = createControlPanelGroup({
+      const spaceGroup = panel.addControlGroup({
       title: '坐标空间',
       items: [
         { label: 'World', onClick: () => transform.setSpace('world'), active: () => transform.space === 'world' },
         { label: 'Local', onClick: () => transform.setSpace('local'), active: () => transform.space === 'local' },
       ],
     });
-    panel.appendChild(spaceGroup.el);
-    container.appendChild(panel);
 
     const syncModeButtons = () => modeGroup.sync();
     const syncSpaceButtons = () => spaceGroup.sync();

@@ -45,7 +45,17 @@ export const coneGeometry: Lesson = makeGeometryLesson({
     { key: 'radialSegments', label: 'radialSegments', min: 3, max: 64, step: 1, value: 32, desc: '圆周分段，越大底面越圆', precision: 0 },
     { key: 'heightSegments', label: 'heightSegments', min: 1, max: 20, step: 1, value: 1, desc: '高度方向分段', precision: 0 },
     { key: 'thetaLength', label: 'thetaLength', min: 0.1, max: Math.PI * 2, step: 0.01, value: Math.PI * 2, desc: '绕轴扫过角度（2π 为整圈）', precision: 2 },
-    { key: 'openEnded', label: 'openEnded', min: 0, max: 1, step: 1, value: 0, desc: '是否开口（1 为无底面）', precision: 0 },
+    {
+      key: 'openEnded',
+      label: 'openEnded',
+      type: 'segmented',
+      value: 0,
+      options: [
+        {label: '0', value: 0},
+        {label: '1', value: 1},
+      ],
+      desc: '是否开口（开口即去掉底面，只剩侧壁）',
+    },
   ],
   cameraPos: [0, 0.5, 5],
   viewTabs: true,
