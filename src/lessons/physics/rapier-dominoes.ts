@@ -8,7 +8,7 @@ import type RAPIER from '@dimforge/rapier3d-compat';
 
 const dominoDescription = `
   <h2>多米诺骨牌</h2>
-  <p>本例在<b>四面有墙的平面</b>中沿一条<b>连续的蛇形（S 型）路径</b>摆好 50 张多米诺骨牌。点击<b>开始</b>推倒第一张，触发连锁倒塌；点击<b>重置</b>让所有骨牌恢复直立。</p>
+  <p>本例在<b>四面有墙的平面</b>中沿一条<b>连续的蛇形（S 型）路径</b>摆好 50 张多米诺骨牌。点击<b>开始</b>推倒第一张，触发连锁倒塌；点击<b>重置</b>让所有骨牌复原直立。</p>
   <p><b>为什么必须沿「连续路径」摆放？</b></p>
   <p>多米诺靠「前一张倒下时撞到后一张」传递。如果生硬地换行——上一行最后一张沿 +X 倒，而下一行第一张在 Z 方向偏移了一整行——两者根本碰不到，<b>链条会在拐弯处断掉</b>。</p>
   <p>所以这里把整个 S 型看成<b>一条连续曲线</b>：直线段（每行）+ 半圆掉头弯（行与行之间），再沿曲线<b>按等弧长</b>取点摆放。弯道处骨牌方向<b>平滑旋转</b>，倒下的方向也随之逐渐转向，连锁才不会断。</p>
@@ -21,7 +21,7 @@ const dominoDescription = `
     <li><b>场地</b>：先让路径总弧长恰好等于骨牌铺满所需长度 <code>(COUNT-1)×间距</code>，最后一张正好落在路径终点；再由骨牌包围盒反推地面尺寸（因此是矩形而非正方形）。</li>
     <li>地面与四面墙是<b>固定刚体</b>（fixed），骨牌是<b>动态刚体</b>（dynamic）；骨牌低弹性（<code>restitution</code> 小）+ 较高摩擦，倒下后不弹跳，倒塌更连贯。</li>
     <li><b>开始</b>：对第 0 张骨牌在<b>质心上方</b>沿其朝向施加一次冲量（<code>applyImpulseAtPoint</code>），产生翻转力矩把它推倒。</li>
-    <li><b>重置</b>：把每张骨牌的位姿恢复到初始值，并清零线速度/角速度。</li>
+    <li><b>重置</b>：把每张骨牌的位姿复原到初始值，并清零线速度/角速度。</li>
   </ul>
   <p>每帧 <code>world.step()</code> 后把刚体的 <code>translation / rotation</code> 同步到网格，实现「物理驱动渲染」。</p>
 `;
@@ -190,7 +190,7 @@ export const domino: Lesson = {
         syncLightToCamera();
 
         // 容器（地面 + 四面墙）网格，仅用于显示
-        const wallH = 1.2;
+        const wallH = 0.6;
         const wallT = 0.3;
         const groundMat = new THREE.MeshStandardMaterial({color: 0x223044, roughness: 0.9});
         const wallMat = new THREE.MeshStandardMaterial({color: 0x2b3a52, roughness: 0.9});
@@ -291,7 +291,7 @@ export const domino: Lesson = {
                 }
             };
 
-            // 重置：恢复初始位姿与朝向，并清零速度
+            // 重置：复原初始位姿与朝向，并清零速度
             const resetDominoes = () => {
                 for (const d of dominoes) {
                     d.body.setTranslation(d.initPos, true);
@@ -406,30 +406,42 @@ export const domino: Lesson = {
                 paramPanel?.setDisplay('initialSpeed', INITIAL_SPEED);
             };
 
-            // 底部按钮组：开始 / 恢复 / 重置
+            // 底部按钮组：开始/复原（合一） / 重置
+            let isRunning = false;
+            let startBtn: HTMLButtonElement | null = null;
+
             paramPanel.addControlGroup({
                 title: '',
                 items: [
                     {
                         label: '开始',
                         active: () => false,
-                        onClick: () => startChain(),
+                        onClick: (e: Event) => {
+                            const btn = e.currentTarget as HTMLButtonElement;
+                            startBtn = btn;
+                            if (!isRunning) {
+                                // 初始态 → 推倒，按钮变为「复原」
+                                startChain();
+                                isRunning = true;
+                                btn.textContent = '复原';
+                            } else {
+                                // 倒塌态 → 复原骨牌，按钮变回「开始」
+                                resetDominoes();
+                                isRunning = false;
+                                btn.textContent = '开始';
+                            }
+                        },
                         color: 'var(--pp-primary)',
                         activeColor: 'var(--pp-primary)',
-                    },
-                    {
-                        label: '恢复',
-                        active: () => false,
-                        onClick: () => resetDominoes(),
-                        color: 'var(--pp-accent)',
-                        activeColor: 'var(--pp-accent-hover)',
                     },
                     {
                         label: '重置',
                         active: () => false,
                         onClick: () => {
                             resetParams();      // 控制参数回默认
-                            resetDominoes();    // 骨牌状态恢复直立
+                            resetDominoes();    // 骨牌状态复原
+                            isRunning = false;
+                            if (startBtn) startBtn.textContent = '开始';
                         },
                         color: 'var(--pp-danger)',
                         activeColor: 'var(--pp-danger)',

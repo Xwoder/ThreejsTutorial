@@ -20,8 +20,8 @@ export interface ControlPanelButtonOptions {
 export interface ControlPanelButtonItem {
     /** 按钮文字 */
     label: string;
-    /** 点击回调 */
-    onClick: () => void;
+    /** 点击回调。参数为触发事件的 Event（currentTarget 即按钮元素），无参签名同样兼容 */
+    onClick: (e: Event) => void;
     /** 是否处于选中（高亮）状态 */
     active: () => boolean;
     /**
