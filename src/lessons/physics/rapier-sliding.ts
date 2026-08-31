@@ -9,17 +9,17 @@ import type RAPIER from '@dimforge/rapier3d-compat';
 
 const slidingDescription = `
   <h2>斜面滑动</h2>
-  <p>本例演示一个<b>方块从斜面上滑下</b>，滑到平面后继续向前，最终因摩擦停下。</p>
-  <p>核心变量是碰撞体的<b>摩擦系数（friction）</b>：它描述接触面间的「涩滞」程度（0 = 完全光滑、几乎不减速，越大越「涩」、越快停下）。</p>
-  <p>面板中的<b>「摩擦强度」</b>分为三档（低 / 中 / 高），直接修改方块与斜面的摩擦系数：</p>
+  <p>本例演示一个<b>方块从斜面上滑下</b>，滑到平面后继续向前，最终因摩擦与阻尼停下。</p>
+  <p>核心变量有两个：碰撞体的<b>摩擦系数（friction）</b>与刚体的<b>阻尼（damping）</b>。</p>
   <ul>
-    <li><b>低摩擦</b>：斜面几乎不打滑阻挡，方块快速冲下并滑得很远；</li>
-    <li><b>中摩擦</b>：正常的减速手感；</li>
-    <li><b>高摩擦</b>：方块在斜面上就被明显拖慢，落到平面后很快静止。</li>
+    <li><b>摩擦系数</b>：描述接触面间的「涩滞」程度（0 = 完全光滑、几乎不减速，越大越「涩」、越快停下）。本例由「摩擦系数」滑块统一驱动方块、斜面与地面。</li>
+    <li><b>线性阻尼 / 角阻尼</b>：模拟空气 / 黏滞阻力，<b>不依赖摩擦</b>，只要有速度就会持续衰减速度直至停下。设为 0 即关闭阻尼。</li>
   </ul>
+  <p>把「摩擦系数」与「线性阻尼」都拉到 0，就是<b>理想无摩擦、无阻尼</b>的极端情形：方块滑上水平面后会永远匀速前进、永不停止。</p>
   <p>使用 <code>@dimforge/rapier3d-compat</code> 物理引擎：斜面与水平地面为<b>固定刚体</b>，方块为<b>动态刚体</b>。斜面由一个旋转的固定长方体充当，靠重力沿斜面分量驱动方块下滑。</p>
   <ul>
-    <li><b>摩擦 <code>setFriction()</code></b>：本例由「摩擦强度」统一驱动，同时作用于方块与斜面碰撞体。</li>
+    <li><b>摩擦 <code>setFriction()</code></b>：本例由「摩擦系数」滑块统一驱动，同时作用于方块、斜面与地面碰撞体。</li>
+    <li><b>阻尼 <code>setLinearDamping()</code> / <code>setAngularDamping()</code></b>：由对应滑块实时驱动动态方块刚体。</li>
     <li><b>恢复系数 <code>setRestitution()</code></b>：本例设得很低（0.05），让方块落地后几乎不弹、专注表现滑动。</li>
     <li><b>旋转的固定刚体</b>：斜面通过 <code>RigidBodyDesc.fixed().setRotation(quat)</code> 倾斜放置，碰撞体随之倾斜。</li>
   </ul>
@@ -111,17 +111,21 @@ export const sliding: Lesson = {
             const w = new R.World({x: 0, y: -9.81, z: 0});
             world = w;
 
+            // 摩擦系数：由「摩擦强度」滑块统一驱动，同时作用于方块 / 斜面 / 地面碰撞体
+            let friction = 0.2;
+            // 阻尼：模拟空气/黏滞阻力，不依赖摩擦，有速度就会持续衰减速度直至停下
+            let linearDamping = 0.1;
+            let angularDamping = 0.1;
+
             // 地面：固定刚体 + 立方体碰撞体
+            // 地面摩擦也跟随 friction 变量，这样 friction=0 时组合摩擦真正为 0（完全光滑）
             const groundBody = w.createRigidBody(R.RigidBodyDesc.fixed().setTranslation(0, -0.25, 0));
             w.createCollider(
                 R.ColliderDesc.cuboid(floorSize / 2, 0.25, floorSize / 2)
                     .setRestitution(0.05)
-                    .setFriction(0.8),
+                    .setFriction(friction),
                 groundBody,
             );
-
-            // 摩擦系数：由「摩擦强度」分段按钮统一驱动，三档直接修改该变量
-            let friction = 0.3;
 
             // 斜面：固定刚体 + 旋转后的立方体碰撞体
             // 注意：斜面摩擦也要跟随 friction 变量，否则与方块摩擦取平均后
@@ -160,7 +164,10 @@ export const sliding: Lesson = {
                     R.RigidBodyDesc.dynamic()
                         .setTranslation(spawnX, spawnY, 0)
                         // 让方块姿态与斜面一致，平稳贴在斜面上再下滑
-                        .setRotation(rampQuat),
+                        .setRotation(rampQuat)
+                        // 阻尼：线性阻尼衰减平移速度（让方块最终停下），角阻尼衰减旋转速度
+                        .setLinearDamping(linearDamping)
+                        .setAngularDamping(angularDamping),
                 );
                 // 方块与斜面使用同一摩擦系数，保证「摩擦强度」整体生效
                 const collider = R.ColliderDesc.cuboid(s / 2, s / 2, s / 2)
@@ -183,9 +190,14 @@ export const sliding: Lesson = {
             };
 
             const gravity = w.gravity;
+            // 默认参数：重置按钮会把所有控件恢复为这些值
+            const defaults = {
+                gx: gravity.x, gy: gravity.y, gz: gravity.z,
+                friction, linearDamping, angularDamping,
+            };
             paramPanel = createParamPanel({
                 container,
-                resettable: false,
+                resettable: true,
                 controls: [
                     {
                         type: 'group',
@@ -197,7 +209,7 @@ export const sliding: Lesson = {
                         ],
                     },
                     {
-                        // 摩擦强度：滑块直接修改 friction（方块与斜面碰撞体的摩擦系数）
+                        // 摩擦强度：滑块直接修改 friction（方块与斜面 / 地面碰撞体的摩擦系数）
                         type: 'range',
                         key: 'friction',
                         label: '摩擦系数',
@@ -206,18 +218,70 @@ export const sliding: Lesson = {
                         step: 0.01,
                         value: friction,
                         precision: 2,
-                        desc: '方块与斜面的摩擦系数：0 完全光滑、滑得又快又远，越大越「涩」、很快减速静止',
+                        desc: '方块与斜面 / 地面的摩擦系数：0 完全光滑、滑得又快又远，越大越「涩」、很快减速静止',
+                    },
+                    {
+                        // 线性阻尼：衰减平移速度，越大越快停下；0 表示无阻尼（仅靠摩擦减速）
+                        type: 'range',
+                        key: 'linearDamping',
+                        label: '线性阻尼',
+                        min: 0,
+                        max: 1,
+                        step: 0.01,
+                        value: linearDamping,
+                        precision: 2,
+                        desc: '衰减方块平移速度（类似空气阻力）：0 表示永不因阻尼停下，越大越快静止',
+                    },
+                    {
+                        // 角阻尼：衰减旋转速度（本例方块几乎不转，影响很小）
+                        type: 'range',
+                        key: 'angularDamping',
+                        label: '角阻尼',
+                        min: 0,
+                        max: 1,
+                        step: 0.01,
+                        value: angularDamping,
+                        precision: 2,
+                        desc: '衰减方块旋转速度：0 表示旋转不受黏滞阻力',
                     },
                 ],
-                defaults: {gx: gravity.x, gy: gravity.y, gz: gravity.z, friction},
+                defaults,
+                onReset: () => {
+                    // 恢复所有内部变量到初始默认值
+                    friction = 0.2;
+                    linearDamping = 0.1;
+                    angularDamping = 0.1;
+                    // 同步滑块显示值回默认
+                    paramPanel?.setDisplay('friction', friction);
+                    paramPanel?.setDisplay('linearDamping', linearDamping);
+                    paramPanel?.setDisplay('angularDamping', angularDamping);
+                    // 同步到物理对象
+                    rampCollider.setFriction(friction);
+                    groundBody.collider(0)?.setFriction(friction);
+                    const obj = dynamicObjs[0];
+                    if (obj) {
+                        obj.body.collider(0).setFriction(friction);
+                        obj.body.setLinearDamping(linearDamping);
+                        obj.body.setAngularDamping(angularDamping);
+                    }
+                    // 重新从斜面顶端滑下，回到初始演示状态
+                    reSpawn();
+                },
                 onChange: (key, value) => {
                     if (key === 'friction') {
                         friction = value;
-                        // 实时更新方块与斜面的摩擦系数（Rapier 默认取两者平均，
-                        // 二者都改才能保证所选档位真正决定下滑快慢）
+                        // 实时更新方块 / 斜面 / 地面的摩擦系数（Rapier 默认取两者平均，
+                        // 三者都改才能保证 friction=0 时组合摩擦真正为 0）
                         const obj = dynamicObjs[0];
                         if (obj) obj.body.collider(0).setFriction(friction);
                         rampCollider.setFriction(friction);
+                        groundBody.collider(0)?.setFriction(friction);
+                    } else if (key === 'linearDamping') {
+                        linearDamping = value;
+                        dynamicObjs[0]?.body.setLinearDamping(linearDamping);
+                    } else if (key === 'angularDamping') {
+                        angularDamping = value;
+                        dynamicObjs[0]?.body.setAngularDamping(angularDamping);
                     }
                 },
             });
