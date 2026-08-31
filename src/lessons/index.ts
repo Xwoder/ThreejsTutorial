@@ -48,6 +48,7 @@ import {sliding} from './physics/rapier-sliding';
 import {linearDamping} from './physics/rapier-linear-damping';
 import {angularDamping} from './physics/rapier-angular-damping';
 import {force} from './physics/rapier-force';
+import {domino} from './physics/rapier-dominoes';
 
 export const chapters: Chapter[] = [
   {
@@ -98,6 +99,6 @@ export const chapters: Chapter[] = [
   {
     id: 'physics',
     title: 'Rapier 物理引擎',
-    lessons: [rapierPhysics, bouncing, sliding, linearDamping, angularDamping, force],
+    lessons: [rapierPhysics, bouncing, sliding, linearDamping, angularDamping, force, domino],
   },
 ];
