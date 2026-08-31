@@ -56,7 +56,7 @@ export const angularDamping: Lesson = {
 
         // 地面（仅显示）材质
         const floorSize = 20;
-        const RADIUS = 1.2;       // 球半径
+        const RADIUS = 1.5;       // 球半径
         const groundMat = new THREE.MeshStandardMaterial({color: 0x223044, roughness: 0.95});
 
         // 水平地面
