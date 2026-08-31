@@ -11,7 +11,7 @@ const bouncingDescription = `
   <h2>自由落体弹跳</h2>
   <p>本例演示一个物体从高处自由落下，落到平面上后<b>向上弹起</b>，并且<b>每次弹跳高度逐渐降低</b>，最终停在地面。</p>
   <p>核心机制是碰撞体的<b>恢复系数（restitution）</b>：它决定碰撞后保留多少法向速度（0 = 完全不弹，1 = 完全弹性、高度不衰减）。弹跳高度逐渐降低，正是恢复系数小于 1 时，每次碰撞都损失一部分动能导致的自然结果。</p>
-  <p>场景中只有一个落体，可通过面板按钮切换形状（立方体 / 球体 / 胶囊体 / 圆柱 / 圆锥）。面板中的<b>「弹性强度」</b>滑块实时控制恢复系数，调大弹得更高、衰减更慢，调小则几乎不弹。</p>
+  <p>场景中只有一个落体，可通过面板按钮切换形状（立方体 / 球体 / 胶囊体 / 圆柱 / 圆锥 / 四面体 / 八面体 / 十二面体 / 二十面体）。面板中的<b>「弹性强度」</b>滑块实时控制恢复系数，调大弹得更高、衰减更慢，调小则几乎不弹。</p>
   <p>使用 <code>@dimforge/rapier3d-compat</code> 物理引擎，逻辑与「自由落体」一课一致：创建 <code>World</code> → 为每个网格挂刚体与碰撞体 → 每帧 <code>world.step()</code> 并同步位姿。</p>
   <ul>
     <li><b>恢复系数 <code>setRestitution()</code></b>：控制弹性大小，本例由「弹性强度」滑块统一驱动。</li>
@@ -87,7 +87,7 @@ export const bouncing: Lesson = {
             );
 
             // 形状列表：仅一个落体，可切换形状
-            const shapes = ['cube', 'ball', 'capsule', 'cylinder', 'cone'] as const;
+            const shapes = ['cube', 'ball', 'capsule', 'cylinder', 'cone', 'tetra', 'octa', 'dodeca', 'ico'] as const;
             type Shape = (typeof shapes)[number];
             let currentShape: Shape = 'cube';
 
@@ -105,6 +105,10 @@ export const bouncing: Lesson = {
                 capsule: {friction: 0.8, angularDamping: 1.5, linearDamping: 0.3},
                 cylinder: {friction: 0.6, angularDamping: 0.6, linearDamping: 0.1},
                 cone: {friction: 0.6, angularDamping: 0.6, linearDamping: 0.1},
+                tetra: {friction: 0.6, angularDamping: 0.6, linearDamping: 0.1},
+                octa: {friction: 0.6, angularDamping: 0.6, linearDamping: 0.1},
+                dodeca: {friction: 0.6, angularDamping: 0.6, linearDamping: 0.1},
+                ico: {friction: 0.6, angularDamping: 0.6, linearDamping: 0.1},
             };
 
             // 根据形状创建 Three.js 几何与 Rapier 碰撞体描述
@@ -143,6 +147,50 @@ export const bouncing: Lesson = {
                     default: {
                         geo = new THREE.BoxGeometry(size, size, size);
                         collider = R.ColliderDesc.cuboid(size / 2, size / 2, size / 2);
+                        break;
+                    }
+                    case 'tetra': {
+                        const r = size / 2;
+                        const tet = new THREE.TetrahedronGeometry(r, 0);
+                        geo = tet;
+                        const pos = tet.getAttribute('position');
+                        const verts = new Float32Array(pos.array.length);
+                        verts.set(pos.array as Float32Array);
+                        const hull = R.ColliderDesc.convexHull(verts);
+                        collider = hull ?? R.ColliderDesc.ball(r);
+                        break;
+                    }
+                    case 'octa': {
+                        const r = size / 2;
+                        const oct = new THREE.OctahedronGeometry(r, 0);
+                        geo = oct;
+                        const pos = oct.getAttribute('position');
+                        const verts = new Float32Array(pos.array.length);
+                        verts.set(pos.array as Float32Array);
+                        const hull = R.ColliderDesc.convexHull(verts);
+                        collider = hull ?? R.ColliderDesc.ball(r);
+                        break;
+                    }
+                    case 'dodeca': {
+                        const r = size / 2;
+                        const dod = new THREE.DodecahedronGeometry(r, 0);
+                        geo = dod;
+                        const pos = dod.getAttribute('position');
+                        const verts = new Float32Array(pos.array.length);
+                        verts.set(pos.array as Float32Array);
+                        const hull = R.ColliderDesc.convexHull(verts);
+                        collider = hull ?? R.ColliderDesc.ball(r);
+                        break;
+                    }
+                    case 'ico': {
+                        const r = size / 2;
+                        const ico = new THREE.IcosahedronGeometry(r, 0);
+                        geo = ico;
+                        const pos = ico.getAttribute('position');
+                        const verts = new Float32Array(pos.array.length);
+                        verts.set(pos.array as Float32Array);
+                        const hull = R.ColliderDesc.convexHull(verts);
+                        collider = hull ?? R.ColliderDesc.ball(r);
                         break;
                     }
                 }
@@ -211,11 +259,11 @@ export const bouncing: Lesson = {
                         key: 'restitution',
                         label: 'restitution',
                         min: 0,
-                        max: 0.995,
-                        step: 0.005,
+                        max: 1.5,
+                        step: 0.01,
                         value: restitution,
                         precision: 3,
-                        desc: '碰撞恢复系数：0 不弹，越接近 1 弹得越高、高度衰减越慢',
+                        desc: '碰撞恢复系数：0 不弹，1 完全弹性，大于 1 每次弹得更高（能量注入）',
                     },
                 ],
                 defaults: {gx: gravity.x, gy: gravity.y, gz: gravity.z, restitution},
@@ -242,6 +290,10 @@ export const bouncing: Lesson = {
                         capsule: '胶囊体',
                         cylinder: '圆柱体',
                         cone: '圆锥',
+                        tetra: '四面体',
+                        octa: '八面体',
+                        dodeca: '十二面体',
+                        ico: '二十面体',
                     };
                     return {
                         label: labels[s],
