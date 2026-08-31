@@ -3,7 +3,6 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import {createContext, makeCleanup, setSceneBackground, BG_DARK_BLUE} from '../helper';
 
 import type {Lesson} from '../types';
-import {LabeledAxesHelper} from '../../utils/LabeledAxesHelper.ts';
 import {createParamPanel} from '../../utils/paramPanel.ts';
 import type RAPIER from '@dimforge/rapier3d-compat';
 
@@ -212,7 +211,6 @@ export const domino: Lesson = {
         let raf = 0;
         let world: RAPIER.World | null = null;
         let paramPanel: ReturnType<typeof createParamPanel> | null = null;
-        let axes: LabeledAxesHelper | null = null;
 
         // 骨牌记录：刚体、网格、初始位姿（用于重置）、倒塌方向
         type Domino = {
@@ -223,10 +221,6 @@ export const domino: Lesson = {
             forward: THREE.Vector3;
         };
         const dominoes: Domino[] = [];
-
-        axes = new LabeledAxesHelper(3, true, true);
-        axes.position.y = 0.05;
-        ctx.scene.add(axes);
 
         const run = async () => {
             await import('@dimforge/rapier3d-compat').then((m) => m.init());
@@ -325,8 +319,8 @@ export const domino: Lesson = {
                         type: 'group',
                         label: '摆放参数',
                         children: [
-                            {type: 'readonly', key: 'count', label: '骨牌数', value: COUNT},
-                            {type: 'readonly', key: 'rows', label: '行数', value: ROWS},
+                            {type: 'readonly', key: 'count', label: '骨牌数', value: COUNT, precision: 0},
+                            {type: 'readonly', key: 'rows', label: '行数', value: ROWS, precision: 0},
                             {type: 'readonly', key: 'spacing', label: '间距', value: SPACING},
                             {type: 'readonly', key: 'turnR', label: '弯道半径', value: TURN_R},
                         ],
@@ -382,19 +376,6 @@ export const domino: Lesson = {
             orbit.dispose();
             paramPanel?.remove();
             world?.free();
-            if (axes) {
-                ctx.scene.remove(axes);
-                axes.traverse((obj) => {
-                    const anyObj = obj as unknown as {
-                        geometry?: { dispose(): void };
-                        material?: { dispose(): void } | { dispose(): void }[];
-                    };
-                    anyObj.geometry?.dispose();
-                    const mat = anyObj.material;
-                    if (Array.isArray(mat)) mat.forEach((m) => m.dispose());
-                    else mat?.dispose();
-                });
-            }
             for (const d of dominoes) {
                 ctx.scene.remove(d.mesh);
                 d.mesh.geometry.dispose();
