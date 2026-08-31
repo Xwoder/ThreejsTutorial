@@ -38,6 +38,12 @@ const SPACING = 0.5;    // 相邻骨牌沿路径的弧长间距
 const TURN_R = 1.0;     // 掉头弯半径（行间距 = 2 × TURN_R）
 const MARGIN = 1.0;     // 骨牌到墙的内边距
 
+// 物理参数（可在面板实时调节）
+let LINEAR_DAMPING = 0.05;   // 线速度阻尼（越大越快停）
+let ANGULAR_DAMPING = 0.05;  // 角速度阻尼（越大越不易翻滚）
+let FRICTION = 0.1;          // 骨牌摩擦系数（越大越「蹭」、传导越拖）
+let INITIAL_SPEED = 1.5;     // 推倒第一张时目标质心速度 (m/s)
+
 /** 二维向量（XZ 平面） */
 type Vec2 = { x: number; z: number };
 
@@ -215,6 +221,7 @@ export const domino: Lesson = {
         // 骨牌记录：刚体、网格、初始位姿（用于重置）、倒塌方向
         type Domino = {
             body: RAPIER.RigidBody;
+            collider: RAPIER.Collider;
             mesh: THREE.Mesh;
             initPos: { x: number; y: number; z: number };
             initQuat: { x: number; y: number; z: number; w: number };
@@ -264,17 +271,18 @@ export const domino: Lesson = {
                         R.RigidBodyDesc.dynamic()
                             .setTranslation(pos.x, pos.y, pos.z)
                             .setRotation(quat)
-                            .setAngularDamping(0.05)
-                            .setLinearDamping(0.05),
+                            .setAngularDamping(ANGULAR_DAMPING)
+                            .setLinearDamping(LINEAR_DAMPING),
                     );
                     // 骨牌：低弹性 + 较高摩擦，倒下后不弹跳，倒塌连贯
                     const collider = R.ColliderDesc.cuboid(DOMINO_T / 2, DOMINO_H / 2, DOMINO_W / 2)
                         .setRestitution(0.02)
-                        .setFriction(0.7);
-                    w.createCollider(collider, body);
+                        .setFriction(FRICTION);
+                    const colliderHandle = w.createCollider(collider, body);
 
                     dominoes.push({
                         body,
+                        collider: colliderHandle,
                         mesh,
                         initPos: {x: pos.x, y: pos.y, z: pos.z},
                         initQuat: {...quat},
@@ -299,7 +307,7 @@ export const domino: Lesson = {
             const startChain = () => {
                 const first = dominoes[0];
                 if (!first) return;
-                const speed = 1.5;                 // 期望获得的质心速度 (m/s)
+                const speed = INITIAL_SPEED;       // 期望获得的质心速度 (m/s)
                 const m = first.body.mass();       // 冲量 = 质量 × 速度变化，使力度不随骨牌尺寸漂移
                 const t = first.body.translation();
                 first.body.applyImpulseAtPoint(
@@ -310,6 +318,12 @@ export const domino: Lesson = {
             };
 
             spawn();
+
+            const defaults = {
+                count: COUNT, rows: ROWS, spacing: SPACING, turnR: TURN_R,
+                linearDamping: LINEAR_DAMPING, angularDamping: ANGULAR_DAMPING,
+                friction: FRICTION, initialSpeed: INITIAL_SPEED,
+            };
 
             paramPanel = createParamPanel({
                 container,
@@ -325,11 +339,74 @@ export const domino: Lesson = {
                             {type: 'readonly', key: 'turnR', label: '弯道半径', value: TURN_R},
                         ],
                     },
+                    {
+                        type: 'group',
+                        label: '动力学参数',
+                        children: [
+                            {
+                                type: 'range', key: 'linearDamping', label: '线速度阻尼',
+                                min: 0, max: 1, step: 0.01, value: LINEAR_DAMPING,
+                                desc: '越大运动衰减越快（倒得越快停）',
+                            },
+                            {
+                                type: 'range', key: 'angularDamping', label: '角速度阻尼',
+                                min: 0, max: 1, step: 0.01, value: ANGULAR_DAMPING,
+                                desc: '越大越不易翻滚（倒塌越拖沓）',
+                            },
+                            {
+                                type: 'range', key: 'friction', label: '摩擦系数',
+                                min: 0, max: 1.5, step: 0.01, value: FRICTION,
+                                desc: '越大骨牌越「蹭」地面，链条传导越慢',
+                            },
+                            {
+                                type: 'range', key: 'initialSpeed', label: '首张推力',
+                                min: 0.2, max: 4, step: 0.1, value: INITIAL_SPEED,
+                                desc: '推倒第一张的目标质心速度 (m/s)',
+                            },
+                        ],
+                    },
                 ],
-                defaults: {count: COUNT, rows: ROWS, spacing: SPACING, turnR: TURN_R},
+                defaults,
+                onChange: (key, value) => {
+                    switch (key) {
+                        case 'linearDamping':
+                            LINEAR_DAMPING = value;
+                            for (const d of dominoes) d.body.setLinearDamping(value);
+                            break;
+                        case 'angularDamping':
+                            ANGULAR_DAMPING = value;
+                            for (const d of dominoes) d.body.setAngularDamping(value);
+                            break;
+                        case 'friction':
+                            FRICTION = value;
+                            for (const d of dominoes) d.collider.setFriction(value);
+                            break;
+                        case 'initialSpeed':
+                            INITIAL_SPEED = value;
+                            break;
+                    }
+                },
             });
 
-            // 底部按钮组：开始 / 重置
+            // 重置控制参数（滑块回默认 + 回写到刚体），但不动骨牌位姿
+            const resetParams = () => {
+                LINEAR_DAMPING = defaults.linearDamping;
+                ANGULAR_DAMPING = defaults.angularDamping;
+                FRICTION = defaults.friction;
+                INITIAL_SPEED = defaults.initialSpeed;
+                for (const d of dominoes) {
+                    d.body.setLinearDamping(LINEAR_DAMPING);
+                    d.body.setAngularDamping(ANGULAR_DAMPING);
+                    d.collider.setFriction(FRICTION);
+                }
+                // 刷新滑块显示
+                paramPanel?.setDisplay('linearDamping', LINEAR_DAMPING);
+                paramPanel?.setDisplay('angularDamping', ANGULAR_DAMPING);
+                paramPanel?.setDisplay('friction', FRICTION);
+                paramPanel?.setDisplay('initialSpeed', INITIAL_SPEED);
+            };
+
+            // 底部按钮组：开始 / 恢复 / 重置
             paramPanel.addControlGroup({
                 title: '',
                 items: [
@@ -341,9 +418,19 @@ export const domino: Lesson = {
                         activeColor: 'var(--pp-primary)',
                     },
                     {
-                        label: '重置',
+                        label: '恢复',
                         active: () => false,
                         onClick: () => resetDominoes(),
+                        color: 'var(--pp-accent)',
+                        activeColor: 'var(--pp-accent-hover)',
+                    },
+                    {
+                        label: '重置',
+                        active: () => false,
+                        onClick: () => {
+                            resetParams();      // 控制参数回默认
+                            resetDominoes();    // 骨牌状态恢复直立
+                        },
                         color: 'var(--pp-danger)',
                         activeColor: 'var(--pp-danger)',
                     },
