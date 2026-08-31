@@ -44,6 +44,7 @@ import {objViewer} from './uncategorized/objViewer';
 import {objFromCode} from './objFromCode';
 import {rapierPhysics} from './physics/rapier-free-fall';
 import {bouncing} from './physics/rapier-bouncing';
+import {sliding} from './physics/rapier-sliding';
 
 export const chapters: Chapter[] = [
   {
@@ -94,6 +95,6 @@ export const chapters: Chapter[] = [
   {
     id: 'physics',
     title: 'Rapier 物理引擎',
-    lessons: [rapierPhysics, bouncing],
+    lessons: [rapierPhysics, bouncing, sliding],
   },
 ];
