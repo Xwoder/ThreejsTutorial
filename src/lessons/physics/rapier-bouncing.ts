@@ -8,7 +8,7 @@ import {createParamPanel} from '../../utils/paramPanel.ts';
 import type RAPIER from '@dimforge/rapier3d-compat';
 
 const bouncingDescription = `
-  <h2>自由落体弹跳</h2>
+  <h2>恢复</h2>
   <p>本例演示一个物体从高处自由落下，落到平面上后<b>向上弹起</b>，并且<b>每次弹跳高度逐渐降低</b>，最终停在地面。</p>
   <p>核心机制是碰撞体的<b>恢复系数（restitution）</b>：它决定碰撞后保留多少法向速度（0 = 完全不弹，1 = 完全弹性、高度不衰减）。弹跳高度逐渐降低，正是恢复系数小于 1 时，每次碰撞都损失一部分动能导致的自然结果。</p>
   <p>场景中只有一个落体，可通过面板按钮切换形状（立方体 / 球体 / 胶囊体 / 圆柱 / 圆锥 / 四面体 / 八面体 / 十二面体 / 二十面体）。面板中的<b>「弹性强度」</b>滑块实时控制恢复系数，调大弹得更高、衰减更慢，调小则几乎不弹。地面四周设有四面矮墙（固定刚体），可接住侧向弹出的落体，防止其飞出场景。</p>
@@ -21,8 +21,8 @@ const bouncingDescription = `
 `;
 
 export const bouncing: Lesson = {
-    id: 'physics/bouncing',
-    title: '自由落体弹跳',
+    id: 'physics/restitution',
+    title: '恢复',
     description: bouncingDescription,
     create(container) {
         const ctx = createContext(container);
