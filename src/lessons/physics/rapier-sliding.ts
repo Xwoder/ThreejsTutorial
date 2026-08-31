@@ -116,7 +116,7 @@ export const sliding: Lesson = {
         const dynamicObjs: { body: RAPIER.RigidBody; mesh: THREE.Mesh }[] = [];
 
         axes = new LabeledAxesHelper(3, true, true);
-        axes.position.y = 0.05;
+        axes.position.y = 0;
         ctx.scene.add(axes);
 
         const run = async () => {
