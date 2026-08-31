@@ -64,12 +64,6 @@ export const angularDamping: Lesson = {
         floorMesh.position.y = -0.25;
         ctx.scene.add(floorMesh);
 
-        // 标记线：地面上沿 X 方向的一条长条，便于观察球体自转
-        const markMat = new THREE.MeshStandardMaterial({color: 0x3a4a66, roughness: 0.9});
-        const markMesh = new THREE.Mesh(new THREE.BoxGeometry(floorSize * 0.9, 0.06, 0.4), markMat);
-        markMesh.position.set(0, 0.03, 0);
-        ctx.scene.add(markMesh);
-
         let raf = 0;
         let world: RAPIER.World | null = null;
         let paramPanel: ReturnType<typeof createParamPanel> | null = null;
@@ -315,9 +309,6 @@ export const angularDamping: Lesson = {
             ctx.scene.remove(floorMesh);
             floorMesh.geometry.dispose();
             (floorMesh.material as THREE.Material).dispose();
-            ctx.scene.remove(markMesh);
-            markMesh.geometry.dispose();
-            (markMesh.material as THREE.Material).dispose();
             if (patternTexture) {
                 patternTexture.dispose();
                 patternTexture = null;
