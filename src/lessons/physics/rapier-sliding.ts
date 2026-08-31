@@ -15,7 +15,8 @@ const slidingDescription = `
     <li><b>摩擦系数</b>：描述接触面间的「涩滞」程度（0 = 完全光滑、几乎不减速，越大越「涩」、越快停下）。本例由「摩擦系数」滑块统一驱动方块、斜面与地面。</li>
     <li><b>线性阻尼 / 角阻尼</b>：模拟空气 / 黏滞阻力，<b>不依赖摩擦</b>，只要有速度就会持续衰减速度直至停下。设为 0 即关闭阻尼。</li>
   </ul>
-  <p>把「摩擦系数」与「线性阻尼」都拉到 0，就是<b>理想无摩擦、无阻尼</b>的极端情形：方块滑上水平面后会永远匀速前进、永不停止。</p>
+  <p>把「摩擦系数」拉到 0、且代码内阻尼固定为 0，就是<b>理想无摩擦、无阻尼</b>的极端情形：方块滑上水平面后会永远匀速前进、永不停止。</p>
+  <p>地面四周设有<b>四面矮墙（固定刚体）</b>，可接住侧向滑出的方块，防止其飞出场景。墙高约为弹跳课程的<b>一半</b>，仅作边界围栏。</p>
   <p>使用 <code>@dimforge/rapier3d-compat</code> 物理引擎：斜面与水平地面为<b>固定刚体</b>，方块为<b>动态刚体</b>。斜面由一个旋转的固定长方体充当，靠重力沿斜面分量驱动方块下滑。</p>
   <ul>
     <li><b>摩擦 <code>setFriction()</code></b>：本例由「摩擦系数」滑块统一驱动，同时作用于方块、斜面与地面碰撞体。</li>
@@ -61,13 +62,31 @@ export const sliding: Lesson = {
 
         // 地面 + 斜面（仅显示）材质
         const floorSize = 30;
+        const wallH = 0.9;       // 墙高（bouncing 课程的一半，矮墙）
+        const wallT = 0.4;       // 墙厚
         const groundMat = new THREE.MeshStandardMaterial({color: 0x223044, roughness: 0.95});
         const rampMat = new THREE.MeshStandardMaterial({color: 0x2b3a52, roughness: 0.95});
+        const wallMat = new THREE.MeshStandardMaterial({color: 0x2b3a52, roughness: 0.95});
 
         // 水平地面
         const floorMesh = new THREE.Mesh(new THREE.BoxGeometry(floorSize, 0.5, floorSize), groundMat);
         floorMesh.position.y = -0.25;
         ctx.scene.add(floorMesh);
+
+        // 四面矮墙：沿 +X / -X / +Z / -Z，固定在地面边缘（仅显示）
+        const wallDefs: { pos: [number, number, number]; size: [number, number, number] }[] = [
+            {pos: [floorSize / 2, wallH / 2, 0], size: [wallT, wallH, floorSize]},
+            {pos: [-floorSize / 2, wallH / 2, 0], size: [wallT, wallH, floorSize]},
+            {pos: [0, wallH / 2, floorSize / 2], size: [floorSize, wallH, wallT]},
+            {pos: [0, wallH / 2, -floorSize / 2], size: [floorSize, wallH, wallT]},
+        ];
+        const wallMeshes: THREE.Mesh[] = [];
+        for (const {pos, size} of wallDefs) {
+            const m = new THREE.Mesh(new THREE.BoxGeometry(size[0], size[1], size[2]), wallMat);
+            m.position.set(pos[0], pos[1], pos[2]);
+            ctx.scene.add(m);
+            wallMeshes.push(m);
+        }
 
         // 斜面参数
         const RAMP_LEN = 10;      // 斜面长度（沿斜面方向）
@@ -113,9 +132,9 @@ export const sliding: Lesson = {
 
             // 摩擦系数：由「摩擦强度」滑块统一驱动，同时作用于方块 / 斜面 / 地面碰撞体
             let friction = 0.2;
-            // 阻尼：模拟空气/黏滞阻力，不依赖摩擦，有速度就会持续衰减速度直至停下
-            let linearDamping = 0.1;
-            let angularDamping = 0.1;
+            // 阻尼固定为 0：关闭空气/黏滞阻力，方块仅受摩擦影响（如需可调再改回变量）
+            const linearDamping = 0;
+            const angularDamping = 0;
 
             // 地面：固定刚体 + 立方体碰撞体
             // 地面摩擦也跟随 friction 变量，这样 friction=0 时组合摩擦真正为 0（完全光滑）
@@ -126,6 +145,17 @@ export const sliding: Lesson = {
                     .setFriction(friction),
                 groundBody,
             );
+
+            // 四面矮墙：固定刚体，与可视网格位置/尺寸保持一致（防止方块滑出场景）
+            for (const {pos, size} of wallDefs) {
+                const wallBody = w.createRigidBody(
+                    R.RigidBodyDesc.fixed().setTranslation(pos[0], pos[1], pos[2]),
+                );
+                w.createCollider(
+                    R.ColliderDesc.cuboid(size[0] / 2, size[1] / 2, size[2] / 2).setRestitution(0.05).setFriction(0.8),
+                    wallBody,
+                );
+            }
 
             // 斜面：固定刚体 + 旋转后的立方体碰撞体
             // 注意：斜面摩擦也要跟随 friction 变量，否则与方块摩擦取平均后
@@ -193,7 +223,7 @@ export const sliding: Lesson = {
             // 默认参数：重置按钮会把所有控件恢复为这些值
             const defaults = {
                 gx: gravity.x, gy: gravity.y, gz: gravity.z,
-                friction, linearDamping, angularDamping,
+                friction,
             };
             paramPanel = createParamPanel({
                 container,
@@ -220,49 +250,19 @@ export const sliding: Lesson = {
                         precision: 2,
                         desc: '方块与斜面 / 地面的摩擦系数：0 完全光滑、滑得又快又远，越大越「涩」、很快减速静止',
                     },
-                    {
-                        // 线性阻尼：衰减平移速度，越大越快停下；0 表示无阻尼（仅靠摩擦减速）
-                        type: 'range',
-                        key: 'linearDamping',
-                        label: '线性阻尼',
-                        min: 0,
-                        max: 1,
-                        step: 0.01,
-                        value: linearDamping,
-                        precision: 2,
-                        desc: '衰减方块平移速度（类似空气阻力）：0 表示永不因阻尼停下，越大越快静止',
-                    },
-                    {
-                        // 角阻尼：衰减旋转速度（本例方块几乎不转，影响很小）
-                        type: 'range',
-                        key: 'angularDamping',
-                        label: '角阻尼',
-                        min: 0,
-                        max: 1,
-                        step: 0.01,
-                        value: angularDamping,
-                        precision: 2,
-                        desc: '衰减方块旋转速度：0 表示旋转不受黏滞阻力',
-                    },
                 ],
                 defaults,
                 onReset: () => {
-                    // 恢复所有内部变量到初始默认值
+                    // 恢复摩擦系数到初始默认值
                     friction = 0.2;
-                    linearDamping = 0.1;
-                    angularDamping = 0.1;
                     // 同步滑块显示值回默认
                     paramPanel?.setDisplay('friction', friction);
-                    paramPanel?.setDisplay('linearDamping', linearDamping);
-                    paramPanel?.setDisplay('angularDamping', angularDamping);
                     // 同步到物理对象
                     rampCollider.setFriction(friction);
                     groundBody.collider(0)?.setFriction(friction);
                     const obj = dynamicObjs[0];
                     if (obj) {
                         obj.body.collider(0).setFriction(friction);
-                        obj.body.setLinearDamping(linearDamping);
-                        obj.body.setAngularDamping(angularDamping);
                     }
                     // 重新从斜面顶端滑下，回到初始演示状态
                     reSpawn();
@@ -276,12 +276,6 @@ export const sliding: Lesson = {
                         if (obj) obj.body.collider(0).setFriction(friction);
                         rampCollider.setFriction(friction);
                         groundBody.collider(0)?.setFriction(friction);
-                    } else if (key === 'linearDamping') {
-                        linearDamping = value;
-                        dynamicObjs[0]?.body.setLinearDamping(linearDamping);
-                    } else if (key === 'angularDamping') {
-                        angularDamping = value;
-                        dynamicObjs[0]?.body.setAngularDamping(angularDamping);
                     }
                 },
             });
@@ -350,6 +344,12 @@ export const sliding: Lesson = {
             ctx.scene.remove(floorMesh);
             floorMesh.geometry.dispose();
             (floorMesh.material as THREE.Material).dispose();
+            // 清理四面墙
+            for (const m of wallMeshes) {
+                ctx.scene.remove(m);
+                m.geometry.dispose();
+                (m.material as THREE.Material).dispose();
+            }
             ctx.scene.remove(rampMesh);
             rampMesh.geometry.dispose();
             (rampMesh.material as THREE.Material).dispose();
