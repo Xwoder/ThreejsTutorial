@@ -120,19 +120,21 @@ export const sliding: Lesson = {
                 groundBody,
             );
 
+            // 摩擦系数：由「摩擦强度」分段按钮统一驱动，三档直接修改该变量
+            let friction = 0.3;
+
             // 斜面：固定刚体 + 旋转后的立方体碰撞体
+            // 注意：斜面摩擦也要跟随 friction 变量，否则与方块摩擦取平均后
+            // （Rapier 默认平均组合）会远大于 tan(倾角)，导致方块停在斜面上不下滑。
             const rampBody = w.createRigidBody(
                 R.RigidBodyDesc.fixed().setTranslation(...rampCenter).setRotation(rampQuat),
             );
-            w.createCollider(
+            const rampCollider = w.createCollider(
                 R.ColliderDesc.cuboid(RAMP_LEN / 2, RAMP_THICK / 2, RAMP_WIDTH / 2)
                     .setRestitution(0.05)
-                    .setFriction(0.8),
+                    .setFriction(friction),
                 rampBody,
             );
-
-            // 摩擦系数：由「摩擦强度」分段按钮统一驱动，三档直接修改该变量
-            let friction = 0.3;
 
             // 根据摩擦系数创建方块网格与刚体（碰撞体）
             const spawn = () => {
@@ -212,9 +214,11 @@ export const sliding: Lesson = {
                 onChange: (key, value) => {
                     if (key === 'friction') {
                         friction = value;
-                        // 实时更新当前方块的摩擦系数；下一次重放也沿用新值
+                        // 实时更新方块与斜面的摩擦系数（Rapier 默认取两者平均，
+                        // 二者都改才能保证所选档位真正决定下滑快慢）
                         const obj = dynamicObjs[0];
                         if (obj) obj.body.collider(0).setFriction(friction);
+                        rampCollider.setFriction(friction);
                     }
                 },
             });
