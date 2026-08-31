@@ -11,7 +11,7 @@ const bouncingDescription = `
   <h2>自由落体弹跳</h2>
   <p>本例演示一个物体从高处自由落下，落到平面上后<b>向上弹起</b>，并且<b>每次弹跳高度逐渐降低</b>，最终停在地面。</p>
   <p>核心机制是碰撞体的<b>恢复系数（restitution）</b>：它决定碰撞后保留多少法向速度（0 = 完全不弹，1 = 完全弹性、高度不衰减）。弹跳高度逐渐降低，正是恢复系数小于 1 时，每次碰撞都损失一部分动能导致的自然结果。</p>
-  <p>场景中只有一个落体，可通过面板按钮切换形状（立方体 / 球体 / 胶囊体 / 圆柱 / 圆锥 / 四面体 / 八面体 / 十二面体 / 二十面体）。面板中的<b>「弹性强度」</b>滑块实时控制恢复系数，调大弹得更高、衰减更慢，调小则几乎不弹。</p>
+  <p>场景中只有一个落体，可通过面板按钮切换形状（立方体 / 球体 / 胶囊体 / 圆柱 / 圆锥 / 四面体 / 八面体 / 十二面体 / 二十面体）。面板中的<b>「弹性强度」</b>滑块实时控制恢复系数，调大弹得更高、衰减更慢，调小则几乎不弹。地面四周设有四面矮墙（固定刚体），可接住侧向弹出的落体，防止其飞出场景。</p>
   <p>使用 <code>@dimforge/rapier3d-compat</code> 物理引擎，逻辑与「自由落体」一课一致：创建 <code>World</code> → 为每个网格挂刚体与碰撞体 → 每帧 <code>world.step()</code> 并同步位姿。</p>
   <ul>
     <li><b>恢复系数 <code>setRestitution()</code></b>：控制弹性大小，本例由「弹性强度」滑块统一驱动。</li>
@@ -55,10 +55,29 @@ export const bouncing: Lesson = {
 
         // 地面网格（仅显示）
         const floorSize = 20;
+        const wallH = 1.8;      // 墙高
+        const wallT = 0.4;      // 墙厚
         const groundMat = new THREE.MeshStandardMaterial({color: 0x223044, roughness: 0.9});
+        const wallMat = new THREE.MeshStandardMaterial({color: 0x2b3a52, roughness: 0.9});
+
         const floorMesh = new THREE.Mesh(new THREE.BoxGeometry(floorSize, 0.5, floorSize), groundMat);
         floorMesh.position.y = -0.25;
         ctx.scene.add(floorMesh);
+
+        // 四面矮墙：沿 +X / -X / +Z / -Z，固定在地面边缘（仅显示）
+        const wallDefs: { pos: [number, number, number]; size: [number, number, number] }[] = [
+            {pos: [floorSize / 2, wallH / 2, 0], size: [wallT, wallH, floorSize]},
+            {pos: [-floorSize / 2, wallH / 2, 0], size: [wallT, wallH, floorSize]},
+            {pos: [0, wallH / 2, floorSize / 2], size: [floorSize, wallH, wallT]},
+            {pos: [0, wallH / 2, -floorSize / 2], size: [floorSize, wallH, wallT]},
+        ];
+        const wallMeshes: THREE.Mesh[] = [];
+        for (const {pos, size} of wallDefs) {
+            const m = new THREE.Mesh(new THREE.BoxGeometry(size[0], size[1], size[2]), wallMat);
+            m.position.set(pos[0], pos[1], pos[2]);
+            ctx.scene.add(m);
+            wallMeshes.push(m);
+        }
 
         let raf = 0;
         let world: RAPIER.World | null = null;
@@ -85,6 +104,17 @@ export const bouncing: Lesson = {
                     .setFriction(0.8),
                 groundBody,
             );
+
+            // 四面矮墙：固定刚体，与可视网格位置/尺寸保持一致
+            for (const {pos, size} of wallDefs) {
+                const wallBody = w.createRigidBody(
+                    R.RigidBodyDesc.fixed().setTranslation(pos[0], pos[1], pos[2]),
+                );
+                w.createCollider(
+                    R.ColliderDesc.cuboid(size[0] / 2, size[1] / 2, size[2] / 2).setRestitution(0.2).setFriction(0.8),
+                    wallBody,
+                );
+            }
 
             // 形状列表：仅一个落体，可切换形状
             const shapes = ['cube', 'ball', 'capsule', 'cylinder', 'cone', 'tetra', 'octa', 'dodeca', 'ico'] as const;
@@ -373,6 +403,12 @@ export const bouncing: Lesson = {
             ctx.scene.remove(floorMesh);
             floorMesh.geometry.dispose();
             (floorMesh.material as THREE.Material).dispose();
+            // 清理四面墙
+            for (const m of wallMeshes) {
+                ctx.scene.remove(m);
+                m.geometry.dispose();
+                (m.material as THREE.Material).dispose();
+            }
         });
     },
 };
