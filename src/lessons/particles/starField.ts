@@ -3,6 +3,7 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
 import type {Lesson} from '../types';
 import {createContext, makeCleanup, setSceneBackground, BG_SPACE} from '../helper';
 import {createParamPanel} from '../../utils/paramPanel.ts';
+import {LabeledAxesHelper} from '../../utils/LabeledAxesHelper.ts';
 
 /**
  * 用 canvas 画一张「中心亮、边缘透明」的圆形光点贴图。
@@ -77,6 +78,7 @@ const stars = new THREE.Points(geometry, material);</code></pre>
             twinkle: 0.7,  // 闪烁强度
             speed: 1.5,    // 闪烁速度
             spin: 0.06,    // 整体旋转速度
+            axes: true,    // 是否显示带标签的坐标轴指示器
         };
 
         const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 2000);
@@ -113,6 +115,12 @@ const stars = new THREE.Points(geometry, material);</code></pre>
             controls.update();
         };
         applyView(state.view);
+
+        // 带文字标签的坐标轴辅助器（红=X / 绿=Y / 蓝=Z），用于对照方向；默认可见，可被参数面板开关
+        const axes = new LabeledAxesHelper(8, true, true);
+        axes.position.y = 0.05;
+        axes.visible = state.axes;
+        ctx.scene.add(axes);
 
         const starTexture = makeStarTexture();
 
@@ -245,6 +253,16 @@ const stars = new THREE.Points(geometry, material);</code></pre>
                     precision: 2,
                     desc: '整片星空绕 Y 轴的自转速度（弧度/秒）',
                 },
+                {
+                    key: 'axes',
+                    label: '显示坐标轴',
+                    type: 'checkbox',
+                    min: 0,
+                    max: 1,
+                    step: 1,
+                    value: 1,
+                    desc: '是否显示带 X/Y/Z 文字标签的坐标轴指示器（红=X 绿=Y 蓝=Z）',
+                },
             ],
             defaults: {
                 count: 6000,
@@ -253,6 +271,7 @@ const stars = new THREE.Points(geometry, material);</code></pre>
                 twinkle: 0.7,
                 speed: 1.5,
                 spin: 0.06,
+                axes: 1,
             },
             onChange(key, value) {
                 switch (key) {
@@ -269,6 +288,10 @@ const stars = new THREE.Points(geometry, material);</code></pre>
                     case 'speed':
                     case 'spin':
                         state[key] = value;
+                        break;
+                    case 'axes':
+                        state.axes = value >= 0.5;
+                        axes.visible = state.axes;
                         break;
                 }
             },
@@ -332,6 +355,17 @@ const stars = new THREE.Points(geometry, material);</code></pre>
         return makeCleanup(ctx, () => {
             cancelAnimationFrame(raf);
             controls.dispose();
+            ctx.scene.remove(axes);
+            axes.traverse((obj) => {
+                const anyObj = obj as unknown as {
+                    geometry?: { dispose(): void };
+                    material?: { dispose(): void } | { dispose(): void }[];
+                };
+                anyObj.geometry?.dispose();
+                const mat = anyObj.material;
+                if (Array.isArray(mat)) mat.forEach((m) => m.dispose());
+                else mat?.dispose();
+            });
             starTexture.dispose();
             material.dispose();
             panel.remove();
