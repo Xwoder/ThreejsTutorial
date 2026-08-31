@@ -197,17 +197,16 @@ export const sliding: Lesson = {
                         ],
                     },
                     {
-                        // 摩擦强度：三档分段按钮，直接修改 friction 变量
-                        type: 'segmented',
+                        // 摩擦强度：滑块直接修改 friction（方块与斜面碰撞体的摩擦系数）
+                        type: 'range',
                         key: 'friction',
-                        label: '摩擦强度',
+                        label: '摩擦系数',
+                        min: 0,
+                        max: 0.4,
+                        step: 0.01,
                         value: friction,
-                        options: [
-                            {label: '低', value: 0.02, title: '低摩擦：滑得又快又远'},
-                            {label: '中', value: 0.3, title: '中摩擦：正常手感'},
-                            {label: '高', value: 1.0, title: '高摩擦：很快停下'},
-                        ],
-                        desc: '方块与斜面的摩擦系数：低摩擦滑动迅猛、高摩擦很快减速静止',
+                        precision: 2,
+                        desc: '方块与斜面的摩擦系数：0 完全光滑、滑得又快又远，越大越「涩」、很快减速静止',
                     },
                 ],
                 defaults: {gx: gravity.x, gy: gravity.y, gz: gravity.z, friction},
