@@ -117,8 +117,9 @@ const stars = new THREE.Points(geometry, material);</code></pre>
         applyView(state.view);
 
         // 带文字标签的坐标轴辅助器（红=X / 绿=Y / 蓝=Z），用于对照方向；默认可见，可被参数面板开关
+        // 星空课程无地面，无需抬高避免共面遮挡；相机钉在原点，轴原点也放在原点更干净
         const axes = new LabeledAxesHelper(8, true, true);
-        axes.position.y = 0.05;
+        axes.position.set(0, 0, 0);
         axes.visible = state.axes;
         ctx.scene.add(axes);
 
