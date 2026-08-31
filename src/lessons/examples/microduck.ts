@@ -5,6 +5,7 @@ import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.j
 import type {Lesson} from '../types';
 import {createContext, disposeObject3D, makeCleanup, setSceneBackground, BG_DARK} from '../helper';
 import {parseMjcf, buildRobot, type BuiltRobot, type MjcfKeyframe} from './microduckMjcf';
+import {LabeledAxesHelper} from '../../utils/LabeledAxesHelper.ts';
 
 import robotXml from '../../assets/Model/microduck/robot_walk.xml?raw';
 // 批量导入 assets 目录下所有 STL，构建期复制到产物并拿到运行时 URL。
@@ -66,6 +67,11 @@ export const microduck: Lesson = {
         camera.position.set(0.6, 0.4, 0.6);
 
         ctx.scene.add(new THREE.GridHelper(2, 20, 0x475569, 0x1e293b));
+      // 带 X/Y/Z 文字标签的坐标轴辅助器（红=X, 绿=Y, 蓝=Z），便于对照机器人姿态
+      const axes = new LabeledAxesHelper(0.4, true, true);
+      // 抬高一点，避免 X/Z 轴与地面共面被遮挡
+      axes.position.y = 0.002;
+      ctx.scene.add(axes);
         ctx.scene.add(new THREE.AmbientLight(0xffffff, 0.8));
         const dir = new THREE.DirectionalLight(0xffffff, 2.5);
         dir.position.set(1, 2, 1.5);
@@ -198,6 +204,7 @@ export const microduck: Lesson = {
             cancelAnimationFrame(raf);
             controls.dispose();
             pmrem.dispose();
+          disposeObject3D(axes);
             loadingTip.remove();
             ui.remove();
             geomCache.forEach((g) => g.dispose());
