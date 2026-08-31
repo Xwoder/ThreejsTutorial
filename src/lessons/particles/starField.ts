@@ -67,26 +67,10 @@ const stars = new THREE.Points(geometry, material);</code></pre>
         const ctx = createContext(container);
         setSceneBackground(ctx, BG_SPACE);
 
-        const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 2000);
-        // 相机钉在星云中心（原点），视角固定在中心点，从星星中间往外看
-        camera.position.set(0, 0, 0);
-        camera.lookAt(0, 0, -1);
-        ctx.onResize((w, h) => {
-            camera.aspect = w / h;
-            camera.updateProjectionMatrix();
-        });
-
-        // 环顾四周：相机始终站在原点，OrbitControls 只改变朝向（转头），不平移。
-        // 关键：target 设在原点前方一小步，禁用平移与缩放，这样拖动只会「转头」而非「绕中心公转」。
-        const controls = new OrbitControls(camera, ctx.renderer.domElement);
-        controls.target.set(0, 0, -1);
-        controls.enableDamping = true;
-        controls.enablePan = false;   // 禁止平移，永远站在中心
-        controls.enableZoom = false;  // 禁止缩放，视角不进不退
-        controls.rotateSpeed = -0.3;  // 负值：拖动方向符合直觉（向右拖看到右侧的星）
-        controls.update();
-
+        /** 视角模式：'center' 站在星云中心向外看；'orbit' 退到外围俯瞰整片星空 */
+        type ViewMode = 'center' | 'orbit';
         const state = {
+            view: 'center' as ViewMode,
             count: 6000,   // 星星数量
             radius: 50,    // 散布半径
             size: 1.2,     // 星星大小
@@ -94,6 +78,41 @@ const stars = new THREE.Points(geometry, material);</code></pre>
             speed: 1.5,    // 闪烁速度
             spin: 0.06,    // 整体旋转速度
         };
+
+        const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 2000);
+        ctx.onResize((w, h) => {
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+        });
+
+        const controls = new OrbitControls(camera, ctx.renderer.domElement);
+        controls.enableDamping = true;
+
+        /**
+         * 根据当前视角模式重置相机位置与 OrbitControls 约束：
+         * - center 中心视角：相机钉在星云中心（原点），只「转头」环顾，禁平移禁缩放；
+         * - orbit  外围视角：相机退到散布球体外侧俯瞰整片星空，可自由环绕与缩放。
+         */
+        const applyView = (mode: ViewMode) => {
+            state.view = mode;
+            if (mode === 'center') {
+                camera.position.set(0, 0, 0);
+                controls.target.set(0, 0, -1);
+                controls.enablePan = false;   // 禁止平移，永远站在中心
+                controls.enableZoom = false;  // 禁止缩放，视角不进不退
+                controls.rotateSpeed = -0.3;  // 负值：拖动方向符合直觉（向右拖看到右侧的星）
+            } else {
+                // 退到半径外侧约 1.8 倍处，略微抬高俯瞰
+                const dist = state.radius * 1.8;
+                camera.position.set(0, dist * 0.35, dist);
+                controls.target.set(0, 0, 0);
+                controls.enablePan = true;
+                controls.enableZoom = true;
+                controls.rotateSpeed = -0.3;
+            }
+            controls.update();
+        };
+        applyView(state.view);
 
         const starTexture = makeStarTexture();
 
@@ -165,7 +184,7 @@ const stars = new THREE.Points(geometry, material);</code></pre>
                     label: '星星数量',
                     type: 'range',
                     min: 500,
-                    max: 30000,
+                    max: 5000,
                     step: 500,
                     value: state.count,
                     precision: 0,
@@ -176,7 +195,7 @@ const stars = new THREE.Points(geometry, material);</code></pre>
                     label: '散布半径',
                     type: 'range',
                     min: 10,
-                    max: 150,
+                    max: 100,
                     step: 1,
                     value: state.radius,
                     precision: 0,
@@ -220,7 +239,7 @@ const stars = new THREE.Points(geometry, material);</code></pre>
                     label: '旋转速度',
                     type: 'range',
                     min: 0,
-                    max: 0.5,
+                    max: 0.3,
                     step: 0.01,
                     value: state.spin,
                     precision: 2,
@@ -255,8 +274,30 @@ const stars = new THREE.Points(geometry, material);</code></pre>
             },
         });
 
+        // 左上角视角选项卡：中心视角 / 外围视角（样式复用全局 .view-tabs）
+        const viewTabs = document.createElement('div');
+        viewTabs.className = 'view-tabs';
+        const viewDefs: Array<{ label: string; mode: ViewMode }> = [
+            {label: '中心视角', mode: 'center'},
+            {label: '外围视角', mode: 'orbit'},
+        ];
+        const viewButtons: HTMLButtonElement[] = [];
+        viewDefs.forEach(({label, mode}) => {
+            const btn = document.createElement('button');
+            btn.textContent = label;
+            btn.title = mode === 'center' ? '站在星云中心向外环顾' : '退到星海外侧俯瞰整片星空';
+            if (state.view === mode) btn.classList.add('active');
+            btn.addEventListener('click', () => {
+                applyView(mode);
+                viewButtons.forEach((b) => b.classList.toggle('active', b === btn));
+            });
+            viewTabs.appendChild(btn);
+            viewButtons.push(btn);
+        });
+        container.appendChild(viewTabs);
+
         const tip = document.createElement('div');
-        tip.textContent = '视角固定在星云中心 · 拖动鼠标环顾四周 · 右侧参数实时调节星空';
+        tip.textContent = '左侧可切换「中心 / 外围」视角 · 拖动鼠标环顾四周 · 右侧参数实时调节星空';
         tip.style.cssText =
             'position:absolute;left:16px;bottom:14px;color:#94a3b8;font-size:13px;pointer-events:none;';
         container.appendChild(tip);
