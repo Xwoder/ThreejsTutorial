@@ -4,7 +4,7 @@ import {STLLoader} from 'three/examples/jsm/loaders/STLLoader.js';
 import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type {Lesson} from '../types';
 import {createContext, disposeObject3D, makeCleanup, setSceneBackground, BG_DARK} from '../helper';
-import {parseMjcf, buildRobot, type BuiltRobot, type MjcfKeyframe} from './microduckMjcf';
+import {parseMjcf, buildRobot, applyKeyframe} from './microduckMjcf';
 import {LabeledAxesHelper} from '../../utils/LabeledAxesHelper.ts';
 
 import robotXml from '../../assets/Model/microduck/robot_walk.xml?raw';
@@ -46,13 +46,13 @@ export const microduck: Lesson = {
     零件几何为 <b>STL</b> 网格（共 47 个）。</p>
     <p>我们用 <code>DOMParser</code> 解析 MJCF，按 <code>&lt;body&gt;</code> 层级、
     <code>&lt;joint&gt;</code> 旋转轴、<code>&lt;geom type="mesh"&gt;</code> 引用的 STL
-    在 Three.js 里重建出完整机器人，再用 MJCF 中 <code>&lt;keyframe&gt;</code> 记录的
-    <code>qpos</code>（关节角度）驱动姿态切换：</p>
+    在 Three.js 里重建出完整机器人，并摆到 MJCF <code>STAND</code> 关键帧记录的站立姿态：</p>
     <ul>
-      <li>使用 <b>STLLoader</b> 异步加载每个零件网格</li>
-      <li>MJCF 与 Three.js 同为「米 + Y-up」坐标系，<code>pos/quat</code> 可直接使用
-          （注意 MuJoCo 四元数是 <code>w x y z</code>，需转成 Three 的 <code>x y z w</code>）</li>
-      <li>点击下方按钮可在 <code>INIT / STAND / SIT / FOLD</code> 等姿态间平滑过渡</li>
+      <li>使用 <b>STLLoader</b> 异步加载每个零件网格，同名零件网格复用（缓存）</li>
+      <li>MJCF 是 <b>Z-up</b>（重力沿 -Z），Three.js 是 <b>Y-up</b>：用一个外层组
+          绕 X 轴 -90° 做坐标转换（Z-up → Y-up），机器人因此直立站在原点</li>
+      <li>再绕 Y 轴 -90°，让 MJCF 的前向 (+X) 转为面朝 <b>+Z</b></li>
+      <li>MuJoCo 四元数写法是 <code>w x y z</code>，需转成 Three 的 <code>x y z w</code></li>
     </ul>
     <p>用鼠标拖动环绕观察，滚轮缩放。</p>
   `,
@@ -104,24 +104,8 @@ export const microduck: Lesson = {
             'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:#94a3b8;font-size:14px;text-align:center;';
         container.appendChild(loadingTip);
 
-        // 姿态切换按钮（左上角浮层）
-        const ui = document.createElement('div');
-        ui.style.cssText =
-            'position:absolute;left:12px;top:12px;display:flex;flex-wrap:wrap;gap:6px;max-width:60%;';
-        container.appendChild(ui);
-
         const stlLoader = new STLLoader();
         const geomCache = new Map<string, THREE.BufferGeometry>();
-
-        let built: BuiltRobot | null = null;
-        let keyframes: MjcfKeyframe[] = [];
-
-        // 当前/目标关键帧（用于平滑插值）
-        let currentQ: number[] = [];
-        let targetQ: number[] = [];
-        let currentRoot = {pos: new THREE.Vector3(), quat: new THREE.Quaternion()};
-        let targetRoot = {pos: new THREE.Vector3(), quat: new THREE.Quaternion()};
-        let transitioning = false;
 
         const loadMesh = async (_meshName: string, fileName: string): Promise<THREE.BufferGeometry> => {
             const cached = geomCache.get(fileName);
@@ -133,34 +117,7 @@ export const microduck: Lesson = {
             return geom;
         };
 
-        const applyPose = (qpos: number[], rootPos: THREE.Vector3, rootQuat: THREE.Quaternion) => {
-            if (!built) return;
-            built.root.position.copy(rootPos);
-            built.root.quaternion.copy(rootQuat);
-            for (let i = 0; i < built.jointOrder.length; i++) {
-                const pivot = built.jointOrder[i];
-                const axis = (pivot.userData.axis as THREE.Vector3) ?? new THREE.Vector3(0, 0, 1);
-                pivot.quaternion.setFromAxisAngle(axis, qpos[i] ?? 0);
-            }
-        };
-
-        const selectKeyframe = (idx: number) => {
-            const kf = keyframes[idx];
-            if (!kf) return;
-            // 初始化 currentQ（首次）
-            if (currentQ.length === 0) {
-                currentQ = [0, ...kf.jointValues];
-                currentRoot.pos.copy(kf.rootPos);
-                currentRoot.quat.copy(kf.rootQuat);
-            }
-            targetQ = [0, ...kf.jointValues];
-            targetRoot.pos.copy(kf.rootPos);
-            targetRoot.quat.copy(kf.rootQuat);
-            transitioning = true;
-        };
-
         const model = parseMjcf(robotXml);
-        keyframes = model.keyframes;
 
         buildRobot(model, loadMesh, paletteFor)
             .then((b) => {
@@ -168,22 +125,12 @@ export const microduck: Lesson = {
                     disposeObject3D(b.root);
                     return;
                 }
-                built = b;
                 coordFix.add(b.root);
+                // 一次性摆好站立姿态：优先用 STAND 关键帧（否则退回第一个关键帧）。
+                // 若不设置关节角度，机器人会停留在零位姿态（腿伸直的初始建模姿态）。
+                const stand = model.keyframes.find((k) => k.name === 'STAND') ?? model.keyframes[0];
+                if (stand) applyKeyframe(b, stand);
                 loadingTip.remove();
-
-                // 姿态按钮
-                keyframes.forEach((kf, idx) => {
-                    const btn = document.createElement('button');
-                    btn.textContent = kf.name;
-                    btn.style.cssText =
-                        'padding:4px 10px;border:1px solid #334155;border-radius:6px;background:#1e293b;color:#e2e8f0;font-size:12px;cursor:pointer;';
-                    btn.onclick = () => selectKeyframe(idx);
-                    ui.appendChild(btn);
-                });
-                // 默认摆到 STAND（若存在），否则 INIT
-                const standIdx = keyframes.findIndex((k) => k.name === 'STAND');
-                selectKeyframe(standIdx >= 0 ? standIdx : 0);
             })
             .catch((err) => {
                 if (disposed) return;
@@ -194,19 +141,6 @@ export const microduck: Lesson = {
         let raf = 0;
         const loop = () => {
             raf = requestAnimationFrame(loop);
-            if (built && transitioning) {
-                const t = 0.12; // 插值系数（每帧逼近）
-                for (let i = 0; i < targetQ.length; i++) {
-                    currentQ[i] += (targetQ[i] - currentQ[i]) * t;
-                }
-                currentRoot.pos.lerp(targetRoot.pos, t);
-                currentRoot.quat.slerp(targetRoot.quat, t);
-                applyPose(currentQ, currentRoot.pos, currentRoot.quat);
-                const done =
-                    Math.abs(targetQ[targetQ.length - 1] - currentQ[currentQ.length - 1]) < 1e-4 &&
-                    currentRoot.pos.distanceTo(targetRoot.pos) < 1e-4;
-                if (done) transitioning = false;
-            }
             controls.update();
             ctx.renderer.render(ctx.scene, camera);
         };
@@ -219,7 +153,6 @@ export const microduck: Lesson = {
             pmrem.dispose();
           disposeObject3D(axes);
             loadingTip.remove();
-            ui.remove();
             geomCache.forEach((g) => g.dispose());
         });
     },
