@@ -84,6 +84,14 @@ export const microduck: Lesson = {
         controls.enableDamping = true;
         controls.target.set(0, 0.12, 0);
 
+        // MJCF 是 Z-up（重力沿 -Z），Three.js 是 Y-up。用一个外层组绕 X 轴
+        // 旋转 -90° 把整个机器人从 Z-up 坐标系转换到 Y-up：
+        //   (x,y,z) -> (x, z, -y)，即 MJCF 的 +Z（上）映射到 Three 的 +Y（上）。
+        // 这样关键帧里的 rootPos(0,0,0.12) 会落到 y=0.12，机器人直立站在原点。
+        const coordFix = new THREE.Group();
+        coordFix.rotation.x = -Math.PI / 2;
+        ctx.scene.add(coordFix);
+
         let disposed = false;
         const loadingTip = document.createElement('div');
         loadingTip.textContent = '正在解析 MJCF 并加载 47 个 STL 零件…';
@@ -156,7 +164,7 @@ export const microduck: Lesson = {
                     return;
                 }
                 built = b;
-                ctx.scene.add(b.root);
+                coordFix.add(b.root);
                 loadingTip.remove();
 
                 // 姿态按钮
