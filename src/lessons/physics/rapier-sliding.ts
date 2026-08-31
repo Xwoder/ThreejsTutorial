@@ -311,6 +311,8 @@ export const sliding: Lesson = {
             const selectShape = (s: Shape) => {
                 currentShape = s;
                 reSpawn();
+                // 刷新形状按钮高亮（createControlPanelGroup 的 sync 才会重算 active）
+                shapeControl.sync();
             };
 
             const gravity = w.gravity;
