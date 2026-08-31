@@ -68,14 +68,23 @@ const stars = new THREE.Points(geometry, material);</code></pre>
         setSceneBackground(ctx, BG_SPACE);
 
         const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 2000);
-        camera.position.set(0, 22, 82);
+        // 相机钉在星云中心（原点），视角固定在中心点，从星星中间往外看
+        camera.position.set(0, 0, 0);
+        camera.lookAt(0, 0, -1);
         ctx.onResize((w, h) => {
             camera.aspect = w / h;
             camera.updateProjectionMatrix();
         });
 
+        // 环顾四周：相机始终站在原点，OrbitControls 只改变朝向（转头），不平移。
+        // 关键：target 设在原点前方一小步，禁用平移与缩放，这样拖动只会「转头」而非「绕中心公转」。
         const controls = new OrbitControls(camera, ctx.renderer.domElement);
+        controls.target.set(0, 0, -1);
         controls.enableDamping = true;
+        controls.enablePan = false;   // 禁止平移，永远站在中心
+        controls.enableZoom = false;  // 禁止缩放，视角不进不退
+        controls.rotateSpeed = -0.3;  // 负值：拖动方向符合直觉（向右拖看到右侧的星）
+        controls.update();
 
         const state = {
             count: 6000,   // 星星数量
@@ -247,7 +256,7 @@ const stars = new THREE.Points(geometry, material);</code></pre>
         });
 
         const tip = document.createElement('div');
-        tip.textContent = '拖动环绕观察 · 滚轮缩放 · 右侧参数实时调节星空';
+        tip.textContent = '视角固定在星云中心 · 拖动鼠标环顾四周 · 右侧参数实时调节星空';
         tip.style.cssText =
             'position:absolute;left:16px;bottom:14px;color:#94a3b8;font-size:13px;pointer-events:none;';
         container.appendChild(tip);
