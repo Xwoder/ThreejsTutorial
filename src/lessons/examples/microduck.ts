@@ -88,8 +88,13 @@ export const microduck: Lesson = {
         // 旋转 -90° 把整个机器人从 Z-up 坐标系转换到 Y-up：
         //   (x,y,z) -> (x, z, -y)，即 MJCF 的 +Z（上）映射到 Three 的 +Y（上）。
         // 这样关键帧里的 rootPos(0,0,0.12) 会落到 y=0.12，机器人直立站在原点。
+        // 再绕世界 Y 轴 -90° 让 MJCF 前向(+X)转为面朝 +Z。
         const coordFix = new THREE.Group();
-        coordFix.rotation.x = -Math.PI / 2;
+        // Z-up -> Y-up：绕 X 轴 -90°
+        const qx = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2);
+        // 朝向：MJCF 前向为 +X，绕世界 Y 轴 -90° 把 +X 转到 +Z（面朝 +Z）
+        const qy = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), -Math.PI / 2);
+        coordFix.quaternion.copy(qy).multiply(qx);
         ctx.scene.add(coordFix);
 
         let disposed = false;
