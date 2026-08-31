@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js';
-import {createContext, makeCleanup, setSceneBackground, BG_DARK_BLUE} from '../helper';
+import {BG_DARK_BLUE, createContext, makeCleanup, setSceneBackground} from '../helper';
 
 import type {Lesson} from '../types';
 import {LabeledAxesHelper} from '../../utils/LabeledAxesHelper.ts';
@@ -9,19 +9,15 @@ import type RAPIER from '@dimforge/rapier3d-compat';
 
 const slidingDescription = `
   <h2>斜面滑动</h2>
-  <p>本例演示一个<b>方块从斜面上滑下</b>，滑到平面后继续向前，最终因摩擦与阻尼停下。</p>
-  <p>核心变量有两个：碰撞体的<b>摩擦系数（friction）</b>与刚体的<b>阻尼（damping）</b>。</p>
+  <p>本例演示一个<b>物体从斜面上滑下</b>，滑到平面后继续向前，最终因摩擦停下。</p>
+  <p>面板可切换<b>落体形状</b>（立方体 / 球 / 胶囊 / 圆柱 / 圆锥 / 四面体 / 八面体 / 十二面体 / 二十面体），任意时刻<b>只有一个</b>物体。</p>
+  <p>核心变量是碰撞体的<b>摩擦系数（friction）</b>：描述接触面间的「涩滞」程度（0 = 完全光滑、几乎不减速，越大越「涩」、越快停下），由「摩擦系数」滑块统一驱动物体、斜面与地面。</p>
+  <p>把「摩擦系数」拉到最小，就是<b>理想无摩擦</b>的极端情形：物体滑上水平面后会永远匀速前进、永不停止。</p>
+  <p>地面四周设有<b>四面矮墙（固定刚体）</b>，可接住侧向滑出的物体，防止其飞出场景。墙高约为弹跳课程的<b>一半</b>，仅作边界围栏。</p>
+  <p>使用 <code>@dimforge/rapier3d-compat</code> 物理引擎：斜面与水平地面为<b>固定刚体</b>，落体为<b>动态刚体</b>。斜面由一个旋转的固定长方体充当，靠重力沿斜面分量驱动落体下滑。</p>
   <ul>
-    <li><b>摩擦系数</b>：描述接触面间的「涩滞」程度（0 = 完全光滑、几乎不减速，越大越「涩」、越快停下）。本例由「摩擦系数」滑块统一驱动方块、斜面与地面。</li>
-    <li><b>线性阻尼 / 角阻尼</b>：模拟空气 / 黏滞阻力，<b>不依赖摩擦</b>，只要有速度就会持续衰减速度直至停下。设为 0 即关闭阻尼。</li>
-  </ul>
-  <p>把「摩擦系数」拉到 0、且代码内阻尼固定为 0，就是<b>理想无摩擦、无阻尼</b>的极端情形：方块滑上水平面后会永远匀速前进、永不停止。</p>
-  <p>地面四周设有<b>四面矮墙（固定刚体）</b>，可接住侧向滑出的方块，防止其飞出场景。墙高约为弹跳课程的<b>一半</b>，仅作边界围栏。</p>
-  <p>使用 <code>@dimforge/rapier3d-compat</code> 物理引擎：斜面与水平地面为<b>固定刚体</b>，方块为<b>动态刚体</b>。斜面由一个旋转的固定长方体充当，靠重力沿斜面分量驱动方块下滑。</p>
-  <ul>
-    <li><b>摩擦 <code>setFriction()</code></b>：本例由「摩擦系数」滑块统一驱动，同时作用于方块、斜面与地面碰撞体。</li>
-    <li><b>阻尼 <code>setLinearDamping()</code> / <code>setAngularDamping()</code></b>：由对应滑块实时驱动动态方块刚体。</li>
-    <li><b>恢复系数 <code>setRestitution()</code></b>：本例设得很低（0.05），让方块落地后几乎不弹、专注表现滑动。</li>
+    <li><b>摩擦 <code>setFriction()</code></b>：本例由「摩擦系数」滑块统一驱动，同时作用于落体、斜面与地面碰撞体。</li>
+    <li><b>恢复系数 <code>setRestitution()</code></b>：本例设得很低（0.05），让落体落地后几乎不弹、专注表现滑动。</li>
     <li><b>旋转的固定刚体</b>：斜面通过 <code>RigidBodyDesc.fixed().setRotation(quat)</code> 倾斜放置，碰撞体随之倾斜。</li>
   </ul>
 `;
@@ -170,18 +166,115 @@ export const sliding: Lesson = {
                 rampBody,
             );
 
-            // 根据摩擦系数创建方块网格与刚体（碰撞体）
+            // 形状列表：仅一个落体，可切换形状（统一尺寸 s）
+            const shapes = ['cube', 'ball', 'capsule', 'cylinder', 'cone', 'tetra', 'octa', 'dodeca', 'ico'] as const;
+            type Shape = (typeof shapes)[number];
+            let currentShape: Shape = 'cube';
+            const SIZE = 1.2; // 统一边长 / 直径基准
+
+            // 根据形状创建 Three.js 几何与 Rapier 碰撞体描述
+            // 碰撞体摩擦统一用 friction 变量（保证「摩擦系数」滑块对所有形状生效），恢复系数统一 0.05
+            const buildShape = (R: typeof import('@dimforge/rapier3d-compat'), size: number) => {
+                let geo: THREE.BufferGeometry;
+                let collider: RAPIER.ColliderDesc;
+                switch (currentShape) {
+                    case 'ball': {
+                        const r = size / 2;
+                        geo = new THREE.SphereGeometry(r, 24, 16);
+                        collider = R.ColliderDesc.ball(r);
+                        break;
+                    }
+                    case 'capsule': {
+                        const r = size / 2;
+                        const halfH = size / 2;
+                        geo = new THREE.CapsuleGeometry(r, halfH * 2, 8, 16);
+                        collider = R.ColliderDesc.capsule(halfH, r);
+                        break;
+                    }
+                    case 'cylinder': {
+                        const r = size / 2;
+                        const halfH = size / 2;
+                        geo = new THREE.CylinderGeometry(r, r, size, 24);
+                        collider = R.ColliderDesc.cylinder(halfH, r);
+                        break;
+                    }
+                    case 'cone': {
+                        const r = size / 2;
+                        const h = size;
+                        geo = new THREE.ConeGeometry(r, h, 24);
+                        collider = R.ColliderDesc.cone(h / 2, r);
+                        break;
+                    }
+                    case 'cube': {
+                        geo = new THREE.BoxGeometry(size, size, size);
+                        collider = R.ColliderDesc.cuboid(size / 2, size / 2, size / 2);
+                        break;
+                    }
+                    default: {
+                        geo = new THREE.BoxGeometry(size, size, size);
+                        collider = R.ColliderDesc.cuboid(size / 2, size / 2, size / 2);
+                        break;
+                    }
+                    case 'tetra': {
+                        const r = size / 2;
+                        const tet = new THREE.TetrahedronGeometry(r, 0);
+                        geo = tet;
+                        const pos = tet.getAttribute('position');
+                        const verts = new Float32Array(pos.array.length);
+                        verts.set(pos.array as Float32Array);
+                        const hull = R.ColliderDesc.convexHull(verts);
+                        collider = hull ?? R.ColliderDesc.ball(r);
+                        break;
+                    }
+                    case 'octa': {
+                        const r = size / 2;
+                        const oct = new THREE.OctahedronGeometry(r, 0);
+                        geo = oct;
+                        const pos = oct.getAttribute('position');
+                        const verts = new Float32Array(pos.array.length);
+                        verts.set(pos.array as Float32Array);
+                        const hull = R.ColliderDesc.convexHull(verts);
+                        collider = hull ?? R.ColliderDesc.ball(r);
+                        break;
+                    }
+                    case 'dodeca': {
+                        const r = size / 2;
+                        const dod = new THREE.DodecahedronGeometry(r, 0);
+                        geo = dod;
+                        const pos = dod.getAttribute('position');
+                        const verts = new Float32Array(pos.array.length);
+                        verts.set(pos.array as Float32Array);
+                        const hull = R.ColliderDesc.convexHull(verts);
+                        collider = hull ?? R.ColliderDesc.ball(r);
+                        break;
+                    }
+                    case 'ico': {
+                        const r = size / 2;
+                        const ico = new THREE.IcosahedronGeometry(r, 0);
+                        geo = ico;
+                        const pos = ico.getAttribute('position');
+                        const verts = new Float32Array(pos.array.length);
+                        verts.set(pos.array as Float32Array);
+                        const hull = R.ColliderDesc.convexHull(verts);
+                        collider = hull ?? R.ColliderDesc.ball(r);
+                        break;
+                    }
+                }
+                collider.setRestitution(0.05).setFriction(friction);
+                return {geo, collider};
+            };
+
+            // 只生成一个落体；落点在斜面上段，沿斜面法线抬高半个尺寸，姿态与斜面一致
             const spawn = () => {
-                const s = 1.2;
-                // 沿斜面上段（朝向顶端、左上方向）放置，并沿斜面法线 (sinθ, cosθ) 抬高半个厚度+半个边长，
-                // 使方块正好落在斜面上表面，受重力沿斜面分量下滑。
+                // 沿斜面上段（朝向顶端、左上方向）放置，并沿斜面法线 (sinθ, cosθ) 抬高半个厚度+半个尺寸，
+                // 使物体正好落在斜面上表面，受重力沿斜面分量下滑。
                 const d = RAMP_LEN / 2 - 1.4; // 距斜面中心、朝顶端方向的距离
                 const nx = Math.sin(RAMP_ANGLE); // 斜面法线 X
                 const ny = Math.cos(RAMP_ANGLE); // 斜面法线 Y
-                const spawnX = rampCenter[0] - d * Math.cos(RAMP_ANGLE) + nx * (RAMP_THICK / 2 + s / 2);
-                const spawnY = rampCenter[1] + d * Math.sin(RAMP_ANGLE) + ny * (RAMP_THICK / 2 + s / 2);
+                const spawnX = rampCenter[0] - d * Math.cos(RAMP_ANGLE) + nx * (RAMP_THICK / 2 + SIZE / 2);
+                const spawnY = rampCenter[1] + d * Math.sin(RAMP_ANGLE) + ny * (RAMP_THICK / 2 + SIZE / 2);
 
-                const geo = new THREE.BoxGeometry(s, s, s);
+                const {geo, collider} = buildShape(R, SIZE);
                 const mat = new THREE.MeshStandardMaterial({
                     color: 0x5dc8ff,
                     roughness: 0.4,
@@ -190,19 +283,14 @@ export const sliding: Lesson = {
                 const mesh = new THREE.Mesh(geo, mat);
                 ctx.scene.add(mesh);
 
+                // 让物体姿态与斜面一致，平稳贴在斜面上再下滑；阻尼固定为 0
                 const body = w.createRigidBody(
                     R.RigidBodyDesc.dynamic()
                         .setTranslation(spawnX, spawnY, 0)
-                        // 让方块姿态与斜面一致，平稳贴在斜面上再下滑
                         .setRotation(rampQuat)
-                        // 阻尼：线性阻尼衰减平移速度（让方块最终停下），角阻尼衰减旋转速度
                         .setLinearDamping(linearDamping)
                         .setAngularDamping(angularDamping),
                 );
-                // 方块与斜面使用同一摩擦系数，保证「摩擦强度」整体生效
-                const collider = R.ColliderDesc.cuboid(s / 2, s / 2, s / 2)
-                    .setRestitution(0.05)
-                    .setFriction(friction);
                 w.createCollider(collider, body);
 
                 dynamicObjs.push({body, mesh});
@@ -217,6 +305,12 @@ export const sliding: Lesson = {
                 });
                 dynamicObjs.length = 0;
                 spawn();
+            };
+
+            // 选择形状：更新 currentShape → 重新生成落体（始终只有一个）
+            const selectShape = (s: Shape) => {
+                currentShape = s;
+                reSpawn();
             };
 
             const gravity = w.gravity;
@@ -239,7 +333,7 @@ export const sliding: Lesson = {
                         ],
                     },
                     {
-                        // 摩擦强度：滑块直接修改 friction（方块与斜面 / 地面碰撞体的摩擦系数）
+                        // 摩擦强度：滑块直接修改 friction（物体与斜面 / 地面碰撞体的摩擦系数）
                         type: 'range',
                         key: 'friction',
                         label: '摩擦系数',
@@ -248,7 +342,7 @@ export const sliding: Lesson = {
                         step: 0.01,
                         value: friction,
                         precision: 2,
-                        desc: '方块与斜面 / 地面的摩擦系数：0 完全光滑、滑得又快又远，越大越「涩」、很快减速静止',
+                        desc: '物体与斜面 / 地面的摩擦系数：0 完全光滑、滑得又快又远，越大越「涩」、很快减速静止',
                     },
                 ],
                 defaults,
@@ -280,7 +374,22 @@ export const sliding: Lesson = {
                 },
             });
 
-            // 底部重放按钮：让方块重新从斜面顶端滑下
+            // 形状选择按钮组：切换落体几何（始终只有一个）
+            const shapeLabels: Record<Shape, string> = {
+                cube: '立方体', ball: '球', capsule: '胶囊', cylinder: '圆柱', cone: '圆锥',
+                tetra: '四面体', octa: '八面体', dodeca: '十二面体', ico: '二十面体',
+            };
+            const shapeControl = paramPanel.addControlGroup({
+                title: '形状',
+                items: shapes.map((s) => ({
+                    label: shapeLabels[s],
+                    active: () => currentShape === s,
+                    onClick: () => selectShape(s),
+                })),
+            });
+            shapeControl.sync();
+
+            // 底部重放按钮：让物体重新从斜面顶端滑下
             paramPanel.addControlGroup({
                 title: '',
                 items: [
@@ -294,7 +403,8 @@ export const sliding: Lesson = {
                 ],
             });
 
-            reSpawn();
+            // 进入即选中「立方体」并播放（等价于模拟点击该形状按钮）
+            selectShape('cube');
 
             const clock = new THREE.Clock();
             const loop = () => {
