@@ -243,7 +243,7 @@ export const sliding: Lesson = {
                         type: 'range',
                         key: 'friction',
                         label: '摩擦系数',
-                        min: 0,
+                        min: 0.01,
                         max: 0.4,
                         step: 0.01,
                         value: friction,
