@@ -6,7 +6,7 @@ import {createContext, makeCleanup, setSceneBackground, BG_DARK} from '../helper
 import {createParamPanel} from '../../utils/paramPanel.ts';
 
 export const gridHelper: Lesson = {
-    id: 'uncategorized/grid-helper',
+    id: 'helper/grid-helper',
     title: 'GridHelper 网格',
     description: `
     <h2>GridHelper 网格辅助线</h2>

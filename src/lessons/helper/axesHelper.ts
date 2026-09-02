@@ -6,7 +6,7 @@ import {createContext, makeCleanup, setSceneBackground, BG_DARK} from '../helper
 import {createParamPanel} from '../../utils/paramPanel.ts';
 
 export const axesHelper: Lesson = {
-    id: 'uncategorized/axes-helper',
+    id: 'helper/axes-helper',
     title: 'AxesHelper 坐标轴',
     description: `
     <h2>AxesHelper 坐标轴</h2>

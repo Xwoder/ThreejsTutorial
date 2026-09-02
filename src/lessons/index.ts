@@ -35,14 +35,14 @@ import { solarSystem } from './examples/solarSystem';
 import { canyonTerrain } from './examples/canyonTerrain';
 import { mountainRangeTerrain } from './examples/mountainRangeTerrain';
 import {arrowHelper} from './uncategorized/arrowHelper';
-import {axesHelper} from './uncategorized/axesHelper';
-import {cameraHelper} from './uncategorized/cameraHelper';
-import {gridHelper} from './uncategorized/gridHelper';
 import {shadow} from './uncategorized/shadow';
 import {sineTerrain} from './uncategorized/sineTerrain';
 import {worldToLocal} from './uncategorized/worldToLocal';
 import {objViewer} from './uncategorized/objViewer';
 import {objFromCode} from './objFromCode';
+import {axesHelper} from './helper/axesHelper';
+import {cameraHelper} from './helper/cameraHelper';
+import {gridHelper} from './helper/gridHelper';
 import {rapierPhysics} from './physics/rapier-free-fall';
 import {bouncing} from './physics/rapier-bouncing';
 import {sliding} from './physics/rapier-sliding';
@@ -100,7 +100,12 @@ export const chapters: Chapter[] = [
   {
     id: 'uncategorized',
     title: '未分类',
-    lessons: [arrowHelper, axesHelper, cameraHelper, gridHelper, shadow, sineTerrain, worldToLocal, objViewer, objFromCode],
+    lessons: [arrowHelper, shadow, sineTerrain, worldToLocal, objViewer, objFromCode],
+  },
+  {
+    id: 'helper',
+    title: '助手',
+    lessons: [axesHelper, cameraHelper, gridHelper],
   },
   {
     id: 'physics',
