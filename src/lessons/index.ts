@@ -40,6 +40,7 @@ import {sineTerrain} from './uncategorized/sineTerrain';
 import {worldToLocal} from './uncategorized/worldToLocal';
 import {objViewer} from './uncategorized/objViewer';
 import {objFromCode} from './objFromCode';
+import {arrowHelper} from './helper/arrowHelper';
 import {axesHelper} from './helper/axesHelper';
 import {cameraHelper} from './helper/cameraHelper';
 import {gridHelper} from './helper/gridHelper';
@@ -100,12 +101,12 @@ export const chapters: Chapter[] = [
   {
     id: 'uncategorized',
     title: '未分类',
-    lessons: [arrowHelper, shadow, sineTerrain, worldToLocal, objViewer, objFromCode],
+    lessons: [shadow, sineTerrain, worldToLocal, objViewer, objFromCode],
   },
   {
     id: 'helper',
     title: '助手',
-    lessons: [axesHelper, cameraHelper, gridHelper],
+    lessons: [arrowHelper, axesHelper, cameraHelper, gridHelper],
   },
   {
     id: 'physics',

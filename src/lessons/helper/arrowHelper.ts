@@ -7,7 +7,7 @@ import {LabeledAxesHelper} from '../../utils/LabeledAxesHelper.ts';
 import {createParamPanel} from '../../utils/paramPanel.ts';
 
 export const arrowHelper: Lesson = {
-    id: 'uncategorized/arrow-helper',
+    id: 'helper/arrow-helper',
     title: 'ArrowHelper 辅助箭头',
     description: `
     <h2>ArrowHelper 辅助箭头</h2>
@@ -102,37 +102,37 @@ export const arrowHelper: Lesson = {
                     precision: 2
                 },
                 {
-                  key: 'dirX',
-                  label: '方向 X',
+                    key: 'dirX',
+                    label: '方向 X',
                     type: 'range',
                     min: -1,
                     max: 1,
-                  step: 0.05,
-                  value: state.dirX,
-                  precision: 2,
+                    step: 0.05,
+                    value: state.dirX,
+                    precision: 2,
                     desc: '方向向量的 X 分量'
                 },
-              {
-                key: 'dirY',
-                label: '方向 Y',
-                type: 'range',
-                  min: -1,
-                  max: 1,
-                step: 0.05,
-                value: state.dirY,
-                precision: 2,
-                  desc: '方向向量的 Y 分量'
-              },
-              {
-                key: 'dirZ',
-                label: '方向 Z',
-                type: 'range',
-                  min: -1,
-                  max: 1,
+                {
+                    key: 'dirY',
+                    label: '方向 Y',
+                    type: 'range',
+                    min: -1,
+                    max: 1,
                     step: 0.05,
-                value: state.dirZ,
+                    value: state.dirY,
                     precision: 2,
-                  desc: '方向向量的 Z 分量'
+                    desc: '方向向量的 Y 分量'
+                },
+                {
+                    key: 'dirZ',
+                    label: '方向 Z',
+                    type: 'range',
+                    min: -1,
+                    max: 1,
+                    step: 0.05,
+                    value: state.dirZ,
+                    precision: 2,
+                    desc: '方向向量的 Z 分量'
                 },
             ],
             defaults: {
@@ -151,10 +151,10 @@ export const arrowHelper: Lesson = {
                         state[key] = value;
                         mainArrow.setLength(state.length, state.headLength, state.headWidth);
                         break;
-                  case 'dirX':
-                  case 'dirY':
-                  case 'dirZ':
-                    state[key] = value;
+                    case 'dirX':
+                    case 'dirY':
+                    case 'dirZ':
+                        state[key] = value;
                         break;
                 }
             },
@@ -170,8 +170,8 @@ export const arrowHelper: Lesson = {
         let raf = 0;
         const loop = () => {
             raf = requestAnimationFrame(loop);
-          // 通过 setDirection 让主箭头指向三个方向分量组成的向量
-          const dir = new THREE.Vector3(state.dirX, state.dirY, state.dirZ).normalize();
+            // 通过 setDirection 让主箭头指向三个方向分量组成的向量
+            const dir = new THREE.Vector3(state.dirX, state.dirY, state.dirZ).normalize();
             mainArrow.setDirection(dir);
             controls.update();
             ctx.renderer.render(ctx.scene, camera);
