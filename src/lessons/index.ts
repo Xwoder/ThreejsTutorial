@@ -118,4 +118,9 @@ export const chapters: Chapter[] = [
     title: 'Rapier 物理引擎',
     lessons: [rapierPhysics, bouncing, sliding, linearDamping, angularDamping, force, domino],
   },
+  {
+    id: 'random',
+    title: '随机',
+    lessons: [],
+  },
 ];
