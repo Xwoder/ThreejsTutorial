@@ -10,8 +10,8 @@
     "gen:obj_and_mtl": "node scripts/generate-obj-and-mtl.mjs"
   },
   "devDependencies": {
-    "@types/three": "^0.185.1",
-    "typescript": "~6.0.2",
+    "@types/three": "^0.185.4",
+    "typescript": "~6.0.3",
     "vite": "^8.2.2"
   },
   "dependencies": {
