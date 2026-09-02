@@ -98,7 +98,7 @@ export const oneDimensionalRandom: Lesson = {
             controls: [
                 {type: 'readonly', key: 'rnd', label: '上次随机数', value: lastRand, precision: 0},
                 {type: 'readonly', key: 'pos', label: '位置 X', value: targetX, precision: 0},
-                {type: 'readonly', key: 'steps', label: '步数', value: stepCount},
+              {type: 'readonly', key: 'steps', label: '步数', value: stepCount, precision: 0},
             ],
             defaults: {rnd: 0, pos: 0, steps: 0},
         });
