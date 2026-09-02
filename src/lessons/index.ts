@@ -41,6 +41,7 @@ import {objViewer} from './uncategorized/objViewer';
 import {objFromCode} from './objFromCode';
 import {arrowHelper} from './helper/arrowHelper';
 import {axesHelper} from './helper/axesHelper';
+import {labeledAxesHelper} from './helper/labeledAxesHelper';
 import {cameraHelper} from './helper/cameraHelper';
 import {gridHelper} from './helper/gridHelper';
 import {rapierPhysics} from './physics/rapier-free-fall';
@@ -105,7 +106,7 @@ export const chapters: Chapter[] = [
   {
     id: 'helper',
     title: '助手',
-    lessons: [arrowHelper, axesHelper, cameraHelper, gridHelper],
+    lessons: [arrowHelper, axesHelper, labeledAxesHelper, cameraHelper, gridHelper],
   },
   {
     id: 'physics',

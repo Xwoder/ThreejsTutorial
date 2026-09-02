@@ -56,9 +56,19 @@ function makeAxisLine(to: THREE.Vector3, color: string, width: number): Line2 {
  * @param size 坐标轴长度
  * @param showArrow 是否在轴末端显示箭头（圆锥）
  * @param showLabel 是否显示 X/Y/Z 文字标签
+ * @param showX 是否显示 X 轴，默认 true
+ * @param showY 是否显示 Y 轴，默认 true
+ * @param showZ 是否显示 Z 轴，默认 true
  */
 export class LabeledAxesHelper extends THREE.Group {
-    constructor(size: number, showArrow: boolean, showLabel: boolean) {
+    constructor(
+        size: number,
+        showArrow: boolean,
+        showLabel: boolean,
+        showX = true,
+        showY = true,
+        showZ = true,
+    ) {
         super();
 
         // 加粗的轴线：粗细随坐标轴尺寸等比缩放
@@ -66,11 +76,47 @@ export class LabeledAxesHelper extends THREE.Group {
         // 箭头（圆锥）尺寸随坐标轴尺寸等比缩放
         const coneHeight = size * 0.08;
         const coneRadius = size * 0.025;
-        [
-            {dir: new THREE.Vector3(size, 0, 0), color: '#ff453a'},
-            {dir: new THREE.Vector3(0, size, 0), color: '#32d74b'},
-            {dir: new THREE.Vector3(0, 0, size), color: '#0a84ff'},
-        ].forEach(({dir, color}) => {
+        const axes: {
+            dir: THREE.Vector3;
+            color: string;
+            text: string;
+            show: boolean;
+            labelPos: THREE.Vector3;
+        }[] = [
+            {
+                dir: new THREE.Vector3(size, 0, 0),
+                color: '#ff453a',
+                text: 'X',
+                show: showX,
+                labelPos: new THREE.Vector3(0, 0, 0)
+            },
+            {
+                dir: new THREE.Vector3(0, size, 0),
+                color: '#32d74b',
+                text: 'Y',
+                show: showY,
+                labelPos: new THREE.Vector3(0, 0, 0)
+            },
+            {
+                dir: new THREE.Vector3(0, 0, size),
+                color: '#0a84ff',
+                text: 'Z',
+                show: showZ,
+                labelPos: new THREE.Vector3(0, 0, 0)
+            },
+        ];
+        // 标签贴在轴末端之外，仅间隔很小一段距离；显示箭头时则贴到箭头尖端之外
+        const labelScale = size * 0.10;
+        const tip = showArrow ? size + coneHeight : size;
+        const d = tip + labelScale * 0.25;
+        // Y 轴竖直放置，视觉上容易贴着轴线，单独多留一点间距
+        const dY = tip + labelScale * 0.4;
+        axes[0].labelPos.set(d, 0, 0);
+        axes[1].labelPos.set(0, dY, 0);
+        axes[2].labelPos.set(0, 0, d);
+
+        axes.forEach(({dir, color, text, show, labelPos}) => {
+            if (!show) return;
             this.add(makeAxisLine(dir, color, lineWidth));
             if (showArrow) {
                 // 在轴线末端放置一个圆锥作为箭头，方向对齐该轴
@@ -83,26 +129,12 @@ export class LabeledAxesHelper extends THREE.Group {
                 cone.renderOrder = 998;
                 this.add(cone);
             }
-        });
-
-        // 标签贴在轴末端之外，仅间隔很小一段距离；显示箭头时则贴到箭头尖端之外
-        const labelScale = size * 0.10;
-        const tip = showArrow ? size + coneHeight : size;
-        const d = tip + labelScale * 0.25;
-        // Y 轴竖直放置，视觉上容易贴着轴线，单独多留一点间距
-        const dY = tip + labelScale * 0.4;
-        const labels: { text: string; color: string; pos: THREE.Vector3 }[] = [
-            {text: 'X', color: '#ff453a', pos: new THREE.Vector3(d, 0, 0)},
-            {text: 'Y', color: '#32d74b', pos: new THREE.Vector3(0, dY, 0)},
-            {text: 'Z', color: '#0a84ff', pos: new THREE.Vector3(0, 0, d)},
-        ];
-        if (showLabel) {
-            labels.forEach(({text, color, pos}) => {
+            if (showLabel) {
                 const sprite = makeAxisLabel(text, color);
-                sprite.position.copy(pos);
+                sprite.position.copy(labelPos);
                 sprite.scale.set(labelScale, labelScale, labelScale);
                 this.add(sprite);
-            });
-        }
+            }
+        });
     }
 }
