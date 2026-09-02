@@ -34,7 +34,6 @@ import { rubiksCube } from './examples/rubiksCube';
 import { solarSystem } from './examples/solarSystem';
 import { canyonTerrain } from './examples/canyonTerrain';
 import { mountainRangeTerrain } from './examples/mountainRangeTerrain';
-import {arrowHelper} from './uncategorized/arrowHelper';
 import {shadow} from './uncategorized/shadow';
 import {sineTerrain} from './uncategorized/sineTerrain';
 import {worldToLocal} from './uncategorized/worldToLocal';
