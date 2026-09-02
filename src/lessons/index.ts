@@ -52,6 +52,7 @@ import {angularDamping} from './physics/rapier-angular-damping';
 import {force} from './physics/rapier-force';
 import {domino} from './physics/rapier-dominoes';
 import {oneDimensionalRandom} from './random/one-dimensional-random';
+import {twoDimensionalRandom} from './random/two-dimensional-random';
 
 export const chapters: Chapter[] = [
   {
@@ -122,6 +123,6 @@ export const chapters: Chapter[] = [
   {
     id: 'random',
     title: '随机',
-    lessons: [oneDimensionalRandom],
+    lessons: [oneDimensionalRandom, twoDimensionalRandom],
   },
 ];

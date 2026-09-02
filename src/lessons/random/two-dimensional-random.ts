@@ -8,34 +8,33 @@ import {LabeledAxesHelper} from '../../utils/LabeledAxesHelper.ts';
 import {createParamPanel} from '../../utils/paramPanel.ts';
 
 const description = `
-  <h2>一维随机</h2>
-  <p>本例演示一个<strong>一维随机游走（1D Random Walk）</strong>：场景中只有一个小方块，它只能沿着 <b>X 轴</b>移动。</p>
-  <p>参数面板提供「<b>走 1 步</b>」「<b>走 10 步</b>」「<b>走 100 步</b>」三个按钮，每次点击都会：</p>
+  <h2>二维随机</h2>
+  <p>本例是<strong>一维随机游走</strong>的推广：方块不再被限制在 <b>X 轴</b>，而是可以在 <b>XZ 平面</b>上自由游走（二维随机游走 / 2D Random Walk）。</p>
+  <p>参数面板同样提供「<b>走 1 步</b>」「<b>走 10 步</b>」「<b>走 100 步</b>」按钮，但每次决定是否移动时，会<strong>连续生成两个随机数</strong>：</p>
   <ol>
-    <li>用 <code>pure-rand</code> 的 <code>xorshift128plus</code> 伪随机数生成器生成一个新的随机数；</li>
-    <li>用 <code>uniformInt(rng, 0, 1)</code> 抛一枚公平硬币，再映射成 <code>-1</code> 或 <code>1</code> 作为方向；</li>
-    <li>取到 <code>1</code> → 方块沿 <b>+X</b> 前进一格；取到 <code>-1</code> → 沿 <b>-X</b> 后退一格。「上次随机数」面板显示的就是这个 <code>±1</code> 方向。</li>
+    <li>第 <b>1</b> 个随机数（<code>uniformInt(rng, 0, 1)</code>）→ 决定沿 <b>X 轴</b>的方向：取到 <code>1</code> → <b>+X</b>，取到 <code>0</code> → <b>-X</b>；</li>
+    <li>第 <b>2</b> 个随机数 → 决定沿 <b>Z 轴</b>的方向：取到 <code>1</code> → <b>+Z</b>，取到 <code>0</code> → <b>-Z</b>。</li>
   </ol>
-  <p>由于两个结果的概率各占 <b>50%</b>，长期来看方块没有「偏好方向」，期望位移始终为 <code>0</code>（零漂移随机游走）。轨迹会用青色线在地面上标出，便于观察随机起伏。</p>
+  <p>因此每一步方块都会沿对角线迈出一格（同时改变 X 与 Z）。四个组合 <code>(+X,+Z)</code> / <code>(+X,-Z)</code> / <code>(-X,+Z)</code> / <code>(-X,-Z)</code> 各占 <b>25%</b> 概率，长期同样没有偏好方向，期望位移为零。轨迹用青色线在地面标出，可以看到明显的平面「布线」效果。</p>
   <p><b>用到的知识点：</b></p>
   <ul>
-    <li><code>pure-rand</code>：与平台无关的确定性伪随机库；<code>xorshift128plus(seed)</code> 创建生成器，<code>uniformInt(rng, from, to)</code> 在闭区间内均匀取样，且每次调用都会推进内部状态。</li>
-    <li><code>uniformInt(rng, 0, 1)</code> 对 <code>{0, 1}</code> 均匀（等价于抛一枚公平硬币），再经 <code>* 2 - 1</code> 映射为 <code>±1</code> 方向，天然实现「一半概率前进 / 一半概率后退」。</li>
+    <li>在「一维随机」抛一枚硬币的基础上，<strong>每步抛掷两枚硬币</strong>，分别映射到 X、Z 两个独立方向，从而把一维游走升级为二维。</li>
+    <li><code>uniformInt(rng, 0, 1)</code> 每次调用都会推进伪随机生成器内部状态，连续两次调用即可得到两个互相独立的结果。</li>
   </ul>
 `;
 
-const STEP = 1; // 每步沿 X 轴移动的格距
+const STEP = 1; // 每步沿 X / Z 轴移动的格距
 
-export const oneDimensionalRandom: Lesson = {
-    id: 'random/one-dimensional',
-    title: '一维随机',
+export const twoDimensionalRandom: Lesson = {
+    id: 'random/two-dimensional',
+    title: '二维随机',
     description,
     create(container) {
         const ctx = createContext(container);
         setSceneBackground(ctx, BG_DARK_BLUE);
 
         const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 200);
-        camera.position.set(7, 5, 11);
+        camera.position.set(9, 11, 9);
         ctx.onResize((w, h) => {
             camera.aspect = w / h;
             camera.updateProjectionMatrix();
@@ -60,16 +59,16 @@ export const oneDimensionalRandom: Lesson = {
         };
         syncLightToCamera();
 
-        // 地面网格（XZ 平面），便于对照方块沿 X 轴的位移
+        // 地面网格（XZ 平面），便于对照方块在 X / Z 两个方向的位移
         const grid = new THREE.GridHelper(24, 24, 0x335577, 0x223344);
         ctx.scene.add(grid);
 
-        // 带文字标签的坐标轴辅助器：红=X（移动方向），绿=Y，蓝=Z
+        // 带文字标签的坐标轴辅助器：红=X，绿=Y，蓝=Z
         const axes = new LabeledAxesHelper(3, true, true);
         axes.position.y = 0;
         ctx.scene.add(axes);
 
-        // 沿 X 轴移动的小方块
+        // 沿 XZ 平面移动的小方块
         const size = 0.6;
         const cube = new THREE.Mesh(
             new THREE.BoxGeometry(size, size, size),
@@ -89,7 +88,9 @@ export const oneDimensionalRandom: Lesson = {
         // 用当前时间做种子，保证每次进入课程得到的随机序列都不同
         const rng = xorshift128plus((Date.now() & 0xffffffff) >>> 0);
         let targetX = 0; // 方块要移动到的目标 X
-        let lastRand = 0; // 上一次生成的随机数（0 或 1）
+        let targetZ = 0; // 方块要移动到的目标 Z
+        let lastRandX = 0; // 上一次生成的随机数（0 或 1，对应 X 方向）
+        let lastRandZ = 0; // 上一次生成的随机数（0 或 1，对应 Z 方向）
         let stepCount = 0; // 已走的步数
 
         const fmtPos = (x: number, y: number, z: number) => `(${x}, ${y}, ${z})`;
@@ -98,24 +99,31 @@ export const oneDimensionalRandom: Lesson = {
             container,
             resettable: false,
             controls: [
-                {type: 'readonly', key: 'rnd', label: '上次随机数', value: lastRand, precision: 0},
-                {type: 'readonly', key: 'pos', label: '位置', value: fmtPos(targetX, 0, 0)},
-              {type: 'readonly', key: 'steps', label: '步数', value: stepCount, precision: 0},
+                {type: 'readonly', key: 'rndX', label: '上次随机数 X', value: lastRandX, precision: 0},
+                {type: 'readonly', key: 'rndZ', label: '上次随机数 Z', value: lastRandZ, precision: 0},
+                {type: 'readonly', key: 'pos', label: '位置', value: fmtPos(targetX, 0, targetZ)},
+                {type: 'readonly', key: 'steps', label: '步数', value: stepCount, precision: 0},
             ],
-            defaults: {rnd: 0, pos: fmtPos(0, 0, 0), steps: 0},
+            defaults: {rndX: 0, rndZ: 0, pos: fmtPos(0, 0, 0), steps: 0},
         });
 
-        // 走 n 步：每步生成随机数 → 决定方向 → 更新目标位置与轨迹
+        // 走 n 步：每步连续生成两个随机数 → 决定 X / Z 方向 → 更新目标位置与轨迹
         const advance = (n: number) => {
             for (let i = 0; i < n; i++) {
-                lastRand = uniformInt(rng, 0, 1) * 2 - 1; // 等概率返回 -1（后退）或 1（前进）
-                targetX += lastRand * STEP; // 直接把方向（±1）乘步长叠加到 X
+                // 第 1 个随机数决定 X 方向，第 2 个随机数决定 Z 方向（各 50% 概率 ±1）
+                lastRandX = uniformInt(rng, 0, 1);
+                lastRandZ = uniformInt(rng, 0, 1);
+                const dirX = lastRandX * 2 - 1;
+                const dirZ = lastRandZ * 2 - 1;
+                targetX += dirX * STEP;
+                targetZ += dirZ * STEP;
                 stepCount++;
-                trailPoints.push(new THREE.Vector3(targetX, 0.05, 0));
+                trailPoints.push(new THREE.Vector3(targetX, 0.05, targetZ));
             }
             trailLine.geometry.setFromPoints(trailPoints);
-            paramPanel.setDisplay('rnd', lastRand);
-            paramPanel.setDisplay('pos', fmtPos(targetX, 0, 0));
+            paramPanel.setDisplay('rndX', lastRandX);
+            paramPanel.setDisplay('rndZ', lastRandZ);
+            paramPanel.setDisplay('pos', fmtPos(targetX, 0, targetZ));
             paramPanel.setDisplay('steps', stepCount);
         };
 
@@ -156,14 +164,18 @@ export const oneDimensionalRandom: Lesson = {
                     active: () => false,
                     onClick: () => {
                         targetX = 0;
-                        lastRand = 0;
+                        targetZ = 0;
+                        lastRandX = 0;
+                        lastRandZ = 0;
                         stepCount = 0;
                         cube.position.x = 0;
+                        cube.position.z = 0;
                         trailPoints.length = 1;
                         trailPoints[0].set(0, 0.05, 0);
                         trailLine.geometry.setFromPoints(trailPoints);
-                        paramPanel.setDisplay('rnd', lastRand);
-                        paramPanel.setDisplay('pos', fmtPos(targetX, 0, 0));
+                        paramPanel.setDisplay('rndX', lastRandX);
+                        paramPanel.setDisplay('rndZ', lastRandZ);
+                        paramPanel.setDisplay('pos', fmtPos(targetX, 0, targetZ));
                         paramPanel.setDisplay('steps', stepCount);
                     },
                     color: 'var(--pp-danger)',
@@ -177,6 +189,7 @@ export const oneDimensionalRandom: Lesson = {
             raf = requestAnimationFrame(loop);
             // 平滑地朝目标位置插值，让移动看起来更自然
             cube.position.x += (targetX - cube.position.x) * 0.15;
+            cube.position.z += (targetZ - cube.position.z) * 0.15;
             orbit.update();
             syncLightToCamera();
             ctx.renderer.render(ctx.scene, camera);

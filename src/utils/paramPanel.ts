@@ -69,8 +69,9 @@ export interface ParamReadonly {
   type: 'readonly';
   key: string;
   label: string;
-  value: number;
-  /** 数值显示小数位数（默认 2） */
+  /** 数值或自定义字符串；传字符串时按原样展示（如位置 '(x, y, z)'），忽略 precision */
+  value: number | string;
+  /** 数值显示小数位数（默认 2），仅当 value 为 number 时生效 */
   precision?: number;
   /**
    * 标签文字颜色（CSS 颜色值），用于按轴向等区分。
@@ -101,7 +102,7 @@ export interface ParamPanelOptions {
   /** 控件定义列表，由页面自行定义与控制（支持滑块、只读数值、分组标题等） */
   controls: ParamControl[];
   /** 默认值，用于「重置参数」按钮 */
-  defaults: Record<string, number>;
+  defaults: Record<string, number | string>;
   /** 滑块数值变化回调（用户拖动或重置时触发） */
   onChange?: (key: string, value: number) => void;
   /** 渲染在滑块行与重置按钮之间的自定义内容（如复选框） */
@@ -116,7 +117,7 @@ export interface ParamPanel {
   /** 面板根元素 */
   el: HTMLElement;
   /** 更新某个参数行的显示值（不改变禁用等状态，仅刷新数值） */
-  setDisplay(key: string, value: number): void;
+  setDisplay(key: string, value: number | string): void;
   /** 获取某个参数行的滑块元素 */
   getInput(key: string): HTMLInputElement | undefined;
   /** 在面板末尾追加一个「标题 + 按钮组」分组（见 createControlPanelGroup） */
@@ -198,7 +199,9 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
     if (c.labelColor) label.style.color = c.labelColor;
     const valueEl = document.createElement('span');
     valueEl.className = 'camera-control-value';
-    valueEl.textContent = Number(c.value).toFixed(c.precision ?? 2);
+    valueEl.textContent = typeof c.value === 'string'
+        ? c.value
+        : Number(c.value).toFixed(c.precision ?? 2);
     header.append(label, valueEl);
     row.appendChild(header);
     return row;
@@ -467,26 +470,27 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
         const def = defaults[c.key];
         if (def === undefined) return;
         const row = rows.get(c.key)!;
-        if (c.type === 'checkbox') {
-          row.input!.checked = def >= 0.5;
-          onChange?.(c.key, def);
-        } else if (c.type === 'color') {
-          row.input!.value = hexStr(def);
-          row.value.textContent = hexStr(def).toUpperCase();
-          onChange?.(c.key, def);
-        } else if (c.type === 'readonly') {
-          row.value.textContent = Number(def).toFixed(c.precision ?? 2);
-          onChange?.(c.key, def);
-        } else if (c.type === 'stepper') {
-          row.input!.value = Number(def).toFixed(c.precision ?? 2);
-          onChange?.(c.key, def);
-        } else if (c.type === 'segmented') {
-          row.setValue?.(def);
-          onChange?.(c.key, def);
+        if (c.type === 'readonly') {
+          row.value.textContent = typeof def === 'string'
+              ? def
+              : Number(def).toFixed(c.precision ?? 2);
+          onChange?.(c.key, def as number);
         } else {
-          row.input!.value = String(def);
-          row.value.textContent = Number(def).toFixed(c.precision ?? 2);
-          onChange?.(c.key, def);
+          const defNum = def as number;
+          if (c.type === 'checkbox') {
+            row.input!.checked = defNum >= 0.5;
+          } else if (c.type === 'color') {
+            row.input!.value = hexStr(defNum);
+            row.value.textContent = hexStr(defNum).toUpperCase();
+          } else if (c.type === 'stepper') {
+            row.input!.value = Number(defNum).toFixed(c.precision ?? 2);
+          } else if (c.type === 'segmented') {
+            row.setValue?.(defNum);
+          } else {
+            row.input!.value = String(defNum);
+            row.value.textContent = Number(defNum).toFixed(c.precision ?? 2);
+          }
+          onChange?.(c.key, defNum);
         }
       };
       controls.forEach(resetControl);
@@ -516,18 +520,23 @@ export function createParamPanel(opts: ParamPanelOptions): ParamPanel {
       };
       const c = findControl(controls);
       const precision = c && 'precision' in c ? c.precision ?? 2 : 2;
-      if (c?.type === 'checkbox') {
-        row.input!.checked = value >= 0.5;
-      } else if (c?.type === 'color') {
-        row.input!.value = hexStr(value);
-        row.value.textContent = hexStr(value).toUpperCase();
-      } else if (c?.type === 'readonly') {
-        row.value.textContent = Number(value).toFixed(precision);
-      } else if (c?.type === 'segmented') {
-        row.setValue?.(value);
+      if (c?.type === 'readonly') {
+        row.value.textContent = typeof value === 'string'
+            ? value
+            : Number(value).toFixed(precision);
       } else {
-        row.input!.value = String(value);
-        row.value.textContent = Number(value).toFixed(precision);
+        const valueNum = value as number;
+        if (c?.type === 'checkbox') {
+          row.input!.checked = valueNum >= 0.5;
+        } else if (c?.type === 'color') {
+          row.input!.value = hexStr(valueNum);
+          row.value.textContent = hexStr(valueNum).toUpperCase();
+        } else if (c?.type === 'segmented') {
+          row.setValue?.(valueNum);
+        } else {
+          row.input!.value = String(valueNum);
+          row.value.textContent = Number(valueNum).toFixed(precision);
+        }
       }
     },
     getInput(key) {
