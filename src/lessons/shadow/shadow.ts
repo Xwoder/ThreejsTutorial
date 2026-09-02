@@ -17,7 +17,7 @@ const SHADOW_TYPES: { label: string; value: THREE.ShadowMapType }[] = [
 const SHADOW_SIZES = [512, 1024, 2048, 4096];
 
 export const shadow: Lesson = {
-    id: 'uncategorized/shadow',
+    id: 'shadow/shadow',
     title: '阴影 Shadow',
     description: `
     <h2>阴影 Shadow</h2>

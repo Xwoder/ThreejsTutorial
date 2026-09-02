@@ -34,7 +34,7 @@ import { rubiksCube } from './examples/rubiksCube';
 import { solarSystem } from './examples/solarSystem';
 import { canyonTerrain } from './examples/canyonTerrain';
 import { mountainRangeTerrain } from './examples/mountainRangeTerrain';
-import {shadow} from './uncategorized/shadow';
+import {shadow} from './shadow/shadow';
 import {sineTerrain} from './uncategorized/sineTerrain';
 import {worldToLocal} from './uncategorized/worldToLocal';
 import {objViewer} from './uncategorized/objViewer';
@@ -101,7 +101,12 @@ export const chapters: Chapter[] = [
   {
     id: 'uncategorized',
     title: '未分类',
-    lessons: [shadow, sineTerrain, worldToLocal, objViewer, objFromCode],
+    lessons: [sineTerrain, worldToLocal, objViewer, objFromCode],
+  },
+  {
+    id: 'shadow',
+    title: '阴影',
+    lessons: [shadow],
   },
   {
     id: 'helper',
