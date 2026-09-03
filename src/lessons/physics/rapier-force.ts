@@ -32,7 +32,7 @@ export const force: Lesson = {
         const ctx = createContext(container);
         setSceneBackground(ctx, BG_DARK_BLUE);
 
-        const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 100);
+        const camera = new THREE.PerspectiveCamera(60, 1, 0.01, 2000);
         camera.position.set(0, 12, 18);
         ctx.onResize((w, h) => {
             camera.aspect = w / h;
