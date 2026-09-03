@@ -164,9 +164,17 @@ export const force: Lesson = {
                 gx: gravity.x, gy: gravity.y, gz: gravity.z,
                 forceMag, impulseMag,
             };
+            const resetAll = () => {
+                forceMag = 20;
+                impulseMag = 15;
+                paramPanel?.setDisplay('forceMag', forceMag);
+                paramPanel?.setDisplay('impulseMag', impulseMag);
+                reSpawn();
+            };
+
             paramPanel = createParamPanel({
                 container,
-                resettable: true,
+                resettable: false,
                 controls: [
                     {
                         type: 'group',
@@ -201,13 +209,7 @@ export const force: Lesson = {
                     },
                 ],
                 defaults,
-                onReset: () => {
-                    forceMag = 20;
-                    impulseMag = 15;
-                    paramPanel?.setDisplay('forceMag', forceMag);
-                    paramPanel?.setDisplay('impulseMag', impulseMag);
-                    reSpawn();
-                },
+                onReset: () => resetAll(),
                 onChange: (key, value) => {
                     if (key === 'forceMag') {
                         forceMag = value;
@@ -226,7 +228,7 @@ export const force: Lesson = {
                 },
             });
 
-            // 底部按钮组
+            // 底部按钮组（动作）
             paramPanel.addControlGroup({
                 title: '',
                 items: [
@@ -244,10 +246,17 @@ export const force: Lesson = {
                         color: 'var(--pp-primary)',
                         activeColor: 'var(--pp-primary)',
                     },
+                ],
+            });
+
+            // 最底部：重置（重置参数 + 放回原点）
+            paramPanel.addControlGroup({
+                title: '',
+                items: [
                     {
                         label: '重置',
                         active: () => false,
-                        onClick: () => reSpawn(),
+                        onClick: () => resetAll(),
                         color: 'var(--pp-danger)',
                         activeColor: 'var(--pp-danger)',
                     },
