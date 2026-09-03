@@ -53,6 +53,7 @@ import {force} from './physics/rapier-force';
 import {domino} from './physics/rapier-dominoes';
 import {oneDimensionalRandom} from './random/one-dimensional-random';
 import {twoDimensionalRandom} from './random/two-dimensional-random';
+import {canvasTexture} from './texture/canvasTexture';
 
 export const chapters: Chapter[] = [
   {
@@ -124,5 +125,10 @@ export const chapters: Chapter[] = [
     id: 'random',
     title: '随机',
     lessons: [oneDimensionalRandom, twoDimensionalRandom],
+  },
+  {
+    id: 'texture',
+    title: '纹理',
+    lessons: [canvasTexture],
   },
 ];
