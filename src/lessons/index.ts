@@ -45,6 +45,7 @@ import {labeledAxesHelper} from './helper/labeledAxesHelper';
 import {cameraHelper} from './helper/cameraHelper';
 import {gridHelper} from './helper/gridHelper';
 import {rapierPhysics} from './physics/rapier-free-fall';
+import {galileo} from './physics/rapier-galileo';
 import {bouncing} from './physics/rapier-bouncing';
 import {sliding} from './physics/rapier-sliding';
 import {linearDamping} from './physics/rapier-linear-damping';
@@ -119,7 +120,7 @@ export const chapters: Chapter[] = [
   {
     id: 'physics',
     title: 'Rapier 物理引擎',
-    lessons: [rapierPhysics, bouncing, sliding, linearDamping, angularDamping, force, domino],
+    lessons: [rapierPhysics, galileo, bouncing, sliding, linearDamping, angularDamping, force, domino],
   },
   {
     id: 'random',
