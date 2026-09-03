@@ -230,15 +230,38 @@ export const galileo: Lesson = {
                 ],
                 defaults: {m1: '10 kg', m2: '2 kg', g: gravity.y, status: '待开始', time: '0.00'},
             });
+            // 重置：清除物理刚体、把两球复位到塔顶、计时与状态归零
+            const reset = () => {
+                started = false;
+                elapsed = 0;
+                for (const b of balls) {
+                    if (b.body) w.removeRigidBody(b.body);
+                    b.body = null;
+                    b.landed = false;
+                    b.mesh.position.set(b.startPos.x, b.startPos.y, b.startPos.z);
+                }
+                paramPanel?.setDisplay('status', '待开始');
+                paramPanel?.setDisplay('time', '0.00');
+            };
+
             paramPanel.addControlGroup({
                 title: '控制',
+                columns: 2,
                 items: [
                     {
-                        label: '开始下落',
+                        label: '开始',
                         active: () => false,
                         onClick: () => startDrop(),
-                        color: 'var(--pp-on-accent)',
-                        activeColor: 'var(--pp-on-accent)',
+                        // 用明亮的主题强调色作为文字/边框，确保深色面板上清晰可见
+                        color: 'var(--pp-accent)',
+                        activeColor: 'var(--pp-accent)',
+                    },
+                    {
+                        label: '重置',
+                        active: () => false,
+                        onClick: () => reset(),
+                        color: 'var(--pp-text)',
+                        activeColor: 'var(--pp-text)',
                     },
                 ],
             });
@@ -266,7 +289,7 @@ export const galileo: Lesson = {
                         elapsed += dt;
                         paramPanel?.setDisplay('time', elapsed.toFixed(2));
                     } else {
-                        paramPanel?.setDisplay('status', '已落地（同时）');
+                        paramPanel?.setDisplay('status', '已落地');
                     }
                 }
 
