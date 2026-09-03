@@ -21,7 +21,7 @@ const forceDescription = `
     <li><b>冲量大小</b>：点击「施加冲量」时沿 +X 方向一次性施加的冲量。</li>
   </ul>
   <p>两个按钮：<b>施加冲量</b>让立方体瞬间弹出；<b>持续施力</b>开启后立方体在 +X 方向不断加速（再次点击关闭）。<b>重放</b>把立方体放回原点静止。</p>
-  <p>使用 <code>@dimforge/rapier3d-compat</code> 物理引擎：地面为<b>固定刚体</b>，立方体为<b>动态刚体</b>，每帧 <code>world.step()</code> 后同步位姿。线性阻尼设为 0，摩擦正常，便于观察力与加速度的关系。</p>
+  <p>使用 <code>@dimforge/rapier3d-compat</code> 物理引擎：地面为<b>固定刚体</b>，立方体为<b>动态刚体</b>，每帧 <code>world.step()</code> 后同步位姿。线性阻尼设为 0，<b>摩擦调小（0.1）</b>，让默认力能明显克服摩擦、便于观察力与加速度的关系。</p>
 `;
 
 export const force: Lesson = {
@@ -85,7 +85,7 @@ export const force: Lesson = {
             const w = new R.World({x: 0, y: -9.81, z: 0});
             world = w;
 
-            const friction = 0.6;
+            const friction = 0.1;
             // 力大小（滑块控制）：持续力模式下沿 +X 施加
             let forceMag = 20;
             // 冲量大小（滑块控制）：点击「施加冲量」时沿 +X 施加
@@ -234,8 +234,8 @@ export const force: Lesson = {
                         label: '施加冲量',
                         active: () => false,
                         onClick: () => applyImpulseOnce(),
-                        color: 'var(--pp-danger)',
-                        activeColor: 'var(--pp-danger)',
+                        color: '#ffffff',
+                        activeColor: '#ffffff',
                     },
                     {
                         label: '持续施力',
@@ -245,7 +245,7 @@ export const force: Lesson = {
                         activeColor: 'var(--pp-primary)',
                     },
                     {
-                        label: '重放',
+                        label: '重置',
                         active: () => false,
                         onClick: () => reSpawn(),
                         color: 'var(--pp-danger)',
