@@ -93,8 +93,8 @@ const cube = new THREE.Mesh(
         );
         ctx.scene.add(cube);
 
-        ctx.scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        ctx.scene.add(new THREE.AmbientLight(0xffffff, 1.1));
+        const dirLight = new THREE.DirectionalLight(0xffffff, 2.2);
         dirLight.position.set(2, 3, 4);
         ctx.scene.add(dirLight);
 
